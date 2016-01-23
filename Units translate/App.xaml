@@ -9,6 +9,10 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Styles\ScrollBarTemplate.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+
+            <UI:ObjectToVisibility x:Key="ObjToVisCnv"/>
+            <UI:BoolToVisibility x:Key="BoolTovisInv" Inverted="True"/>
+            <UI:BoolToVisibility x:Key="BoolTovis"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

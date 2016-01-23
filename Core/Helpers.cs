@@ -55,6 +55,9 @@ namespace Core
         [DllImport("kernel32.dll")]
         internal static extern bool FreeConsole();
 
+        public static int ConsoleBufferHeight = 300;
+        public static int ConsoleBufferWidth = 80;
+
         static bool CreateConsole()
         {
             var b = AllocConsole();
@@ -73,6 +76,11 @@ namespace Core
                 {
                     if (_ConsoleEnabled != value)
                         _ConsoleEnabled = value ? AllocConsole() : !FreeConsole();
+                    if (_ConsoleEnabled)
+                    {
+                        Console.BufferHeight = ConsoleBufferHeight;
+                        Console.BufferWidth = ConsoleBufferWidth;
+                    }
                 }
             }
         }

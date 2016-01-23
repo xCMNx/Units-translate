@@ -20,6 +20,18 @@ namespace Units_translate.Views
             showBtn = (Style)FindResource("showBtn");
         }
 
+        public static readonly DependencyProperty TranslationProperty = DependencyProperty.Register(
+          nameof(Translation),
+          typeof(string),
+          typeof(SampleView)
+        );
+
+        public string Translation
+        {
+            get { return (string)GetValue(TranslationProperty); }
+            set { SetValue(TranslationProperty, value); }
+        }
+
         IMapData Data { get { return DataContext as IMapData; } }
 
         Style addBtn;
@@ -210,6 +222,28 @@ namespace Units_translate.Views
         private void Btn_Click(object sender, RoutedEventArgs e)
         {
             var itm = ((Button)sender).DataContext as Tuple<int, int, string>;
+            //если запись уже есть, то проверим одинаковы ли переводы, и если они разные спросим как быть
+            //иначе создадим новую запись и зададим её перевод
+            if (MappedData.IsValueExists(NewValue))
+            {
+                var mapItm = (IMapRecordFull)MappedData.GetValueRecord(NewValue, MapItemType.String);
+                if(string.IsNullOrWhiteSpace(mapItm.Translation))
+                    mapItm.Translation = Translation;
+                else if (!string.IsNullOrWhiteSpace(mapItm.Translation) && !string.Equals(mapItm.Translation, Translation))
+                    switch (MessageBox.Show(
+                        $"Значение:\r\n\"{mapItm.Value}\"\r\nТекущий перевод:\r\n\"{mapItm.Translation}\"\r\nНовый перевод:\r\n\"{Translation}\"\r\n\r\nЗаменить перевод?"
+                        , "Редактирование"
+                        , MessageBoxButton.YesNoCancel
+                        , MessageBoxImage.Question
+                        ))
+                    {
+                        case MessageBoxResult.Cancel: return;
+                        case MessageBoxResult.Yes: mapItm.Translation = Translation; break;
+                    }
+            }
+            else
+                ((IMapRecordFull)MappedData.GetValueRecord(NewValue, MapItemType.String)).Translation = Translation;
+
             Data.SaveText(Data.Text.Remove(itm.Item1, itm.Item2).Insert(itm.Item1, itm.Item3));
         }
     }

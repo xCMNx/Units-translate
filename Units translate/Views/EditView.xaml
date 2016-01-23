@@ -15,7 +15,7 @@
                     <TextBlock Text="{Binding FileName}" ToolTip="{Binding FullPath}"/>
                 </GroupBox.Header>
                 <ScrollViewer MaxHeight="200" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <local:SampleView NewValue="{Binding Text, ElementName=valueEditor}" Value="{Binding DataContext.SelectedValue, ElementName=root}"/>
+                    <local:SampleView Translation="{Binding Text, ElementName=tbTranslation}" NewValue="{Binding Text, ElementName=valueEditor}" Value="{Binding DataContext.SelectedValue, ElementName=root}"/>
                 </ScrollViewer>
             </GroupBox>
         </DataTemplate>

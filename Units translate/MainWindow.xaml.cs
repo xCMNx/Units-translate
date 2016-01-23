@@ -148,5 +148,10 @@ namespace Units_translate
             MainVM.Instance.Selected = p;
         }
 
+        private void btnIgnorTranslateConflicts_Click(object sender, RoutedEventArgs e)
+        {
+            mainVm.ClearTranslationConflicts();
+            tabs.SelectedItem = tiFiles;
+        }
     }
 }

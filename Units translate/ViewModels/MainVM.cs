@@ -624,14 +624,66 @@ namespace Units_translate
         #endregion
 
         #region Translates
+        public bool HasTranslationConflicts => _TranslationConflicts.Count > 0;
+
+        SortedList<IMapRecordFull, SortedItems<string>> _TranslationConflicts = new SortedList<IMapRecordFull, SortedItems<string>>(MapRecordComparer.Comparer);
+        public SortedList<IMapRecordFull, SortedItems<string>> TranslationConflicts => _TranslationConflicts;
+
+        KeyValuePair<IMapRecordFull, SortedItems<string>> _SelectedConflict;
+        public KeyValuePair<IMapRecordFull, SortedItems<string>> SelectedConflict
+        {
+            get { return _SelectedConflict; }
+            set
+            {
+                _SelectedConflict = value;
+                SelectedValue = _SelectedConflict.Key;
+                NotifyPropertyChanged(nameof(SelectedConflict));
+            }
+        }
+
         /// <summary>
-        /// Загружает новый список переводов
+        /// Удаляет вариант конфликтующего перевода из выбранного конфликта
+        /// </summary>
+        /// <param name="value">Значение</param>
+        public void RemoveConflictVariant(string value)
+        {
+            if (_SelectedConflict.Value != null)
+            {
+                _SelectedConflict.Value.Remove(value);
+                if (_SelectedConflict.Value.Count == 0)
+                    _TranslationConflicts.Remove(_SelectedConflict.Key);
+            }
+            NotifyPropertiesChanged(nameof(TranslationConflicts), nameof(HasTranslationConflicts));
+        }
+
+        /// <summary>
+        /// Очищает список конфликтующих переводов
+        /// </summary>
+        public void ClearTranslationConflicts()
+        {
+            TranslationConflicts.Clear();
+            NotifyPropertiesChanged(nameof(TranslationConflicts), nameof(HasTranslationConflicts));
+        }
+
+        /// <summary>
+        /// Загружает список переводов
         /// </summary>
         /// <param name="path">Путь к файлу переводов</param>
         public void LoadTranslations(string path)
         {
-            Core.MappedData.LoadTranslations(path);
-            NotifyPropertyChanged(nameof(UsedTranslates));
+            if (MessageBox.Show("Очистить текущие переводы?", "Загрузка переводов", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                MappedData.ClearTranslates();
+                TranslationConflicts.Clear();
+            }
+            MappedData.LoadTranslations(path, (itm, trans) =>
+            {
+                SortedItems<string> cur;
+                if (_TranslationConflicts.TryGetValue(itm, out cur))
+                    cur.Add(trans);
+                else _TranslationConflicts[itm] = new SortedItems<string>() { trans };
+            });
+            NotifyPropertiesChanged(nameof(UsedTranslates), nameof(TranslationConflicts), nameof(HasTranslationConflicts));
         }
 
         public void SaveTranslations(string path)
@@ -639,8 +691,8 @@ namespace Units_translate
             try
             {
                 Core.MappedData.SaveTranslations(path,
-                    MessageBox.Show("Добавить переведённые, но отсутствующие в загруженном файле строки?", "Сохранение файла", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes,
-                    MessageBox.Show("Удалить переводы которые не найдены в файлах?", "Сохранение файла", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes
+                    MessageBox.Show("Добавить переведённые, но отсутствующие в загруженном файле строки?", "Сохранение переводов", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes,
+                    MessageBox.Show("Удалить переводы которые не найдены в файлах?", "Сохранение переводов", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes
                 );
             }
             catch (Exception e)
@@ -672,6 +724,7 @@ namespace Units_translate
 
         static MainVM()
         {
+            Helpers.ConsoleBufferHeight = 1000;
             Helpers.ConsoleEnabled = Helpers.ConfigRead(CONSTOLE_ENABLED, Helpers.ConsoleEnabled);
             FileContainer.LiteralOnly = Helpers.ConfigRead(ONLY_LITERAL, FileContainer.LiteralOnly);
             FileContainer.ShowMappingErrors = Helpers.ConfigRead(SHOW_MAPING_ERRORS, FileContainer.ShowMappingErrors);

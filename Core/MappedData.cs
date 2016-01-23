@@ -137,6 +137,16 @@ namespace Core
         }
 
         /// <summary>
+        /// Для проверки есть ли такое значение в словаре
+        /// </summary>
+        /// <param name="value">Искомое значение</param>
+        /// <returns>True если есть</returns>
+        public static bool IsValueExists(string value)
+        {
+            return _ValuesDictionary.IndexOf(new MapRecord(value)) >= 0;
+        }
+
+        /// <summary>
         /// Удаляет размеченные данные из словарей
         /// </summary>
         /// <param name="data">Размеченные данные</param>
@@ -305,7 +315,7 @@ namespace Core
         /// <summary>
         /// Очищает переводы
         /// </summary>
-        static void ClearTranslates()
+        public static void ClearTranslates()
         {
             _TranslatesDictionary.Clear();
             foreach (IMapRecordFull it in _ValuesDictionary)
@@ -322,9 +332,12 @@ namespace Core
         /// Загружает новые данные переводов
         /// </summary>
         /// <param name="path">Путь к файлу переводов</param>
-        public static void LoadTranslations(string path)
+        /// <param name="onTranslationConflict">
+        /// Вызывается при конфликтах перевода.
+        /// Получает текущую запись и конликтующий перевод.
+        /// </param>
+        public static void LoadTranslations(string path, Action<IMapRecordFull, string> onTranslationConflict)
         {
-            ClearTranslates();
             using (var txtreader = new FileStream(path, FileMode.Open))
             {
                 using (var xmlreader = new XmlTextReader(txtreader))
@@ -340,30 +353,31 @@ namespace Core
             var lst = new SortedItems<IMapRecordFull>() { Comparer = MapRecordComparer.Comparer };
 
             int repeatCnt = 0;
-            int dupleCnt = 0;
+            int conflictsCnt = 0;
             foreach (var entry in data)
             {
                 var item = (IMapRecordFull)GetValueRecord(entry.Eng, MapItemType.String);
-                item.Translation = entry.Trans;
-                var idx = lst.IndexOf(item);
-                if (idx > -1)
+                if (lst.Contain(item))
                 {
-                    if (string.Equals(item.Translation, lst[idx].Translation, StringComparison.InvariantCultureIgnoreCase))
+                    if (string.Equals(item.Translation, entry.Trans))
                         repeatCnt++;
                     else
                     {
-                        dupleCnt++;
-                        Helpers.ConsoleWrite("Дублирующая запись перевода:", ConsoleColor.Yellow);
+                        conflictsCnt++;
+                        Helpers.ConsoleWrite("Конфликтующая запись перевода:", ConsoleColor.Yellow);
                         Helpers.ConsoleWrite(item.Value, ConsoleColor.White);
-                        Helpers.ConsoleWrite(lst[idx].Translation, ConsoleColor.White);
-                        Helpers.ConsoleWrite(item.Translation, ConsoleColor.Gray);
-                        //Helpers.ConsoleWrite(string.Format("Дублирующая запись перевода:\r\n{0}\r\n{1}\r\n{2}", item.Value, lst[idx].Translation, item.Translation), ConsoleColor.Yellow);
+                        Helpers.ConsoleWrite(item.Translation, ConsoleColor.White);
+                        Helpers.ConsoleWrite(entry.Trans, ConsoleColor.Gray);
+                        if (onTranslationConflict != null)
+                            onTranslationConflict(item, entry.Trans);
                     }
+                    continue;
                 }
+                item.Translation = entry.Trans;
                 lst.Add(item);
             }
 
-            Helpers.ConsoleWrite(string.Format("Повторяющихся записей: {0}\r\nДублирующих записей: {1}", repeatCnt, dupleCnt), ConsoleColor.Yellow);
+            Helpers.ConsoleWrite(string.Format("Повторяющихся записей: {0}\r\nДублирующих записей: {1}", repeatCnt, conflictsCnt), ConsoleColor.Yellow);
             _TranslatesDictionary.Reset(lst);
         }
 
