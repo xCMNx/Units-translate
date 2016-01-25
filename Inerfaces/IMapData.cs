@@ -12,7 +12,7 @@ namespace Core
         /// <summary>
         /// Размеченные области
         /// </summary>
-        IEnumerable<IMapItem> Items { get; }
+        IEnumerable<IMapItemRange> Items { get; }
         /// <summary>
         /// Полный путь к размеченному файлу
         /// </summary>
@@ -39,19 +39,19 @@ namespace Core
         bool IsMapped { get; }
 
         /// <summary>
-        /// Возвращает области разметки попадаюзие в диапазон
+        /// Возвращает области разметки попадающие в диапазон
         /// </summary>
         /// <param name="start">Начало диапазона поиска</param>
         /// <param name="end">Конец диапазона поиска</param>
         /// <returns></returns>
-        IEnumerable<IMapItem> ItemsBetween(int start, int end);
+        IEnumerable<IMapItemRange> ItemsBetween(int start, int end);
 
         /// <summary>
         /// Возвращает область разметки по указанному смещению
         /// </summary>
         /// <param name="index">Смещение в тексте</param>
         /// <returns>Найденная область иди null</returns>
-        IMapItem ItemAt(int index);
+        IMapItemRange ItemAt(int index);
 
         /// <summary>
         /// Просит переразметить файл

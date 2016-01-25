@@ -24,8 +24,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <ComboBox Grid.Row="0" Margin="0,4,0,0" IsReadOnly="True" ItemsSource="{Binding Selected.ShowingItems}" SelectionChanged="ComboBox_SelectionChanged"/>
-            <avalonEdit:TextEditor x:Name="code" IsReadOnly="True" DataContext="{Binding Selected}" ShowLineNumbers="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" DataContextChanged="CodeView_DataContextChanged" MouseDoubleClick="code_MouseDoubleClick" Grid.Row="1">
-            </avalonEdit:TextEditor>
+            <avalonEdit:TextEditor x:Name="code" IsReadOnly="True" DataContext="{Binding Selected}" ShowLineNumbers="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" DataContextChanged="CodeView_DataContextChanged" MouseDoubleClick="code_MouseDoubleClick" Grid.Row="1" MouseHover="code_MouseHover" MouseHoverStopped="code_MouseHoverStopped"/>
         </Grid>
     </GroupBox>
 </UserControl>

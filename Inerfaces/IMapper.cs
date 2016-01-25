@@ -38,7 +38,7 @@ namespace Core
         /// <param name="Text">Текст для обработки</param>
         /// <param name="Ext">Расширение на случай если парсер умеет много типов и в процессе ему нужно уточнить, с чем он работает</param>
         /// <returns></returns>
-        IEnumerable<IMapItem> GetMap(string Text, string Ext);
+        IEnumerable<IMapItemRange> GetMap(string Text, string Ext);
         /// <summary>
         /// Просим маппер исправить файл
         /// </summary>

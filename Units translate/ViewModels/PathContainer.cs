@@ -13,7 +13,7 @@ namespace Units_translate
         public virtual string Ext { get { return string.Empty; } }
         public virtual int StringsCount { get { return 0; } }
         public virtual int CyrilicCount { get { return 0; } }
-        public virtual IEnumerable<IMapItem> ShowingItems { get { return null; } }
+        public virtual IEnumerable<IMapItemRange> ShowingItems { get { return null; } }
 
         public override string ToString()
         {

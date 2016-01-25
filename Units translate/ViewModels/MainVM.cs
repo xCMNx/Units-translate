@@ -223,9 +223,9 @@ namespace Units_translate
         /// <summary>
         /// Подписчик получает запрос на отображение строки
         /// </summary>
-        public event Action<IMapItem> ShowValueQuery;
+        public event Action<IMapItemRange> ShowValueQuery;
 
-        protected void OnShowValueQuery(IMapItem e)
+        protected void OnShowValueQuery(IMapItemRange e)
         {
             if (ShowValueQuery != null)
                 ShowValueQuery(e);
@@ -235,7 +235,7 @@ namespace Units_translate
         /// Просит отобразить строку подписчиков
         /// </summary>
         /// <param name="value">Строка для отображения</param>
-        public void ShowValue(IMapItem value) => OnShowValueQuery(value);
+        public void ShowValue(IMapItemRange value) => OnShowValueQuery(value);
         #endregion
 
         #region Tree

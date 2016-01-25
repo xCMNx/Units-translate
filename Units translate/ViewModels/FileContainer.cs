@@ -19,15 +19,15 @@ namespace Units_translate
         //Разрешает фиксить файлы мапперу
         public static bool FixingEnabled = false;
         #region IMapData
-        List<IMapItem> _Items;
-        public IEnumerable<IMapItem> Items { get { return _Items; } }
+        List<IMapItemRange> _Items;
+        public IEnumerable<IMapItemRange> Items { get { return _Items; } }
         public override string Path { get { return System.IO.Path.GetDirectoryName(_Path); } }
         public override string Name { get { return System.IO.Path.GetFileNameWithoutExtension(_Path); } }
         public override string Ext { get { return System.IO.Path.GetExtension(_Path); } }
         public bool IsMapped { get { return _Items != null; } }
         #endregion
-        public override int StringsCount { get { return Items == null ? 0 : Items.Where(it => it.ItemType == MapItemType.String).Count(); } }
-        public override int CyrilicCount { get { return Items == null ? 0 : Items.Where(it => it.ItemType == MapItemType.String && cyrRegex.IsMatch(it.Value)).Count(); } }
+        public override int StringsCount { get { return Items == null ? 0 : Items.Where(it => it is IMapValueItem).Count(); } }
+        public override int CyrilicCount { get { return Items == null ? 0 : Items.Where(it => it is IMapValueItem && cyrRegex.IsMatch((it as IMapValueItem).Value)).Count(); } }
 
         public static bool ContainChar(string str)
         {
@@ -42,7 +42,7 @@ namespace Units_translate
         public static Encoding WriteEncoding = Encoding.GetEncoding(Helpers.ReadFromConfig(WRITE_ENCODING, Helpers.Default_Encoding));
         public static bool UseWriteEncoding = Helpers.ConfigRead(WRITE_ENCODING_ACTIVE, false);
 
-        public override IEnumerable<IMapItem> ShowingItems { get { return Items?.Where(it => it.ItemType == MapItemType.String && (!LiteralOnly || ContainChar(it.Value)) ); } }
+        public override IEnumerable<IMapItemRange> ShowingItems { get { return Items?.Where(it => it is IMapValueItem && (!LiteralOnly || ContainChar((it as IMapValueItem).Value)) ); } }
 
         /// <summary>
         /// Есть ли в файле строки с символами
@@ -51,7 +51,7 @@ namespace Units_translate
         {
             if (_Items != null)
                 foreach (var it in Items)
-                    if (it.ItemType == MapItemType.String && ContainChar(it.Value))
+                    if (it is IMapValueItem && ContainChar((it as IMapValueItem).Value))
                         return true;
             return false;
         }
@@ -78,6 +78,8 @@ namespace Units_translate
             }
         }
 
+        public IDictionary<IMapItemRange, int> CustomRanges { get; private set; }
+
         /// <summary>
         /// Сохраняем новый текст файла
         /// </summary>
@@ -98,9 +100,9 @@ namespace Units_translate
         /// <param name="start">Начало диапазона поиска</param>
         /// <param name="end">Конец диапазона поиска</param>
         /// <returns></returns>
-        public IEnumerable<IMapItem> ItemsBetween(int start, int end)
+        public IEnumerable<IMapItemRange> ItemsBetween(int start, int end)
         {
-            var res = new List<IMapItem>();
+            var res = new List<IMapItemRange>();
             foreach (var item in _Items)
             {
                 if (item.Start > end)
@@ -147,9 +149,13 @@ namespace Units_translate
                 if (mapper != null)
                     try
                     {
+                        Action tryGet = () =>
+                        {
+                            _Items = new List<IMapItemRange>(mapper.GetMap(Text, Ext).OrderBy(it => it.Start));
+                        };
                         try
                         {
-                            _Items = new List<IMapItem>(mapper.GetMap(Text, Ext).OrderBy(it => it.Start));
+                            tryGet();
                         }
                         catch (MapperFixableException e)
                         {
@@ -158,7 +164,7 @@ namespace Units_translate
                             //попытка пофиксить
                             Helpers.ConsoleWrite(e.ToString(), ConsoleColor.Red);
                             mapper.TryFix(FullPath, Helpers.GetEncoding(FullPath, Helpers.Encoding));
-                            _Items = new List<IMapItem>(mapper.GetMap(Text, Ext).OrderBy(it => it.Start));
+                            tryGet();
                             if (ShowMappingErrors)
                                 MessageBox.Show(string.Format("Произошла ошибка во время обработки файла, файл был исправлен:\r\n{0}\r\n\r\n{1}", FullPath, e));
                         }
@@ -166,7 +172,7 @@ namespace Units_translate
                     catch (Exception e)
                     {
                         Helpers.ConsoleWrite(e.ToString(), ConsoleColor.Red);
-                        _Items = new List<IMapItem>();
+                        _Items = new List<IMapItemRange>();
                         if (ShowMappingErrors)
                             MessageBox.Show(string.Format("Произошла ошибка во время обработки файла:\r\n{0}\r\n\r\n{1}", FullPath, e));
                     }
@@ -185,7 +191,7 @@ namespace Units_translate
         /// </summary>
         /// <param name="index">Смещение в тексте</param>
         /// <returns>Найденная область иди null</returns>
-        public IMapItem ItemAt(int index)
+        public IMapItemRange ItemAt(int index)
         {
             foreach (var item in _Items)
                 if (item.Start > index)

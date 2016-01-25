@@ -34,12 +34,17 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IMapBackgroundColorRange.cs" />
     <Compile Include="IMapData.cs" />
-    <Compile Include="IMapItem.cs" />
+    <Compile Include="IMapForeColorRange.cs" />
+    <Compile Include="IMapValueItem.cs" />
+    <Compile Include="IMapItemValueRange.cs" />
     <Compile Include="IMapper.cs" />
+    <Compile Include="IMapItemRange.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

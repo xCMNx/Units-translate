@@ -73,6 +73,7 @@
     <Compile Include="Views\CodeView.xaml.cs">
       <DependentUpon>CodeView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\CustomColorizer.cs" />
     <Compile Include="Views\EditView.xaml.cs">
       <DependentUpon>EditView.xaml</DependentUpon>
     </Compile>

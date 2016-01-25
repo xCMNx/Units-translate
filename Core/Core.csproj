@@ -34,6 +34,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.XML" />
@@ -42,7 +43,11 @@
     <Compile Include="BindableBase.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="Linguist.cs" />
-    <Compile Include="MapItemBase.cs" />
+    <Compile Include="MapItemBackgroundColorRangeBase.cs" />
+    <Compile Include="MapItemForeColorRangeBase.cs" />
+    <Compile Include="MapItemRangeBase.cs" />
+    <Compile Include="MapItemValueBase.cs" />
+    <Compile Include="MapItemRangedValueBase.cs" />
     <Compile Include="MappedData.cs" />
     <Compile Include="ObservableCollectionEx.cs" />
     <Compile Include="Mappers.cs" />

@@ -122,18 +122,27 @@ namespace Core
         /// Реализовано хранение только строк, остальные значения игнорируются
         /// </summary>
         /// <param name="value">Значение</param>
-        /// <param name="type">Тип области</param>
         /// <returns>Запись из словаря, или null для областей не являющихся строками</returns>
-        public static IMapRecord GetValueRecord(string value, MapItemType type)
+        public static IMapRecord GetValueRecord(string value)
         {
-            if (type == MapItemType.String)
-            {
-                var idx = _ValuesDictionary.IndexOf(new MapRecord(value));
-                if (idx < 0)
-                    return _ValuesDictionary[_ValuesDictionary.Add(new MapRecordFull(value))];
-                return _ValuesDictionary[idx];
-            }
-            return null;
+            var idx = _ValuesDictionary.IndexOf(new MapRecord(value));
+            if (idx < 0)
+                return _ValuesDictionary[_ValuesDictionary.Add(new MapRecordFull(value))];
+            return _ValuesDictionary[idx];
+        }
+
+        /// <summary>
+        /// Возвращает запись словаря по значению
+        /// Реализовано хранение только строк, остальные значения игнорируются
+        /// </summary>
+        /// <param name="item">Элемент разметки</param>
+        /// <returns>Запись из словаря, или null для областей не являющихся строками</returns>
+        public static IMapRecord GetValueRecord(IMapItemRange item)
+        {
+            var itm = item as IMapValueItem;
+            if (itm == null)
+                return null;
+            return GetValueRecord(itm.Value);
         }
 
         /// <summary>
@@ -154,12 +163,11 @@ namespace Core
         {
             if (data.IsMapped)
                 foreach (var item in data.Items)
-                    if (item.ItemType == MapItemType.String)
-                    {
-                        var vr = GetValueRecord(item.Value, MapItemType.String) as IMapRecordFull;
-                        if (vr != null)
-                            vr.Data.Remove(data);
-                    }
+                {
+                    var vr = GetValueRecord(item) as IMapRecordFull;
+                    if (vr != null)
+                        vr.Data.Remove(data);
+                }
         }
 
         /// <summary>
@@ -170,12 +178,11 @@ namespace Core
         {
             if (data.IsMapped)
                 foreach (var item in data.Items)
-                    if (item.ItemType == MapItemType.String)
-                    {
-                        var vr = GetValueRecord(item.Value, MapItemType.String) as IMapRecordFull;
-                        if (vr != null)
-                            vr.Data.Add(data);
-                    }
+                {
+                    var vr = GetValueRecord(item) as IMapRecordFull;
+                    if (vr != null)
+                        vr.Data.Add(data);
+                }
         }
 
         /// <summary>
@@ -267,36 +274,16 @@ namespace Core
             public string Ext { get { return null; } }
             public string FullPath { get { return fullpath; } }
             public bool IsMapped { get { return true; } }
-            public IEnumerable<IMapItem> Items { get { return null; } }
+            public IEnumerable<IMapItemRange> Items { get { return null; } }
             public string Name { get { return null; } }
             public string Path { get { return null; } }
             public string Text { get { return null; } }
             public event PropertyChangedEventHandler PropertyChanged;
-
-            public void ClearItems()
-            {
-                throw new NotImplementedException();
-            }
-
-            public IMapItem ItemAt(int index)
-            {
-                throw new NotImplementedException();
-            }
-
-            public IEnumerable<IMapItem> ItemsBetween(int start, int end)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Remap(bool ifChanged, bool safe)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void SaveText(string text)
-            {
-                throw new NotImplementedException();
-            }
+            public void ClearItems() {}
+            public IMapItemRange ItemAt(int index) => null;
+            public IEnumerable<IMapItemRange> ItemsBetween(int start, int end) => null;
+            public void Remap(bool ifChanged, bool safe) {}
+            public void SaveText(string text) {}
         }
 
         /// <summary>
@@ -356,7 +343,7 @@ namespace Core
             int conflictsCnt = 0;
             foreach (var entry in data)
             {
-                var item = (IMapRecordFull)GetValueRecord(entry.Eng, MapItemType.String);
+                var item = (IMapRecordFull)GetValueRecord(entry.Eng);
                 if (lst.Contain(item))
                 {
                     if (string.Equals(item.Translation, entry.Trans))

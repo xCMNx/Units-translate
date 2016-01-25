@@ -126,97 +126,100 @@ namespace Units_translate.Views
                 ll.Add(m.Groups["el"].Index - idx - 1);
             }
 
-            foreach (var itm in Data.Items)
-            {
-                Tuple<int, int, string> itemdata = null;
-                if (itm.ItemType == MapItemType.String && itm.Value == val.Value)
+            foreach (IMapValueItem itm in Data.Items)
+                if (itm != null)
                 {
-                    var grid = new Grid() { VerticalAlignment = VerticalAlignment.Stretch };
-                    grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-                    grid.ColumnDefinitions.Add(new ColumnDefinition() /*{ Width = GridLength.Auto }*/);
-                    var nums = new StackPanel();
-                    Grid.SetColumn(nums, 0);
-                    var vals = new StackPanel();
-                    var sb = new ScrollViewer() { Content = vals, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled };
-                    Grid.SetColumn(sb, 1);
-                    grid.Children.Add(nums);
-                    grid.Children.Add(sb);
-
-                    var lIdx = ls.BinarySearch(itm.Start);
-                    var lIdx2 = ls.BinarySearch(itm.End);
-                    if (lIdx < 0) lIdx = ~lIdx - 1;
-                    if (lIdx2 < 0) lIdx2 = ~lIdx2 - 1;
-                    var lastLine = Math.Min(lIdx2 + previwCount, ls.Count - 1);
-                    for (var line = Math.Max(lIdx - previwCount, 0); line <= lastLine; line++)
+                    Tuple<int, int, string> itemdata = null;
+                    if (itm.Value == val.Value)
                     {
-                        var brush = (line >= lIdx && line <= lIdx2) ? Brushes.Green : Brushes.Black;
-                        AddLine(nums, vals, line + 1, ll[line] > 0 ? code.Substring(ls[line], ll[line]) : string.Empty, brush, brush);
-                        if (!noChanges && line == lIdx2)
+                        var grid = new Grid() { VerticalAlignment = VerticalAlignment.Stretch };
+                        grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+                        grid.ColumnDefinitions.Add(new ColumnDefinition() /*{ Width = GridLength.Auto }*/);
+                        var nums = new StackPanel();
+                        Grid.SetColumn(nums, 0);
+                        var vals = new StackPanel();
+                        var sb = new ScrollViewer() { Content = vals, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled };
+                        Grid.SetColumn(sb, 1);
+                        grid.Children.Add(nums);
+                        grid.Children.Add(sb);
+
+                        var lIdx = ls.BinarySearch(itm.Start);
+                        var lIdx2 = ls.BinarySearch(itm.End);
+                        if (lIdx < 0) lIdx = ~lIdx - 1;
+                        if (lIdx2 < 0) lIdx2 = ~lIdx2 - 1;
+                        var lastLine = Math.Min(lIdx2 + previwCount, ls.Count - 1);
+                        for (var line = Math.Max(lIdx - previwCount, 0); line <= lastLine; line++)
                         {
-                            var rIdx = ls[lIdx];
-                            var rLen = ls[lIdx2] + ll[lIdx2] - ls[lIdx];
-                            var lines = code.Substring(rIdx, rLen).
-                                Remove(itm.ValueStart - ls[lIdx], itm.ValueEnd - itm.ValueStart).
-                                Insert(itm.ValueStart - ls[lIdx], itm.NewValue(NewValue)).Replace("\r\n", "\n").Split('\n');
-                            if (lines.Length > 1)
+                            var brush = (line >= lIdx && line <= lIdx2) ? Brushes.Green : Brushes.Black;
+                            AddLine(nums, vals, line + 1, ll[line] > 0 ? code.Substring(ls[line], ll[line]) : string.Empty, brush, brush);
+                            if (!noChanges && line == lIdx2)
                             {
-                                var idx = lIdx;
-                                var tab = lines[0];
-                                //ищем отступ
-                                for (int i = 0; i < tab.Length; i++)
+                                var rIdx = ls[lIdx];
+                                var rLen = ls[lIdx2] + ll[lIdx2] - ls[lIdx];
+                                string[] lines = code.Substring(rIdx, rLen).
+                                        Remove(itm.EditStart - ls[lIdx], itm.EditEnd - itm.EditStart).
+                                        Insert(itm.EditStart - ls[lIdx], itm.NewValue(NewValue)).Replace("\r\n", "\n").Split('\n');
+                                if (lines.Length > 1)
                                 {
-                                    if (!char.IsWhiteSpace(tab[i]))
+                                    var idx = lIdx;
+                                    var tab = lines[0];
+                                    //ищем отступ
+                                    for (int i = 0; i < tab.Length; i++)
                                     {
-                                        //оригинальный отступ + 2а пробела
-                                        tab = tab.Substring(0, i) + "  ";
-                                        break;
+                                        if (!char.IsWhiteSpace(tab[i]))
+                                        {
+                                            //оригинальный отступ + 2а пробела
+                                            tab = tab.Substring(0, i) + "  ";
+                                            break;
+                                        }
                                     }
+                                    //добавим отступы к строкам
+                                    for (int i = 1; i < lines.Length; i++)
+                                        lines[i] = tab + lines[i];
+                                    //выведем строки в предпросмотр
+                                    foreach (var ln in lines)
+                                        AddLine(nums, vals, ++idx, ln, Brushes.Red, Brushes.Red);
                                 }
-                                //добавим отступы к строкам
-                                for (int i = 1; i < lines.Length; i++)
-                                    lines[i] = tab + lines[i];
-                                //выведем строки в предпросмотр
-                                foreach (var ln in lines)
-                                    AddLine(nums, vals, ++idx, ln, Brushes.Red, Brushes.Red);
+                                else if (lines.Length == 1)
+                                    AddLine(nums, vals, lIdx + 1, lines[0], Brushes.Red, Brushes.Red);
+                                //данные для замены в файле, индекс начала, длина, и текст на замену
+                                itemdata = new Tuple<int, int, string>(rIdx, rLen, string.Join("\r\n", lines));
                             }
-                            else if(lines.Length == 1)
-                                AddLine(nums, vals, lIdx + 1, lines[0], Brushes.Red, Brushes.Red);
-                            //данные для замены в файле, индекс начала, длина, и текст на замену
-                            itemdata = new Tuple<int, int, string>(rIdx, rLen, string.Join("\r\n", lines));
                         }
-                    }
 
-                    var stack = new StackPanel() { HorizontalAlignment = HorizontalAlignment.Right, Orientation = Orientation.Horizontal };
-                    if (!noChanges)
-                    {
-                        var btnAdd = new Button() { Style = addBtn, DataContext = itemdata, Content = new System.Windows.Shapes.Path() { Data = apply, Fill = Brushes.Black, Stretch = Stretch.Uniform } };
-                        btnAdd.Click += Btn_Click;
-                        stack.Children.Add(btnAdd);
+                        var stack = new StackPanel() { HorizontalAlignment = HorizontalAlignment.Right, Orientation = Orientation.Horizontal };
+                        if (!noChanges)
+                        {
+                            var btnAdd = new Button() { Style = addBtn, DataContext = itemdata, Content = new System.Windows.Shapes.Path() { Data = apply, Fill = Brushes.Black, Stretch = Stretch.Uniform } };
+                            btnAdd.Click += Btn_Click;
+                            stack.Children.Add(btnAdd);
+                        }
+                        var btnShow = new Button() { Style = showBtn, DataContext = itm, Content = new System.Windows.Shapes.Path() { Data = show, Fill = Brushes.Black, Stretch = Stretch.Uniform } };
+                        btnShow.Click += BtnShow_Click;
+                        stack.Children.Add(btnShow);
+                        var header = lIdx == lIdx2 ? string.Format("line: {0}", lIdx + 1) : string.Format("lines: {0} - {1}", lIdx + 1, lIdx2 + 1);
+                        stack.Children.Add(new TextBlock()
+                        {
+                            Text = header,
+                            VerticalAlignment = VerticalAlignment.Center,
+                            Margin = stackMargin
+                        });
+                        container.Children.Add(new Expander()
+                        {
+                            Header = stack,
+                            Content = grid,
+                            IsExpanded = MainVM.Instance.ExpandedPreviews,
+                            Background = Brushes.LightYellow,
+                            Margin = expanderMargin
+                        });
                     }
-                    var btnShow = new Button() { Style = showBtn, DataContext = itm, Content = new System.Windows.Shapes.Path() { Data = show, Fill = Brushes.Black, Stretch = Stretch.Uniform } };
-                    btnShow.Click += BtnShow_Click;
-                    stack.Children.Add(btnShow);
-                    var header = lIdx == lIdx2 ? string.Format("line: {0}", lIdx + 1) : string.Format("lines: {0} - {1}", lIdx + 1, lIdx2 + 1);
-                    stack.Children.Add(new TextBlock() {
-                        Text = header,
-                        VerticalAlignment = VerticalAlignment.Center,
-                        Margin = stackMargin
-                    });
-                    container.Children.Add(new Expander() {
-                        Header = stack,
-                        Content = grid,
-                        IsExpanded = MainVM.Instance.ExpandedPreviews,
-                        Background = Brushes.LightYellow,
-                        Margin = expanderMargin
-                    });
                 }
-            }
         }
 
         private void BtnShow_Click(object sender, RoutedEventArgs e)
         {
             MainVM.Instance.Selected = Data as PathContainer;
-            MainVM.Instance.ShowValue(((Button)sender).DataContext as IMapItem);
+            MainVM.Instance.ShowValue(((Button)sender).DataContext as IMapItemRange);
         }
 
         private void Btn_Click(object sender, RoutedEventArgs e)
@@ -226,7 +229,7 @@ namespace Units_translate.Views
             //иначе создадим новую запись и зададим её перевод
             if (MappedData.IsValueExists(NewValue))
             {
-                var mapItm = (IMapRecordFull)MappedData.GetValueRecord(NewValue, MapItemType.String);
+                var mapItm = (IMapRecordFull)MappedData.GetValueRecord(NewValue);
                 if(string.IsNullOrWhiteSpace(mapItm.Translation))
                     mapItm.Translation = Translation;
                 else if (!string.IsNullOrWhiteSpace(mapItm.Translation) && !string.Equals(mapItm.Translation, Translation))
@@ -242,7 +245,7 @@ namespace Units_translate.Views
                     }
             }
             else
-                ((IMapRecordFull)MappedData.GetValueRecord(NewValue, MapItemType.String)).Translation = Translation;
+                ((IMapRecordFull)MappedData.GetValueRecord(NewValue)).Translation = Translation;
 
             Data.SaveText(Data.Text.Remove(itm.Item1, itm.Item2).Insert(itm.Item1, itm.Item3));
         }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Core;
 using System.Text;
+using System.Windows.Media;
 
 namespace regex
 {
@@ -18,34 +19,34 @@ namespace regex
 
         public string Name { get { return "RegEx"; } }
 
-        static MapItemType GroupToType(string g)
+        static IMapItemRange GroupToType(string g, int start, int end, int valueStart, int valueEnd, string value)
         {
             switch (g)
             {
-                case "G": return MapItemType.Interface;
-                case "S": return MapItemType.String;
-                case "C": return MapItemType.Commentary;
-                case "D": return MapItemType.Directive;
+                case "G": return new MapItemForeColorRangeBase(start, end, Brushes.Gray);
+                case "S": return new MapItemRangedValueBase(value, start, end, valueStart, valueEnd);
+                case "C": return new MapItemForeColorRangeBase(start, end, Brushes.Green);
+                case "D": return new MapItemForeColorRangeBase(start, end, Brushes.LightBlue);
             }
-            return MapItemType.None;
+            return null;
         }
 
-        MapItemBase FindGroup(Match m, IEnumerable<string> names)
+        IMapItemRange FindGroup(Match m, IEnumerable<string> names)
         {
             foreach (var gn in names)
             {
                 Group g = m.Groups[gn];
                 if (g.Success)
-                    return new MapItemBase(g.Value, m.Index, m.Index + m.Length, g.Index, g.Index + g.Length, GroupToType(gn));
+                    return GroupToType(gn, m.Index, m.Index + m.Length, g.Index, g.Index + g.Length, g.Value);
             }
             return null;
         }
 
         static string[] GNames = new string[] { "G", "S", "C", "D" };
 
-        public IEnumerable<IMapItem> GetMap(string Text, string Ext)
+        public IEnumerable<IMapItemRange> GetMap(string Text, string Ext)
         {
-            var res = new List<IMapItem>();
+            var res = new List<IMapItemRange>();
             var regex = _expressionsBindings[Ext.ToUpper()];
             var regex_names = regex.GetGroupNames();
             var ms = regex.Matches(Text);
@@ -91,6 +92,8 @@ namespace regex
         {
             throw new NotImplementedException();
         }
+
+        public IDictionary<IMapItemRange, int> GetCustomRanges(string Text, string Ext) => null;
 
         public RegexMapper()
         {
