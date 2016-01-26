@@ -20,14 +20,14 @@ namespace Units_translate
         public static bool FixingEnabled = false;
         #region IMapData
         List<IMapItemRange> _Items;
-        public IEnumerable<IMapItemRange> Items { get { return _Items; } }
-        public override string Path { get { return System.IO.Path.GetDirectoryName(_Path); } }
-        public override string Name { get { return System.IO.Path.GetFileNameWithoutExtension(_Path); } }
-        public override string Ext { get { return System.IO.Path.GetExtension(_Path); } }
-        public bool IsMapped { get { return _Items != null; } }
+        public IEnumerable<IMapItemRange> Items =>_Items;
+        public override string Path =>System.IO.Path.GetDirectoryName(_Path);
+        public override string Name =>System.IO.Path.GetFileNameWithoutExtension(_Path);
+        public override string Ext =>System.IO.Path.GetExtension(_Path);
+        public bool IsMapped  =>_Items != null;
         #endregion
-        public override int StringsCount { get { return Items == null ? 0 : Items.Where(it => it is IMapValueItem).Count(); } }
-        public override int CyrilicCount { get { return Items == null ? 0 : Items.Where(it => it is IMapValueItem && cyrRegex.IsMatch((it as IMapValueItem).Value)).Count(); } }
+        public override int StringsCount => Items == null ? 0 : Items.Where(it => it is IMapValueItem).Count();
+        public override int CyrilicCount => Items == null ? 0 : Items.Where(it => it is IMapValueItem && cyrRegex.IsMatch((it as IMapValueItem).Value)).Count();
 
         public static bool ContainChar(string str)
         {
@@ -42,7 +42,7 @@ namespace Units_translate
         public static Encoding WriteEncoding = Encoding.GetEncoding(Helpers.ReadFromConfig(WRITE_ENCODING, Helpers.Default_Encoding));
         public static bool UseWriteEncoding = Helpers.ConfigRead(WRITE_ENCODING_ACTIVE, false);
 
-        public override IEnumerable<IMapItemRange> ShowingItems { get { return Items?.Where(it => it is IMapValueItem && (!LiteralOnly || ContainChar((it as IMapValueItem).Value)) ); } }
+        public override IEnumerable<IMapItemRange> ShowingItems => Items?.Where(it => it is IMapValueItem && (!LiteralOnly || ContainChar((it as IMapValueItem).Value)) );
 
         /// <summary>
         /// Есть ли в файле строки с символами

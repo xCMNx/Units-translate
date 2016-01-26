@@ -238,6 +238,8 @@ namespace Units_translate
         public void ShowValue(IMapItemRange value) => OnShowValueQuery(value);
         #endregion
 
+        static char[] pathDelimiter = new[] { '\\' };
+
         #region Tree
         /// <summary>
         /// Строит дерево файлов на основе переданного списка размеченых данных
@@ -264,9 +266,9 @@ namespace Units_translate
                 //дополняет недостающие узлы пути
                 Action<IMapData> add = (md) =>
                 {
-                    var p = md.Path.Split('\\');
+                    var p = md.Path.Split(pathDelimiter, StringSplitOptions.RemoveEmptyEntries);
                     var fp = currentNode.Path;
-                    for (int i = fp.Split('\\').Length; i < p.Length; i++)
+                    for (int i = fp.Split(pathDelimiter, StringSplitOptions.RemoveEmptyEntries).Length; i < p.Length; i++)
                     {
                         fp = Path.Combine(fp, p[i]);
                         currentNode = new PathContainer(fp);

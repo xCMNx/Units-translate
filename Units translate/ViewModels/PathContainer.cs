@@ -6,19 +6,16 @@ namespace Units_translate
     public class PathContainer : BindableBase
     {
         protected string _Path;
-        public string FullPath { get { return _Path; } }
-        public virtual string Path { get { return _Path; } }
-        public virtual string Name { get { return System.IO.Path.GetFileName(_Path); } }
-        public string FileName { get { return System.IO.Path.GetFileName(_Path); } }
-        public virtual string Ext { get { return string.Empty; } }
-        public virtual int StringsCount { get { return 0; } }
-        public virtual int CyrilicCount { get { return 0; } }
-        public virtual IEnumerable<IMapItemRange> ShowingItems { get { return null; } }
+        public string FullPath => _Path;
+        public virtual string Path => _Path;
+        public virtual string Name => _Path.Length < 4 ? _Path.Substring(0, _Path.Length -1) : System.IO.Path.GetFileName(_Path);
+        public string FileName => Name;
+        public virtual string Ext => string.Empty;
+        public virtual int StringsCount => 0;
+        public virtual int CyrilicCount => 0;
+        public virtual IEnumerable<IMapItemRange> ShowingItems => null;
 
-        public override string ToString()
-        {
-            return Name;
-        }
+        public override string ToString() => Name;
 
         public PathContainer(string fullpath)
         {
