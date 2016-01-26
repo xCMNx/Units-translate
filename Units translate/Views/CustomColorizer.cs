@@ -9,7 +9,8 @@ namespace Units_translate.Views
 {
     public class CustomColorizer : DocumentColorizingTransformer
     {
-        static TextDecorationCollection decors = new TextDecorationCollection() { TextDecorations.Strikethrough };
+        static TextDecorationCollection decorStrikethrough = new TextDecorationCollection() { TextDecorations.Strikethrough };
+        static TextDecorationCollection decorsUnderline = new TextDecorationCollection() { TextDecorations.Underline };
         public IMapData Data = null;
 
         static Action<VisualLineElement> ValueTypeToAction(IMapItemRange item)
@@ -19,10 +20,19 @@ namespace Units_translate.Views
                     return (VisualLineElement element) =>
                     {
                         element.TextRunProperties.SetForegroundBrush(Brushes.Blue);
+                        var itv = item as IMapValueItem;
+                        if (itv != null && string.IsNullOrWhiteSpace((MappedData.GetValueRecord(itv.Value) as IMapRecordFull).Translation))
+                            element.TextRunProperties.SetTextDecorations(decorStrikethrough);
                         element.TextRunProperties.SetBackgroundBrush((item as IMapBackgroundColorRange).BackgroundColor);
                     };
                 else
-                    return (VisualLineElement element) => element.TextRunProperties.SetForegroundBrush(Brushes.Blue);
+                    return (VisualLineElement element) =>
+                    {
+                        element.TextRunProperties.SetForegroundBrush(Brushes.Blue);
+                        var itv = item as IMapValueItem;
+                        if (itv != null && string.IsNullOrWhiteSpace((MappedData.GetValueRecord(itv.Value) as IMapRecordFull).Translation))
+                            element.TextRunProperties.SetTextDecorations(decorStrikethrough);
+                    };
             else if (item is IMapForeColorRange)
                 if (item is IMapBackgroundColorRange)
                     return (VisualLineElement element) =>
@@ -34,7 +44,7 @@ namespace Units_translate.Views
                     return (VisualLineElement element) => element.TextRunProperties.SetBackgroundBrush((item as IMapBackgroundColorRange).BackgroundColor);
                 else
                     return (VisualLineElement element) => element.TextRunProperties.SetForegroundBrush((item as IMapForeColorRange).ForegroundColor);
-            return (VisualLineElement element) => element.TextRunProperties.SetTextDecorations(decors);
+            return (VisualLineElement element) => element.TextRunProperties.SetTextDecorations(decorsUnderline);
         }
 
         protected override void ColorizeLine(DocumentLine line)

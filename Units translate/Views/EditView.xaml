@@ -33,7 +33,9 @@
                     <RowDefinition Height="3"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <TextBox Name="valueEditor" SpellCheck.IsEnabled="True" Text="{Binding SelectedValue.Value, Mode=OneWay}" AcceptsTab="True" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+                <TextBox Name="valueEditor" SpellCheck.IsEnabled="True" 
+                         Text="{Binding SelectedValue.Value, Mode=OneWay}" AcceptsTab="True" AcceptsReturn="True" 
+                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
                 <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1"/>
             </Grid>
         </Expander>
@@ -45,9 +47,10 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <AdornerDecorator Grid.Row="0">
-                    <stb:SpellTextBox Name="tbTranslation" DictionaryPath=".\dictionaries\ru_RU"
-                          Text="{Binding SelectedValue.Translation}" AcceptsReturn="True"
-                          IsSpellCheckEnabled="true" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" PreviewKeyUp="tbTranslation_PreviewKeyUp"/>
+                    <stb:SpellTextBox Name="tbTranslation" DictionaryPath=".\dictionaries\ru_RU" IsSpellCheckEnabled="true"
+                          Text="{Binding SelectedValue.Translation}" AcceptsTab="True" AcceptsReturn="True"
+                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                          PreviewKeyUp="tbTranslation_PreviewKeyUp"/>
                 </AdornerDecorator>
                 <StackPanel Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button Name="btnChangeTranslation" ToolTip="Применить изменение [CTRL+ENTER]" Width="18" Height="18" Background="Transparent" BorderBrush="Transparent" Click="btnChangeTranslation_Click">

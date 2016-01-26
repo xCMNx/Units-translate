@@ -126,7 +126,9 @@ namespace Units_translate.Views
                 ll.Add(m.Groups["el"].Index - idx - 1);
             }
 
-            foreach (IMapValueItem itm in Data.Items)
+            foreach (var item in Data.Items)
+            {
+                var itm = item as IMapValueItem;
                 if (itm != null)
                 {
                     Tuple<int, int, string> itemdata = null;
@@ -214,6 +216,7 @@ namespace Units_translate.Views
                         });
                     }
                 }
+            }
         }
 
         private void BtnShow_Click(object sender, RoutedEventArgs e)

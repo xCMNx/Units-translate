@@ -147,6 +147,8 @@ namespace pascal
                             else if (Start > uStart && Start < uEnd)
                                 //если строка попала в область Uses то запишем её как пустой тип значения, тогда разметка в файле будет но не строковая
                                 res.Add(new MapItemForeColorRangeBase(Start, End, Brushes.Red));
+                            else if(regexGUID.IsMatch(value))
+                                res.Add(new MapItemForeColorRangeBase(Start, End, InterfaceBrush));
                             else
                                 res.Add(new PascalMapItem(value, Start, End));
                             Start = -1;
