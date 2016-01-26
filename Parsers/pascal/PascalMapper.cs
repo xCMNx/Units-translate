@@ -18,13 +18,56 @@ namespace pascal
         static Brush DirectiveBrush = Brushes.LightBlue;
 
         static Regex regex = new Regex(@"#(\d+)");
-        static Regex regexUses = new Regex(@"(?ixmsn)
+
+        static Regex regexUses = new Regex(@"(?ixms)
  (?:\{.*?\})#skip comments
 |(?:\(\*.*?\*\))#skip comments
-|(?://.*?$)#skip comments
-|(?:'(?:[^']+|'')+')#skip strings
-|(?<uses>\buses(?:[^;\{/(']*|\{.*?}|//.*?$|\(\*.*?\*\)|'([^']+|'')*')+;)");
+|(?://.*?[\0\r\n])#skip comments
+|(?:'(?:[^'\0\r\n]*|'')*?')#skip strings
+|(?<uses>\buses\b(?:[^;\{/(']*|\{.*?}|//.*?[\0\r\n]|\((?:\*.*?\*\)|.*)|'(?:[^'\0\r\n]*|'')*?')*?;)
+        ");
+
+        static Regex regexUsesTr = new Regex(@"(?ixms)
+ (?:\{.*?\})#skip comments
+|(?:\(\*.*?\*\))#skip comments
+|(?://.*?[\0\r\n])#skip comments
+|(?:'(?:[^'\0\r\n]*|'')*?')#skip strings
+|(?<uses>\buses\b(?:[^;\{/(']*|\{.*?}|//.*?[\0\r\n]|\((?:\*.*?\*\)|.*)|'(?:[^'\0\r\n]*|'')*?')*?;)
+|(?<tr>\btr[\s]*?\(
+      (?: 
+          (?<n>\()                   #cycle stack +
+          |(?<inner-n>\))            #cycle stack -
+          |[^{/()']*
+          |\{.*?}
+          |//.*?[\0\r\n]
+          |\(\*.*?\*\)
+          |'(?:[^'\0\r\n]*|'')*?'
+      )
+*\)(?!(n))                          #while stack is not empty
+)
+        ");
+
         static Regex regexGUID = new Regex(@"\{[a-fA-F\d]{8}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{12}\}");
+
+        static Regex regexTr = new Regex(@"(?ixm)
+ (?:\{.*?\})#skip comments
+|(?:\(\*.*?\*\))#skip comments
+|(?://.*?[\0\r\n])#skip comments
+|(?:'(?:[^'\0\r\n]*|'')*?')#skip strings
+|(?<tr>\btr[\s]*?\(
+      (?: 
+          (?<n>\()                   #cycle stack +
+          |(?<inner-n>\))            #cycle stack -
+          |[^{/()']*
+          |\{.*?}
+          |//.*?[\0\r\n]
+          |\(\*.*?\*\)
+          |'(?:[^'\0\r\n]*|'')*?'
+      )
+*\)(?!(n))                          #while stack is not empty
+)
+        ");
+
         public enum PascalFileType
         {
             dfm,
@@ -38,15 +81,25 @@ namespace pascal
             int Start = -1, End = -1, uStart = -1, uEnd = -1;
             //строки внутри блока Uses это пути к файлам, их точно индексировать не нужно
             //поэтому запомним область блока
-            if (pType == PascalFileType.dpr)
+            if (pType != PascalFileType.dfm)
             {
-                foreach (Match m in regexUses.Matches(Text))
+                var ms = regexUsesTr.Matches(Text);
+                if (pType == PascalFileType.dpr)
+                {
+                    foreach (Match m in ms)
+                        if (m.Groups["uses"].Success)
+                        {
+                            uStart = m.Index;
+                            uEnd = m.Index + m.Length;
+                            res.Add(new MapItemBackgroundColorRangeBase(uStart, uEnd, Brushes.AntiqueWhite));
+                            break;
+                        }
+                }
+                foreach(Match m in ms)
                     if (m.Groups["uses"].Success)
-                    {
-                        uStart = m.Index;
-                        uEnd = m.Index + m.Length;
-                        break;
-                    }
+                        res.Add(new MapItemBackgroundColorRangeBase(m.Index, m.Index + m.Length, Brushes.AntiqueWhite));
+                    else if (m.Groups["tr"].Success)
+                        res.Add(new MapItemBackgroundColorRangeBase(m.Index, m.Index + m.Length, Brushes.GreenYellow));
             }
 
             var value = string.Empty;

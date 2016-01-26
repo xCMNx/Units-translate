@@ -47,11 +47,18 @@ namespace Core
         IEnumerable<IMapItemRange> ItemsBetween(int start, int end);
 
         /// <summary>
-        /// Возвращает область разметки по указанному смещению
+        /// Возвращает области разметки по указанному смещению
         /// </summary>
         /// <param name="index">Смещение в тексте</param>
-        /// <returns>Найденная область иди null</returns>
-        IMapItemRange ItemAt(int index);
+        /// <returns>Найденные области</returns>
+        IList<IMapItemRange> ItemsAt(int index);
+
+        /// <summary>
+        /// Возвращает область разметки являющуюся значением по указанному смещению
+        /// </summary>
+        /// <param name="index">Смещение в тексте</param>
+        /// <returns>Найденная область или null</returns>
+        IMapValueItem ValueItemAt(int index);
 
         /// <summary>
         /// Просит переразметить файл

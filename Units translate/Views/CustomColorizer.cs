@@ -38,13 +38,14 @@ namespace Units_translate.Views
                     return (VisualLineElement element) =>
                     {
                         element.TextRunProperties.SetForegroundBrush((item as IMapForeColorRange).ForegroundColor);
-                        element.TextRunProperties.SetBackgroundBrush((item as IMapBackgroundColorRange).BackgroundColor);
+                        element.BackgroundBrush = (item as IMapBackgroundColorRange).BackgroundColor;
                     };
-                else if (item is IMapBackgroundColorRange)
-                    return (VisualLineElement element) => element.TextRunProperties.SetBackgroundBrush((item as IMapBackgroundColorRange).BackgroundColor);
                 else
                     return (VisualLineElement element) => element.TextRunProperties.SetForegroundBrush((item as IMapForeColorRange).ForegroundColor);
-            return (VisualLineElement element) => element.TextRunProperties.SetTextDecorations(decorsUnderline);
+            else if (item is IMapBackgroundColorRange)
+                return (VisualLineElement element) => element.TextRunProperties.SetBackgroundBrush((item as IMapBackgroundColorRange).BackgroundColor);
+            else
+                return (VisualLineElement element) => element.TextRunProperties.SetForegroundBrush((item as IMapForeColorRange).ForegroundColor);
         }
 
         protected override void ColorizeLine(DocumentLine line)

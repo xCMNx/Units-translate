@@ -94,7 +94,7 @@ namespace Units_translate.Views
             {
                 if (colorizer.Data != null)
                 {
-                    var item = colorizer.Data.ItemAt(code.CaretOffset) as IMapValueItem;
+                    var item = colorizer.Data.ValueItemAt(code.CaretOffset);
                     if (item != null)
                     {
                         main.SelectedValue = Core.MappedData.GetValueRecord(item.Value) as IMapRecordFull;
@@ -137,7 +137,7 @@ namespace Units_translate.Views
             var pos = code.GetPositionFromPoint(e.GetPosition(code));
             if (!pos.HasValue)
                 return;
-            var item = colorizer.Data.ItemAt(code.Document.GetOffset(pos.Value.Location)) as IMapValueItem;
+            var item = colorizer.Data.ValueItemAt(code.Document.GetOffset(pos.Value.Location));
             if (item == null)
                 return;
             var mapItm = MappedData.GetValueRecord(item.Value) as IMapRecordFull;

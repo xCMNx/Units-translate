@@ -419,8 +419,8 @@ namespace Units_translate
                 int cnt = 0;
                 foreach (var f in files)
                 {
-                    MappedData.AddData(new FileContainer(f), false);
                     if (callback != null) callback(f, ++cnt);
+                    MappedData.AddData(new FileContainer(f), false);
                 }
                 setWatcher(path);
             }

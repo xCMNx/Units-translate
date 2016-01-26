@@ -187,18 +187,34 @@ namespace Units_translate
         }
 
         /// <summary>
-        /// Возвращает область разметки по указанному смещению
+        /// Возвращает область разметки являющуюся значением по указанному смещению
         /// </summary>
         /// <param name="index">Смещение в тексте</param>
-        /// <returns>Найденная область иди null</returns>
-        public IMapItemRange ItemAt(int index)
+        /// <returns>Найденная область или null</returns>
+        public IMapValueItem ValueItemAt(int index)
         {
             foreach (var item in _Items)
                 if (item.Start > index)
                     break;
-                else if (item.Start <= index && item.End >= index)
-                    return item;
+                else if (item is IMapValueItem && item.Start <= index && item.End >= index)
+                    return item as IMapValueItem;
             return null;
+        }
+
+        /// <summary>
+        /// Возвращает области разметки по указанному смещению
+        /// </summary>
+        /// <param name="index">Смещение в тексте</param>
+        /// <returns>Найденные области</returns>
+        public IList<IMapItemRange> ItemsAt(int index)
+        {
+            var res = new List<IMapItemRange>();
+            foreach (var item in _Items)
+                if (item.Start > index)
+                    break;
+                else if (item.Start <= index && item.End >= index)
+                    res.Add(item);
+            return res;
         }
     }
 }

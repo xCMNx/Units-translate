@@ -280,10 +280,11 @@ namespace Core
             public string Text { get { return null; } }
             public event PropertyChangedEventHandler PropertyChanged;
             public void ClearItems() {}
-            public IMapItemRange ItemAt(int index) => null;
+            public IMapValueItem ValueItemAt(int index) => null;
             public IEnumerable<IMapItemRange> ItemsBetween(int start, int end) => null;
             public void Remap(bool ifChanged, bool safe) {}
             public void SaveText(string text) {}
+            public IList<IMapItemRange> ItemsAt(int index) => null;
         }
 
         /// <summary>
