@@ -12,19 +12,19 @@
         /// Индекс конца значения
         /// </summary>
         public int ValueEnd => _ValueEnd;
-
-        protected override int _EditStart() => _ValueStart;
-        protected override int _EditEnd() => _ValueEnd;
+        /// <summary>
+        /// Индекс начала области редактирования. Используется для определения области замены текста, т.к. Start может захватывать символы не входящие в значение
+        /// </summary>
+        public override int EditStart => _ValueStart;
+        /// <summary>
+        /// Индекс конца области редактирования. Используется для определения области замены текста, т.к. End может захватывать символы не входящие в значение
+        /// </summary>
+        public override int EditEnd => _ValueEnd;
 
         public MapItemRangedValueBase(string value, int start, int end, int valueStart, int valueEnd): base (value, start, end)
         {
             _ValueStart = valueStart;
             _ValueEnd = valueEnd;
-        }
-
-        public override string ToString()
-        {
-            return string.Format("{0}: {1}", _ValueStart, Value);
         }
     }
 }

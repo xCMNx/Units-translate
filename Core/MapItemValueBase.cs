@@ -9,13 +9,14 @@ namespace Core
         /// Значение области
         /// </summary>
         public string Value => _Value?.Value;
-
-        public int EditStart => _EditStart();
-
-        public int EditEnd => _EditEnd();
-
-        protected virtual int _EditStart() => _Start;
-        protected virtual int _EditEnd() => _End;
+        /// <summary>
+        /// Индекс начала области редактирования. Используется для определения области замены текста, т.к. Start может захватывать символы не входящие в значение
+        /// </summary>
+        public virtual int EditStart => _Start;
+        /// <summary>
+        /// Индекс конца области редактирования. Используется для определения области замены текста, т.к. End может захватывать символы не входящие в значение
+        /// </summary>
+        public virtual int EditEnd => _End;
 
         public MapItemValueBase(string value, int start, int end): base (start, end)
         {
@@ -34,7 +35,7 @@ namespace Core
 
         public override string ToString()
         {
-            return string.Format("{0}: {1}", Start, Value);
+            return string.Format("{0}: {1}", EditStart, Value);
         }
     }
 }
