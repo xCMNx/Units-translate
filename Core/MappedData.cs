@@ -32,6 +32,9 @@ namespace Core
     public interface IMapRecordFull : IMapRecord
     {
         SortedObservableCollection<IMapData> Data { get; }
+    }
+    public interface IMapValueRecord : IMapRecordFull
+    {
         string Translation { get; set; }
     }
     /// <summary>
@@ -50,9 +53,26 @@ namespace Core
     }
 
     /// <summary>
+    /// Структура для словаря размеченных методов, содержит название метода и связанные с ним размеченные данные
+    /// </summary>
+    public struct MapMethodRecord : IMapRecordFull
+    {
+        string value;
+        public string Value => value;
+        SortedObservableCollection<IMapData> data;
+        public SortedObservableCollection<IMapData> Data => data;
+
+        public MapMethodRecord(string val)
+        {
+            value = val;
+            data = new SortedObservableCollection<IMapData>() { Comparer = MapDataComparer.Comparer };
+        }
+    }
+
+    /// <summary>
     /// Структура для словаря размеченных значений, содержит значение и связанные с ним размеченные данные
     /// </summary>
-    public struct MapRecordFull : IMapRecordFull
+    public struct MapValueRecord : IMapValueRecord
     {
         string value;
         string translation;
@@ -66,14 +86,14 @@ namespace Core
         SortedObservableCollection<IMapData> data;
         public SortedObservableCollection<IMapData> Data => data;
 
-        public MapRecordFull(string val, string trans)
+        public MapValueRecord(string val, string trans)
         {
             value = val;
             translation = trans;
             data = new SortedObservableCollection<IMapData>() { Comparer = MapDataComparer.Comparer };
         }
 
-        public MapRecordFull(string val) : this(val, string.Empty)
+        public MapValueRecord(string val) : this(val, string.Empty)
         {
         }
     }
@@ -127,7 +147,7 @@ namespace Core
         {
             var idx = _ValuesDictionary.IndexOf(new MapRecord(value));
             if (idx < 0)
-                return _ValuesDictionary[_ValuesDictionary.Add(new MapRecordFull(value))];
+                return _ValuesDictionary[_ValuesDictionary.Add(new MapValueRecord(value))];
             return _ValuesDictionary[idx];
         }
 
@@ -306,7 +326,7 @@ namespace Core
         public static void ClearTranslates()
         {
             _TranslatesDictionary.Clear();
-            foreach (IMapRecordFull it in _ValuesDictionary)
+            foreach (IMapValueRecord it in _ValuesDictionary)
                 it.Translation = string.Empty;
         }
 
@@ -344,7 +364,7 @@ namespace Core
             int conflictsCnt = 0;
             foreach (var entry in data)
             {
-                var item = (IMapRecordFull)GetValueRecord(entry.Eng);
+                var item = (IMapValueRecord)GetValueRecord(entry.Eng);
                 if (lst.Contain(item))
                 {
                     if (string.Equals(item.Translation, entry.Trans))
@@ -379,11 +399,11 @@ namespace Core
         public static void SaveTranslations(string path, bool addnew, bool removeempty)
         {
             OriginalData.Entryes.Clear();
-            foreach (IMapRecordFull it in _TranslatesDictionary)
+            foreach (IMapValueRecord it in _TranslatesDictionary)
                 if (!removeempty || it.Data.Count > 0)
                     OriginalData.Entryes.Add(new Entry(it.Value, it.Translation));
             if (addnew)
-                foreach (IMapRecordFull it in _ValuesDictionary.Except(_TranslatesDictionary))
+                foreach (IMapValueRecord it in _ValuesDictionary.Except(_TranslatesDictionary))
                     if (it.Data.Count > 0 && !string.IsNullOrWhiteSpace(it.Translation))
                         OriginalData.Entryes.Add(new Entry(it.Value, it.Translation));
             OriginalData.Entryes = OriginalData.Entryes.OrderBy(ent => ent.Eng).ToList();
@@ -415,7 +435,7 @@ namespace Core
             try
             {
                 var rgxp = new Regex(expr);
-                Func<IMapRecordFull, bool> cmpr = null;
+                Func<IMapValueRecord, bool> cmpr = null;
                 if(param.HasFlag(SearchParams.Eng))
                     if (param.HasFlag(SearchParams.Trans))
                         cmpr = it => rgxp.IsMatch(it.Value) && rgxp.IsMatch(it.Translation);
@@ -425,7 +445,7 @@ namespace Core
                         cmpr = it => rgxp.IsMatch(it.Translation);
                     else
                         cmpr = it => rgxp.IsMatch(it.Value) || rgxp.IsMatch(it.Translation);
-                foreach (IMapRecordFull it in _ValuesDictionary)
+                foreach (IMapValueRecord it in _ValuesDictionary)
                     if (it.Data.Count > 0 && cmpr(it))
                         res.Add(it);
             }

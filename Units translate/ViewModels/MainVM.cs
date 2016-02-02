@@ -199,11 +199,11 @@ namespace Units_translate
             }
         }
 
-        IMapRecordFull _SelectedValue;
+        IMapValueRecord _SelectedValue;
         /// <summary>
         /// Выбранное значение
         /// </summary>
-        public IMapRecordFull SelectedValue
+        public IMapValueRecord SelectedValue
         {
             get { return _SelectedValue; }
             set
@@ -636,8 +636,8 @@ namespace Units_translate
         SortedList<IMapRecordFull, SortedItems<string>> _TranslationConflicts = new SortedList<IMapRecordFull, SortedItems<string>>(MapRecordComparer.Comparer);
         public SortedList<IMapRecordFull, SortedItems<string>> TranslationConflicts => _TranslationConflicts;
 
-        KeyValuePair<IMapRecordFull, SortedItems<string>> _SelectedConflict;
-        public KeyValuePair<IMapRecordFull, SortedItems<string>> SelectedConflict
+        KeyValuePair<IMapValueRecord, SortedItems<string>> _SelectedConflict;
+        public KeyValuePair<IMapValueRecord, SortedItems<string>> SelectedConflict
         {
             get { return _SelectedConflict; }
             set

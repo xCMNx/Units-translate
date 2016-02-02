@@ -21,7 +21,7 @@ namespace Units_translate.Views
                     {
                         element.TextRunProperties.SetForegroundBrush(Brushes.Blue);
                         var itv = item as IMapValueItem;
-                        if (itv != null && string.IsNullOrWhiteSpace((MappedData.GetValueRecord(itv.Value) as IMapRecordFull).Translation))
+                        if (itv != null && string.IsNullOrWhiteSpace((MappedData.GetValueRecord(itv.Value) as IMapValueRecord).Translation))
                             element.TextRunProperties.SetTextDecorations(decorStrikethrough);
                         element.TextRunProperties.SetBackgroundBrush((item as IMapBackgroundColorRange).BackgroundColor);
                     };
@@ -30,7 +30,7 @@ namespace Units_translate.Views
                     {
                         element.TextRunProperties.SetForegroundBrush(Brushes.Blue);
                         var itv = item as IMapValueItem;
-                        if (itv != null && string.IsNullOrWhiteSpace((MappedData.GetValueRecord(itv.Value) as IMapRecordFull).Translation))
+                        if (itv != null && string.IsNullOrWhiteSpace((MappedData.GetValueRecord(itv.Value) as IMapValueRecord).Translation))
                             element.TextRunProperties.SetTextDecorations(decorStrikethrough);
                     };
             else if (item is IMapForeColorRange)

@@ -232,7 +232,7 @@ namespace Units_translate.Views
             //иначе создадим новую запись и зададим её перевод
             if (MappedData.IsValueExists(NewValue))
             {
-                var mapItm = (IMapRecordFull)MappedData.GetValueRecord(NewValue);
+                var mapItm = (IMapValueRecord)MappedData.GetValueRecord(NewValue);
                 if(string.IsNullOrWhiteSpace(mapItm.Translation))
                     mapItm.Translation = Translation;
                 else if (!string.IsNullOrWhiteSpace(mapItm.Translation) && !string.Equals(mapItm.Translation, Translation))
@@ -248,7 +248,7 @@ namespace Units_translate.Views
                     }
             }
             else
-                ((IMapRecordFull)MappedData.GetValueRecord(NewValue)).Translation = Translation;
+                ((IMapValueRecord)MappedData.GetValueRecord(NewValue)).Translation = Translation;
 
             Data.SaveText(Data.Text.Remove(itm.Item1, itm.Item2).Insert(itm.Item1, itm.Item3));
         }

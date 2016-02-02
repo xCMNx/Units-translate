@@ -97,7 +97,7 @@ namespace Units_translate.Views
                     var item = colorizer.Data.ValueItemAt(code.CaretOffset);
                     if (item != null)
                     {
-                        main.SelectedValue = Core.MappedData.GetValueRecord(item.Value) as IMapRecordFull;
+                        main.SelectedValue = Core.MappedData.GetValueRecord(item.Value) as IMapValueRecord;
                         return;
                     }
                 }
@@ -134,13 +134,15 @@ namespace Units_translate.Views
         {Text = "Нет перевода", Foreground = Brushes.Red};
         private void code_MouseHover(object sender, System.Windows.Input.MouseEventArgs e)
         {
+            if (colorizer.Data == null)
+                return;
             var pos = code.GetPositionFromPoint(e.GetPosition(code));
             if (!pos.HasValue)
                 return;
             var item = colorizer.Data.ValueItemAt(code.Document.GetOffset(pos.Value.Location));
             if (item == null)
                 return;
-            var mapItm = MappedData.GetValueRecord(item.Value) as IMapRecordFull;
+            var mapItm = MappedData.GetValueRecord(item.Value) as IMapValueRecord;
             if (mapItm == null)
                 return;
             toolTipCloseTimer.Stop();
