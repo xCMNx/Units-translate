@@ -88,6 +88,7 @@ namespace Units_translate
         {
             var encoding = UseWriteEncoding ? WriteEncoding : Helpers.GetEncoding(FullPath, Helpers.Encoding);
             System.IO.File.WriteAllText(FullPath, text, encoding);
+            MappedData.UpdateData(this, true, false);
         }
 
         public FileContainer(string fullpath) : base(fullpath)
@@ -179,10 +180,11 @@ namespace Units_translate
             }
             finally
             {
+                SendOrPostCallback notify = _ => NotifyPropertiesChanged(nameof(Items), nameof(ShowingItems));
                 if (safe)
-                    NotifyPropertyChanged(nameof(Items));
+                    notify(null);
                 else
-                    Helpers.mainCTX.Send(_=> NotifyPropertyChanged(nameof(Items)), null);
+                    Helpers.mainCTX.Send(notify, null);
             }
         }
 

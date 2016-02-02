@@ -79,13 +79,13 @@ namespace pascal
         {
             var res = new List<IMapItemRange>();
             int Start = -1, End = -1, uStart = -1, uEnd = -1;
-            //строки внутри блока Uses это пути к файлам, их точно индексировать не нужно
-            //поэтому запомним область блока
             if (pType != PascalFileType.dfm)
             {
                 var ms = regexUsesTr.Matches(Text);
                 if (pType == PascalFileType.dpr)
                 {
+                    //строки внутри блока Uses это пути к файлам, их точно индексировать не нужно
+                    //поэтому запомним область блока
                     foreach (Match m in ms)
                         if (m.Groups["uses"].Success)
                         {
