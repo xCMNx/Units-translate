@@ -70,6 +70,7 @@
     <Compile Include="ViewModels\FileContainer.cs" />
     <Compile Include="ViewModels\MainVM.cs" />
     <Compile Include="ViewModels\PathContainer.cs" />
+    <Compile Include="Views\CodePreviewBuilder.cs" />
     <Compile Include="Views\CodeView.xaml.cs">
       <DependentUpon>CodeView.xaml</DependentUpon>
     </Compile>

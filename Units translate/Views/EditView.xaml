@@ -15,13 +15,14 @@
                     <TextBlock Text="{Binding FileName}" ToolTip="{Binding FullPath}"/>
                 </GroupBox.Header>
                 <ScrollViewer MaxHeight="200" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <local:SampleView Translation="{Binding Text, ElementName=tbTranslation}" NewValue="{Binding Text, ElementName=valueEditor}" Value="{Binding DataContext.SelectedValue, ElementName=root}"/>
+                    <local:SampleView UseFormat="{Binding IsChecked, ElementName=cbWrap}" Format="{Binding Text, ElementName=formatEditor}" Translation="{Binding Text, ElementName=tbTranslation}" NewValue="{Binding Text, ElementName=valueEditor}" Value="{Binding DataContext.SelectedValue, ElementName=root}"/>
                 </ScrollViewer>
             </GroupBox>
         </DataTemplate>
     </UserControl.Resources>
     <Grid Name="root">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -39,7 +40,25 @@
                 <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1"/>
             </Grid>
         </Expander>
-        <Expander Header="Перевод" Grid.Row="1" IsExpanded="True">
+        <Expander Grid.Row="1">
+            <Expander.Header>
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox Name="cbWrap"/>
+                    <TextBlock Text="Обернуть значение" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Expander.Header>
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="3"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBox Name="formatEditor" AcceptsTab="True" AcceptsReturn="True" 
+                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+                <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1"/>
+            </Grid>
+        </Expander>
+        <Expander Header="Перевод" Grid.Row="2" IsExpanded="True">
             <Grid Grid.Row="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="50"/>
@@ -63,7 +82,7 @@
                 <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1"/>
             </Grid>
         </Expander>
-        <GroupBox Grid.Row="2" Header="Предпросмотр">
+        <GroupBox Grid.Row="3" Header="Предпросмотр">
             <ListBox Name="dataList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding SelectedValue.Data}" HorizontalContentAlignment="Stretch" ItemTemplate="{DynamicResource CodeItemView}" MouseDoubleClick="dataList_MouseDoubleClick"/>
         </GroupBox>
     </Grid>
