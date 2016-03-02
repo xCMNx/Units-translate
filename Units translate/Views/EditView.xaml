@@ -14,7 +14,7 @@
                 <GroupBox.Header>
                     <TextBlock Text="{Binding FileName}" ToolTip="{Binding FullPath}"/>
                 </GroupBox.Header>
-                <ScrollViewer MaxHeight="200" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <local:SampleView UseFormat="{Binding IsChecked, ElementName=cbWrap}" Format="{Binding Text, ElementName=formatEditor}" Translation="{Binding Text, ElementName=tbTranslation}" NewValue="{Binding Text, ElementName=valueEditor}" Value="{Binding DataContext.SelectedValue, ElementName=root}"/>
                 </ScrollViewer>
             </GroupBox>
@@ -25,7 +25,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition/>
         </Grid.RowDefinitions>
         <Expander Header="Новое значение" Grid.Row="0" IsExpanded="True">
             <Grid Grid.Row="2">
@@ -83,7 +83,17 @@
             </Grid>
         </Expander>
         <GroupBox Grid.Row="3" Header="Предпросмотр">
-            <ListBox Name="dataList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding SelectedValue.Data}" HorizontalContentAlignment="Stretch" ItemTemplate="{DynamicResource CodeItemView}" MouseDoubleClick="dataList_MouseDoubleClick"/>
+            <ScrollViewer>
+                <ItemsControl Name="dataList" ItemsSource="{Binding SelectedValue.Data}" HorizontalContentAlignment="Stretch" ItemTemplate="{DynamicResource CodeItemView}"/>
+            </ScrollViewer>
+            <!--<ListBox Name="dataList" 
+                     ScrollViewer.VerticalScrollBarVisibility="Visible" 
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                     ItemsSource="{Binding SelectedValue.Data}" 
+                     HorizontalContentAlignment="Stretch" 
+                     ItemTemplate="{DynamicResource CodeItemView}" 
+                     MouseDoubleClick="dataList_MouseDoubleClick"
+                     />-->
         </GroupBox>
     </Grid>
 </UserControl>

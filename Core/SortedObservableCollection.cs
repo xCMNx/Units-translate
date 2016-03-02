@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
 
 namespace Core
 {
@@ -42,6 +44,17 @@ namespace Core
         public new int IndexOf(T item)
         {
             return BinarySearch(item, Comparer);
+        }
+
+        /// <summary> 
+        /// Clears the current collection and reset it with the specified collection. 
+        /// </summary> 
+        public override void Reset(IEnumerable<T> collection)
+        {
+            Items.Clear();
+            if (collection != null)
+                (Items as List<T>).AddRange(collection.OrderBy(k => k, Comparer));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
         public bool Contain(T item)

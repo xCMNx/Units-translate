@@ -236,7 +236,7 @@ namespace pascal
                                                 && !method.Key.Equals("and", StringComparison.InvariantCultureIgnoreCase)
                                                 && !method.Key.Equals("xor", StringComparison.InvariantCultureIgnoreCase)
                                               )
-                                                res.Add(new MapItemForeColorRangeBase(method.Value, idx + 1, Brushes.Navy));
+                                                res.Add(new MapItemMethodBase(method.Key, method.Value, idx + 1));
                                         }
                                         break;
                                     case ' ':

@@ -15,6 +15,11 @@ namespace Units_translate.Views
 
         static Action<VisualLineElement> ValueTypeToAction(IMapItemRange item)
         {
+            if (item is IMapMethodItem)
+                return (VisualLineElement element) =>
+                {
+                    element.TextRunProperties.SetForegroundBrush(Brushes.BlueViolet);
+                };
             if (item is IMapValueItem)
                 if (item is IMapBackgroundColorRange)
                     return (VisualLineElement element) =>

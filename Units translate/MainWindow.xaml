@@ -83,7 +83,8 @@
                         <views:FilesView/>
                     </TabItem>
                     <TabItem Name="tiTranslates" Header="Переводы">
-                        <ListBox Name="lbTranslates" SelectedItem="{Binding SelectedValue}" ItemsSource="{Binding UsedTranslates}" DisplayMemberPath="Value" MouseDoubleClick="ListBox_MouseDoubleClick"/>
+                        <views:TranslatesView/>
+                        <!--<ListBox Name="lbTranslates" SelectedItem="{Binding SelectedValue}" ItemsSource="{Binding UsedTranslates}" DisplayMemberPath="Value" MouseDoubleClick="ListBox_MouseDoubleClick"/>-->
                     </TabItem>
                     <TabItem Name="tiSearch" Header="Поиск">
                         <views:Search/>

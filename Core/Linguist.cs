@@ -59,14 +59,24 @@ namespace Core
     [Serializable]
     public class Entry
     {
+        string _Eng;
+        string _Trans;
         [XmlAttribute("eng")]
-        public string Eng;
+        public string Eng
+        {
+            get { return _Eng; }
+            set { _Eng = value; }
+        }
         [XmlAttribute("trans")]
-        public string Trans;
+        public string Trans
+        {
+            get { return _Trans; }
+            set { _Trans = value; }
+        }
         public Entry(string eng, string trans)
         {
-            Eng = eng;
-            Trans = trans;
+            _Eng = eng;
+            _Trans = trans;
         }
         public Entry() { }
     }

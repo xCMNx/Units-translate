@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
+using Booru.Ui;
 using Core;
 using UI;
 
@@ -632,6 +634,10 @@ namespace Units_translate
 
         #region Translates
         public bool HasTranslationConflicts => _TranslationConflicts.Count > 0;
+        ObservableCollectionEx<IMapValueRecord> _Translations = new ObservableCollectionEx<IMapValueRecord>();
+        public ObservableCollectionEx<IMapValueRecord> Translations => _Translations;
+        ICommand _TranslatesSortCommand;
+        public ICommand TranslatesSortCommand => _TranslatesSortCommand;
 
         SortedList<IMapRecordFull, SortedItems<string>> _TranslationConflicts = new SortedList<IMapRecordFull, SortedItems<string>>(MapRecordComparer.Comparer);
         public SortedList<IMapRecordFull, SortedItems<string>> TranslationConflicts => _TranslationConflicts;
@@ -708,6 +714,24 @@ namespace Units_translate
                 MessageBox.Show(e.ToString());
             }
         }
+
+        public void SaveTranslationsNew(string path)
+        {
+            try
+            {
+                Core.MappedData.SaveTranslations(path, Translations.Select(e => new Entry(e.Value, e.Translation)));
+            }
+            catch (Exception e)
+            {
+                Helpers.ConsoleWrite(e.ToString(), ConsoleColor.Red);
+                MessageBox.Show(e.ToString());
+            }
+        }
+
+        public void UpdateTranslatesEntries()
+        {
+            Translations.Reset(MappedData.GetEntries().OrderBy(m => m.Value));
+        }
         #endregion
 
         #region Commands
@@ -726,6 +750,23 @@ namespace Units_translate
         #region Constructor
         private MainVM()
         {
+            _TranslatesSortCommand = new Command((prp) =>
+            {
+                IEnumerable<IMapValueRecord> lst = Translations.ToArray();
+                switch ((string)prp)
+                {
+                    case "Count":
+                        lst = lst.OrderBy(e => e.Data.Count);
+                        break;
+                    case "Value":
+                        lst = lst.OrderBy(e => e.Value);
+                        break;
+                    case "Translation":
+                        lst = lst.OrderBy(e => e.Translation);
+                        break;
+                }
+                Translations.Reset(lst);
+            });
         }
 
 

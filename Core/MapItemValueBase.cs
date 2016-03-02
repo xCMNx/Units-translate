@@ -17,7 +17,6 @@ namespace Core
         /// Индекс конца области редактирования. Используется для определения области замены текста, т.к. End может захватывать символы не входящие в значение
         /// </summary>
         public virtual int EditEnd => _End;
-
         public MapItemValueBase(string value, int start, int end): base (start, end)
         {
             _Value = MappedData.GetValueRecord(value);
@@ -36,6 +35,19 @@ namespace Core
         public override string ToString()
         {
             return string.Format("{0}: {1}", EditStart, Value);
+        }
+
+        public bool IsSameValue(object val)
+        {
+            var v = val as MapItemValueBase;
+            if (v != null)
+                return _Value == v._Value;
+
+            var vl = val as IMapRecord;
+            if (val != null)
+                return _Value == val;
+
+            return false;
         }
     }
 }

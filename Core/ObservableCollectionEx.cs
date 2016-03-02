@@ -15,7 +15,7 @@ namespace Core
         /// <summary> 
         /// Adds the elements of the specified collection to the end of the ObservableCollection(Of T). 
         /// </summary> 
-        public void AddRange(IEnumerable<T> collection)
+        public virtual void AddRange(IEnumerable<T> collection)
         {
             if (collection == null) return;
 
@@ -27,7 +27,7 @@ namespace Core
         /// <summary> 
         /// Removes the first occurence of each item in the specified collection from ObservableCollection(Of T). 
         /// </summary> 
-        public void RemoveRange(IEnumerable<T> collection)
+        public virtual void RemoveRange(IEnumerable<T> collection)
         {
             if (collection == null) return;
 
@@ -38,7 +38,7 @@ namespace Core
         /// <summary> 
         /// Clears the current collection and reset it with the specified item. 
         /// </summary> 
-        public void Reset(T item)
+        public virtual void Reset(T item)
         {
             Reset(new T[] { item });
         }
@@ -46,9 +46,8 @@ namespace Core
         /// <summary> 
         /// Clears the current collection and reset it with the specified collection. 
         /// </summary> 
-        public void Reset(IEnumerable<T> collection)
+        public virtual void Reset(IEnumerable<T> collection)
         {
-            var old = Items.ToArray();
             Items.Clear();
             if (collection != null)
                 foreach (var i in collection) Items.Add(i);

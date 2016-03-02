@@ -14,9 +14,9 @@ namespace Units_translate.Views
 
         private void dataList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var item = dataList.SelectedItem as PathContainer;
-            if (e.ChangedButton == MouseButton.Left && item != null)
-                (DataContext as MainVM).Selected = item;
+            //var item = dataList.SelectedItem as PathContainer;
+            //if (e.ChangedButton == MouseButton.Left && item != null)
+            //    (DataContext as MainVM).Selected = item;
         }
 
         void Undo() => tbTranslation.Text = MainVM.Instance.SelectedValue?.Translation;

@@ -17,12 +17,16 @@ namespace Core
     /// </summary>
     public class MapDataComparer : Comparer<IMapData>
     {
-        public override int Compare(IMapData m1, IMapData m2)
-        {
-            return string.Compare(m1?.FullPath, m2?.FullPath, true);
-        }
+        public override int Compare(IMapData m1, IMapData m2) => string.Compare(m1?.FullPath, m2?.FullPath, true);
 
         public static readonly MapDataComparer Comparer = new MapDataComparer();
+    }
+
+    public class EntryesComparer : Comparer<Entry>
+    {
+        public override int Compare(Entry e1, Entry e2) => string.Compare(e1.Eng, e2.Eng, true);
+
+        public static readonly EntryesComparer Comparer = new EntryesComparer();
     }
 
     public interface IMapRecord
@@ -104,10 +108,7 @@ namespace Core
     /// </summary>
     public class MapRecordComparer : Comparer<IMapRecord>
     {
-        public override int Compare(IMapRecord m1, IMapRecord m2)
-        {
-            return string.Compare(m1.Value, m2.Value, false);
-        }
+        public override int Compare(IMapRecord m1, IMapRecord m2) => string.Compare(m1.Value, m2.Value, false);
 
         public static readonly MapRecordComparer Comparer = new MapRecordComparer();
     }
@@ -127,6 +128,11 @@ namespace Core
         /// </summary>
         static SortedItems<IMapRecord> _ValuesDictionary = new SortedItems<IMapRecord>() { Comparer = MapRecordComparer.Comparer };
 
+        /// <summary>
+        /// Словарь методов
+        /// </summary>
+        static SortedItems<IMapRecord> _MethodsDictionary = new SortedItems<IMapRecord>() { Comparer = MapRecordComparer.Comparer };
+
         static SortedObservableCollection<IMapRecord> _TranslatesDictionary = new SortedObservableCollection<IMapRecord>() { Comparer = MapRecordComparer.Comparer };
         /// <summary>
         /// Словарь переводов
@@ -139,10 +145,9 @@ namespace Core
 
         /// <summary>
         /// Возвращает запись словаря по значению
-        /// Реализовано хранение только строк, остальные значения игнорируются
         /// </summary>
         /// <param name="value">Значение</param>
-        /// <returns>Запись из словаря, или null для областей не являющихся строками</returns>
+        /// <returns>Запись из словаря, или null</returns>
         public static IMapRecord GetValueRecord(string value)
         {
             var idx = _ValuesDictionary.IndexOf(new MapRecord(value));
@@ -153,16 +158,44 @@ namespace Core
 
         /// <summary>
         /// Возвращает запись словаря по значению
-        /// Реализовано хранение только строк, остальные значения игнорируются
         /// </summary>
         /// <param name="item">Элемент разметки</param>
-        /// <returns>Запись из словаря, или null для областей не являющихся строками</returns>
+        /// <returns>Запись из словаря, или null</returns>
         public static IMapRecord GetValueRecord(IMapItemRange item)
         {
             var itm = item as IMapValueItem;
             if (itm == null)
                 return null;
             return GetValueRecord(itm.Value);
+        }
+
+        /// <summary>
+        /// Возвращает запись словаря по имени метода
+        /// </summary>
+        /// <param name="method">Имя метода</param>
+        /// <returns>Запись из словаря, или null</returns>
+        public static IMapRecord GetMethodRecord(string method)
+        {
+            var idx = _MethodsDictionary.IndexOf(new MapRecord(method));
+            if (idx < 0)
+                return _MethodsDictionary[_MethodsDictionary.Add(new MapMethodRecord(method))];
+            return _MethodsDictionary[idx];
+        }
+
+        /// <summary>
+        /// Возвращает запись словаря
+        /// </summary>
+        /// <param name="item">Элемент разметки</param>
+        /// <returns>Запись из словаря, или null</returns>
+        public static IMapRecord GetAnyRecord(IMapItemRange item)
+        {
+            var itmv = item as IMapValueItem;
+            if (itmv != null)
+                return GetValueRecord(itmv.Value);
+            var itmm = item as IMapMethodItem;
+            if (itmm != null)
+                return GetMethodRecord(itmm.Value);
+            return null;
         }
 
         /// <summary>
@@ -184,7 +217,7 @@ namespace Core
             if (data.IsMapped)
                 foreach (var item in data.Items)
                 {
-                    var vr = GetValueRecord(item) as IMapRecordFull;
+                    var vr = GetAnyRecord(item) as IMapRecordFull;
                     if (vr != null)
                         vr.Data.Remove(data);
                 }
@@ -199,7 +232,7 @@ namespace Core
             if (data.IsMapped)
                 foreach (var item in data.Items)
                 {
-                    var vr = GetValueRecord(item) as IMapRecordFull;
+                    var vr = GetAnyRecord(item) as IMapRecordFull;
                     if (vr != null)
                         vr.Data.Add(data);
                 }
@@ -398,24 +431,46 @@ namespace Core
         /// <param name="removeempty">Удалить строки на которые нет ссылок</param>
         public static void SaveTranslations(string path, bool addnew, bool removeempty)
         {
-            OriginalData.Entryes.Clear();
+            var lst = new List<Entry>();
             foreach (IMapValueRecord it in _TranslatesDictionary)
                 if (!removeempty || it.Data.Count > 0)
-                    OriginalData.Entryes.Add(new Entry(it.Value, it.Translation));
+                    lst.Add(new Entry(it.Value, it.Translation));
             if (addnew)
                 foreach (IMapValueRecord it in _ValuesDictionary.Except(_TranslatesDictionary))
                     if (it.Data.Count > 0 && !string.IsNullOrWhiteSpace(it.Translation))
-                        OriginalData.Entryes.Add(new Entry(it.Value, it.Translation));
-            OriginalData.Entryes = OriginalData.Entryes.OrderBy(ent => ent.Eng).ToList();
+                        lst.Add(new Entry(it.Value, it.Translation));
+
+            SaveTranslations(path, lst);
+        }
+
+        public static void SaveTranslations(string path, IEnumerable<Entry> Entries)
+        {
+            OriginalData.Entryes.Clear();
+            OriginalData.Entryes = Entries.OrderBy(ent => ent.Eng).ToList();
 
             using (StreamWriter sw = new StreamWriter(path, false, encoding))
-                using (var xw = XmlWriter.Create(sw, WriterSettings))
-                {
-                    xw.WriteStartDocument(true);
-                    //xw.WriteRaw(string.Format("\r\n<?xml-stylesheet type=\"text/xsl\" href=\"{0}.xsl\"?>\r\n", Path.GetFileNameWithoutExtension(path)));
-                    xw.WriteRaw("\r\n<?xml-stylesheet type=\"text/xsl\" href=\"eng_rus.xsl\"?>\r\n");
-                    serializer.Serialize(xw, OriginalData, namespaces);
-                }
+            using (var xw = XmlWriter.Create(sw, WriterSettings))
+            {
+                xw.WriteStartDocument(true);
+                //xw.WriteRaw(string.Format("\r\n<?xml-stylesheet type=\"text/xsl\" href=\"{0}.xsl\"?>\r\n", Path.GetFileNameWithoutExtension(path)));
+                xw.WriteRaw("\r\n<?xml-stylesheet type=\"text/xsl\" href=\"eng_rus.xsl\"?>\r\n");
+                serializer.Serialize(xw, OriginalData, namespaces);
+            }
+        }
+
+        /// <summary>
+        /// Возвращает список значений из загружунных переводов, и дополняет его отсутствующими значениями имеющими перевод
+        /// </summary>
+        /// <returns></returns>
+        public static List<IMapValueRecord> GetEntries()
+        {
+            var lst = new List<IMapValueRecord>();
+            foreach (IMapValueRecord it in _TranslatesDictionary)
+                lst.Add(it);
+            foreach (IMapValueRecord it in _ValuesDictionary.Except(_TranslatesDictionary))
+                if (!string.IsNullOrWhiteSpace(it.Translation))
+                    lst.Add(it);
+            return lst;
         }
 
         [Flags]
@@ -456,6 +511,48 @@ namespace Core
             return res;
         }
 
+        public static IEnumerable<IMapRecord> MethodsFilter(IDictionary<IMapRecord, bool> methodsFilter, IEnumerable<IMapRecord> lst)
+        {
+            if (methodsFilter == null || methodsFilter.Count() == 0 || lst == null)
+                return lst;
+
+            var res = new List<IMapRecord>();
+            foreach (IMapRecordFull r in lst)
+            {
+                var found = false;
+                foreach (var m in methodsFilter)
+                {
+                    found = false;
+                    var data = (m.Key as IMapRecordFull).Data.Intersect(r.Data);
+                    if (data != null && data.Count() > 0)
+                    {
+                        foreach (var d in data)
+                        {
+                            foreach (var itm in d.Items)
+                            {
+                                var met = itm as IMapMethodItem;
+                                if (met != null && met.IsSameValue(m.Key))
+                                {
+                                    var vals = d.ItemsBetween(met.Start, met.End).Where(vi => vi is IMapValueItem && (vi as IMapValueItem).IsSameValue(r));
+                                    found = vals.Count() > 0;
+                                    if (found)
+                                        break;
+                                }
+                            }
+                            found = found == m.Value;
+                            if (found)
+                                break;
+                        }
+                    }
+                    if (!found)
+                        break;
+                }
+                if (found)
+                    res.Add(r);
+            }
+            return res;
+        }
+
         /// <summary>
         /// Поиск в словаре. Использует регулярку
         /// </summary>
@@ -469,24 +566,49 @@ namespace Core
         /// <returns>Список совпадающих записей словаря</returns>
         public static IEnumerable<IMapRecord> Search(string expr)
         {
-            if (expr.StartsWith("?"))
+            var lexpr = expr;
+
+            var methodsFilter = new Dictionary<IMapRecord, bool>();
+            if (lexpr.StartsWith("#"))
             {
-                var i = expr.IndexOf(':');
+                var i = lexpr.IndexOf(':');
+                if (i < 0)
+                    return null;
+
+                var prms = lexpr.Substring(1, i - 1).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var p in prms)
+                {
+                    var prm = p;
+                    if (p[0] == '!')
+                        prm = p.Substring(1);
+                    var m = GetMethodRecord(prm);
+                    if (m == null)
+                    {
+                        Helpers.ConsoleWrite($"Запись {p} не найдена.");
+                        return null;
+                    }
+                    methodsFilter[m] = p[0] != '!';
+                }
+                lexpr = lexpr.Substring(i + 1);
+            }
+
+            if (lexpr.StartsWith("?"))
+            {
+                var i = lexpr.IndexOf(':');
                 if (i < 0)
                     return null;
 
                 SearchParams param = SearchParams.EngOrTrans;
-                var prm = expr.Substring(0, i).ToLower();
+                var prm = lexpr.Substring(0, i).ToLower();
                 if (prm.Contains('e'))
                     param |= SearchParams.Eng;
                 if (prm.Contains('t'))
                     param |= SearchParams.Trans;
 
-                return Search(expr.Substring(i + 1), param);
+                return MethodsFilter(methodsFilter, Search(lexpr.Substring(i + 1), param));
             }
 
-            return Search(expr, SearchParams.EngOrTrans);
-
+            return MethodsFilter(methodsFilter, Search(lexpr, SearchParams.EngOrTrans));
         }
 
         static MappedData()

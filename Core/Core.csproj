@@ -45,6 +45,7 @@
     <Compile Include="Linguist.cs" />
     <Compile Include="MapItemBackgroundColorRangeBase.cs" />
     <Compile Include="MapItemForeColorRangeBase.cs" />
+    <Compile Include="MapItemMethodBase.cs" />
     <Compile Include="MapItemRangeBase.cs" />
     <Compile Include="MapItemValueBase.cs" />
     <Compile Include="MapItemRangedValueBase.cs" />
