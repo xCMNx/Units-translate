@@ -15,9 +15,9 @@ namespace Core
     /// Компарер умеющий сравнивать размеченные данные
     /// Сравнивает полные пути
     /// </summary>
-    public class MapDataComparer : Comparer<IMapData>
+    public class MapDataComparer : Comparer<IMapDataBase>
     {
-        public override int Compare(IMapData m1, IMapData m2) => string.Compare(m1?.FullPath, m2?.FullPath, true);
+        public override int Compare(IMapDataBase m1, IMapDataBase m2) => string.Compare(m1?.FullPath, m2?.FullPath, true);
 
         public static readonly MapDataComparer Comparer = new MapDataComparer();
     }
@@ -117,11 +117,11 @@ namespace Core
     public static class MappedData
     {
 
-        static SortedItems<IMapData> _Data = new SortedItems<IMapData>() { Comparer = MapDataComparer.Comparer };
+        static SortedItems<IMapDataBase> _Data = new SortedItems<IMapDataBase>() { Comparer = MapDataComparer.Comparer };
         /// <summary>
         /// Размеченные данные
         /// </summary>
-        public static IList<IMapData> Data => _Data;
+        public static IList<IMapDataBase> Data => _Data;
 
         /// <summary>
         /// Словарь строковых значений
@@ -253,7 +253,7 @@ namespace Core
                 _Data.Add(data);
             else
             {
-                data = _Data[idx];
+                data = _Data[idx] as IMapData;
                 if (safe)
                     RemoveMapInfo(data);
                 else
@@ -313,7 +313,7 @@ namespace Core
             var idx = _Data.IndexOf(new Dummy() { fullpath = name });
             if (idx < 0)
                 return;
-            var data = _Data[idx];
+            var data = _Data[idx] as IMapData;
             RemoveMapInfo(data);
             _Data.Remove(data);
         }
@@ -321,23 +321,10 @@ namespace Core
         /// <summary>
         /// Пустышка для поиска файла
         /// </summary>
-        struct Dummy : IMapData
+        struct Dummy : IMapDataBase
         {
             public string fullpath;
-            public string Ext { get { return null; } }
             public string FullPath { get { return fullpath; } }
-            public bool IsMapped { get { return true; } }
-            public IEnumerable<IMapItemRange> Items { get { return null; } }
-            public string Name { get { return null; } }
-            public string Path { get { return null; } }
-            public string Text { get { return null; } }
-            public event PropertyChangedEventHandler PropertyChanged;
-            public void ClearItems() {}
-            public IMapValueItem ValueItemAt(int index) => null;
-            public IEnumerable<IMapItemRange> ItemsBetween(int start, int end) => null;
-            public void Remap(bool ifChanged, bool safe) {}
-            public void SaveText(string text) {}
-            public IList<IMapItemRange> ItemsAt(int index) => null;
         }
 
         /// <summary>
@@ -350,7 +337,7 @@ namespace Core
             var idx = _Data.IndexOf(new Dummy() { fullpath = name });
             if (idx < 0)
                 return null;
-            return _Data[idx];
+            return _Data[idx] as IMapData;
         }
 
         /// <summary>
@@ -511,44 +498,54 @@ namespace Core
             return res;
         }
 
+        /// <summary>
+        /// Фильтр по методам, возвращает список соответствующий условиям вхождения в список переданных методов.
+        /// </summary>
+        /// <param name="methodsFilter">Словарь методов где значение метода указывает, строка должна попадать или не попадать в область метода.</param>
+        /// <param name="lst">Фильтруемый список значений.</param>
+        /// <returns>Список значений прошедших фильтрацию.</returns>
         public static IEnumerable<IMapRecord> MethodsFilter(IDictionary<IMapRecord, bool> methodsFilter, IEnumerable<IMapRecord> lst)
         {
             if (methodsFilter == null || methodsFilter.Count() == 0 || lst == null)
                 return lst;
 
             var res = new List<IMapRecord>();
+            //осуществляем перебор всех значений
             foreach (IMapRecordFull r in lst)
             {
-                var found = false;
-                foreach (var m in methodsFilter)
+                foreach (var d in r.Data)
                 {
-                    found = false;
-                    var data = (m.Key as IMapRecordFull).Data.Intersect(r.Data);
-                    if (data != null && data.Count() > 0)
+                    //флаг обозначающий, что значение прошло все фильтры
+                    var found = false;
+                    //получим все разметки нашего значения в файле
+                    var rItems = d.GetItemsWithValue<IMapValueItem>(r);
+                    //пройдемся по каждой
+                    foreach (var itm in rItems)
                     {
-                        foreach (var d in data)
+                        //получим методы охватывающие значение 
+                        var mts = d.ItemsAt<IMapMethodItem>(itm.Start);
+                        //выберем из них те, что есть в фильтре
+                        var mtsF = mts.Select(m => methodsFilter.FirstOrDefault(mf => m.IsSameValue(mf.Key))).Where(k => k.Key != null);
+                        found = true;
+                        //посмотрим должны ли быть вхождения в методы не охватывающие значение 
+                        foreach (var mf in methodsFilter.Except(mtsF))
+                            found &= !mf.Value;
+                        //и тоже самое в те, что охватывали
+                        if (found)
                         {
-                            foreach (var itm in d.Items)
-                            {
-                                var met = itm as IMapMethodItem;
-                                if (met != null && met.IsSameValue(m.Key))
-                                {
-                                    var vals = d.ItemsBetween(met.Start, met.End).Where(vi => vi is IMapValueItem && (vi as IMapValueItem).IsSameValue(r));
-                                    found = vals.Count() > 0;
-                                    if (found)
-                                        break;
-                                }
-                            }
-                            found = found == m.Value;
+                            foreach (var mf in mtsF)
+                                found &= mf.Value;
                             if (found)
                                 break;
                         }
                     }
-                    if (!found)
+                    //значение прошло фильтры
+                    if (found)
+                    {
+                        res.Add(r);
                         break;
+                    }
                 }
-                if (found)
-                    res.Add(r);
             }
             return res;
         }
@@ -557,7 +554,7 @@ namespace Core
         /// Поиск в словаре. Использует регулярку
         /// </summary>
         /// <param name="expr">
-        /// Искомое выражение, в начале можно указать параметры поиска в фармате ?[params]:[expr]
+        /// Искомое выражение, в начале можно указать параметры поиска в фармате и фильтры по методам #[filter]:?[params]:[expr]
         /// <para>?e:[expr]   - вырожению должна соответствовать строка</para>
         /// <para>?t:[expr]   - вырожению должен соответствовать перевод</para>
         /// <para>?et:[expr]  - вырожению должны соответствовать и строка и её перевод</para>

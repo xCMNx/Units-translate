@@ -347,7 +347,7 @@ namespace Units_translate
 
         IEnumerable<IMapData> ExecFilterFiles(string filter = null)
         {
-            IEnumerable<IMapData> data = MappedData.Data;
+            IEnumerable<IMapData> data = MappedData.Data.Cast<IMapData>();
             if (_MappedOnly)
                 data = data.Where(it => it.IsMapped);
             if (_CyrilicOnly)
@@ -448,7 +448,7 @@ namespace Units_translate
                 int cnt = 0;
                 foreach (var data in MappedData.Data)
                 {
-                    MappedData.UpdateData(data, false, true);
+                    MappedData.UpdateData((IMapData)data, false, true);
                     if (callback != null) callback(data.FullPath, ++cnt);
                 }
             }

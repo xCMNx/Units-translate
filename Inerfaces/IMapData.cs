@@ -4,19 +4,23 @@ using System.ComponentModel;
 
 namespace Core
 {
+    public interface IMapDataBase
+    {
+        /// <summary>
+        /// Полный путь к размеченному файлу
+        /// </summary>
+        string FullPath { get; }
+    }
+
     /// <summary>
     /// Интерфейс данных разметки
     /// </summary>
-    public interface IMapData : INotifyPropertyChanged
+    public interface IMapData : IMapDataBase, INotifyPropertyChanged
     {
         /// <summary>
         /// Размеченные области
         /// </summary>
         IEnumerable<IMapItemRange> Items { get; }
-        /// <summary>
-        /// Полный путь к размеченному файлу
-        /// </summary>
-        string FullPath { get; }
         /// <summary>
         /// Путь к папке файла
         /// </summary>
@@ -44,14 +48,14 @@ namespace Core
         /// <param name="start">Начало диапазона поиска</param>
         /// <param name="end">Конец диапазона поиска</param>
         /// <returns></returns>
-        IEnumerable<IMapItemRange> ItemsBetween(int start, int end);
+        IEnumerable<T> ItemsBetween<T>(int start, int end) where T : class, IMapItemRange;
 
         /// <summary>
         /// Возвращает области разметки по указанному смещению
         /// </summary>
         /// <param name="index">Смещение в тексте</param>
         /// <returns>Найденные области</returns>
-        IList<IMapItemRange> ItemsAt(int index);
+        IList<T> ItemsAt<T>(int index) where T : class, IMapItemRange;
 
         /// <summary>
         /// Возвращает область разметки являющуюся значением по указанному смещению
@@ -59,6 +63,13 @@ namespace Core
         /// <param name="index">Смещение в тексте</param>
         /// <returns>Найденная область или null</returns>
         IMapValueItem ValueItemAt(int index);
+
+        /// <summary>
+        /// Вернет список разметок значения которых является переданный объект. Разметки сами должны сверять себя с объектами.
+        /// </summary>
+        /// <param name="obj">Искомый объект</param>
+        /// <returns></returns>
+        IEnumerable<T> GetItemsWithValue<T>(object obj) where T : class, IMapItemBase;
 
         /// <summary>
         /// Просит переразметить файл

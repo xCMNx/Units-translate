@@ -101,15 +101,15 @@ namespace Units_translate
         /// <param name="start">Начало диапазона поиска</param>
         /// <param name="end">Конец диапазона поиска</param>
         /// <returns></returns>
-        public IEnumerable<IMapItemRange> ItemsBetween(int start, int end)
+        public IEnumerable<T> ItemsBetween<T>(int start, int end) where T : class, IMapItemRange
         {
-            var res = new List<IMapItemRange>();
+            var res = new List<T>();
             foreach (var item in _Items)
             {
                 if (item.Start > end)
                     break;
-                if (item.End > start)
-                    res.Add(item);
+                if (item.End > start && item as T != null)
+                    res.Add(item as T);
             }
             return res;
         }
@@ -208,15 +208,35 @@ namespace Units_translate
         /// </summary>
         /// <param name="index">Смещение в тексте</param>
         /// <returns>Найденные области</returns>
-        public IList<IMapItemRange> ItemsAt(int index)
+        public IList<T> ItemsAt<T>(int index) where T : class, IMapItemRange
         {
-            var res = new List<IMapItemRange>();
+            var res = new List<T>();
             foreach (var item in _Items)
+            {
                 if (item.Start > index)
                     break;
-                else if (item.Start <= index && item.End >= index)
-                    res.Add(item);
+                else if (item.Start <= index && item.End >= index && item as T != null)
+                    res.Add(item as T);
+            }
             return res;
+        }
+
+        /// <summary>
+        /// Вернет список разметок значения которых является переданный объект. Разметки сами должны сверять себя с объектами.
+        /// </summary>
+        /// <param name="obj">Искомый объект</param>
+        /// <returns></returns>
+        public IEnumerable<T> GetItemsWithValue<T>(object obj) where T : class, IMapItemBase
+        {
+            var lst = new List<T>();
+            if (obj != null)
+                foreach (var itm in Items)
+                {
+                    var it = itm as T;
+                    if (it != null && it.IsSameValue(obj))
+                        lst.Add(it);
+                }
+            return lst;
         }
     }
 }

@@ -41,6 +41,7 @@
     <Compile Include="IMapBackgroundColorRange.cs" />
     <Compile Include="IMapData.cs" />
     <Compile Include="IMapForeColorRange.cs" />
+    <Compile Include="IMapItemBase.cs" />
     <Compile Include="IMapMethodItem.cs" />
     <Compile Include="IMapValueItem.cs" />
     <Compile Include="IMapItemValueRange.cs" />

@@ -59,7 +59,7 @@ namespace Units_translate.Views
                 return;
             int start = line.Offset;
             int end = line.EndOffset;
-            var items = Data.ItemsBetween(start, end);
+            var items = Data.ItemsBetween<IMapItemRange>(start, end);
             foreach (var item in items)
                 ChangeLinePart(Math.Max(start, item.Start), Math.Min(item.End, end), ValueTypeToAction(item));
         }
