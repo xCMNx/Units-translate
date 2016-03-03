@@ -34,6 +34,8 @@ namespace pascal
                             idx++;
                         res.Add(GetPair(str.Substring(start, idx - start), isCode));
                         start = idx;
+                        if (str.Length <= idx)
+                            return res;
                         isCode = isCodeChar(str[idx], controlOnly);
                     }
                 }
