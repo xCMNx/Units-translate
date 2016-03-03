@@ -76,7 +76,7 @@ namespace Core
     /// <summary>
     /// Структура для словаря размеченных значений, содержит значение и связанные с ним размеченные данные
     /// </summary>
-    public struct MapValueRecord : IMapValueRecord
+    public class MapValueRecord : BindableBase, IMapValueRecord
     {
         string value;
         string translation;
@@ -84,7 +84,11 @@ namespace Core
         public string Translation
         {
             get { return translation; }
-            set { translation = value; }
+            set
+            {
+                translation = value;
+                NotifyPropertyChanged(nameof(Translation));
+            }
         }
 
         SortedObservableCollection<IMapData> data;
