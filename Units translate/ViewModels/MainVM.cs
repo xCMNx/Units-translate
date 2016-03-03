@@ -642,14 +642,14 @@ namespace Units_translate
         SortedList<IMapRecordFull, SortedItems<string>> _TranslationConflicts = new SortedList<IMapRecordFull, SortedItems<string>>(MapRecordComparer.Comparer);
         public SortedList<IMapRecordFull, SortedItems<string>> TranslationConflicts => _TranslationConflicts;
 
-        KeyValuePair<IMapValueRecord, SortedItems<string>> _SelectedConflict;
-        public KeyValuePair<IMapValueRecord, SortedItems<string>> SelectedConflict
+        KeyValuePair<IMapRecordFull, SortedItems<string>> _SelectedConflict;
+        public KeyValuePair<IMapRecordFull, SortedItems<string>> SelectedConflict
         {
             get { return _SelectedConflict; }
             set
             {
                 _SelectedConflict = value;
-                SelectedValue = _SelectedConflict.Key;
+                SelectedValue = _SelectedConflict.Key as IMapValueRecord;
                 NotifyPropertyChanged(nameof(SelectedConflict));
             }
         }
