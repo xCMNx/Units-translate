@@ -111,7 +111,7 @@
                 </Grid.RowDefinitions>
                 <views:CodeView Grid.Row="0"/>
                 <GridSplitter Grid.Row="1" VerticalAlignment="Center" Height="3" HorizontalAlignment="Stretch" IsEnabled="{Binding IsExpanded, ElementName=editor}" ResizeDirection="Rows"/>
-                <Expander Grid.Row="2" Header="Редактор" Name="editor" IsExpanded="{Binding EditorIsShowned}" IsEnabled="{Binding EditorIsEnabled}" Collapsed="Expander_Collapsed">
+                <Expander Grid.Row="2" Header="Редактор" Name="editor" IsExpanded="{Binding EditorIsShown}" IsEnabled="{Binding EditorIsEnabled}" Collapsed="Expander_Collapsed" Expanded="editor_Expanded">
                     <views:EditView DataContext="{Binding}" MinHeight="200"/>
                 </Expander>
 

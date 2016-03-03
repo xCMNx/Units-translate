@@ -126,9 +126,16 @@ namespace Units_translate
                 mainVm.LoadTranslations(od.FileName);
         }
 
+        double prevHeight = 300;
         private void Expander_Collapsed(object sender, RoutedEventArgs e)
         {
+            prevHeight = editor.ActualHeight;
             expanderRow.Height = GridLength.Auto;
+        }
+
+        private void editor_Expanded(object sender, RoutedEventArgs e)
+        {
+            expanderRow.Height = new GridLength(prevHeight);
         }
 
         private void Button_Click_5(object sender, RoutedEventArgs e)

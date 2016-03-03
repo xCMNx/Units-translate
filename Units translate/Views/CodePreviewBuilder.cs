@@ -73,10 +73,14 @@ namespace Units_translate.Views
             var nums = new StackPanel();
             Grid.SetColumn(nums, 0);
             var vals = new StackPanel();
+            Grid.SetColumn(vals, 1);
+            grid.Children.Add(vals);
+            /*
             var sb = new ScrollViewer() { Content = vals, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled };
             Grid.SetColumn(sb, 1);
-            grid.Children.Add(nums);
             grid.Children.Add(sb);
+            //*/
+            grid.Children.Add(nums);
             var changed = !string.IsNullOrWhiteSpace(value);
 
             var lIdx = map.LineIndexAt(itm.Start);

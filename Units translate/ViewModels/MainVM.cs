@@ -190,14 +190,14 @@ namespace Units_translate
 
         public bool EditorIsEnabled=> SelectedValue != null;
 
-        bool _EditorIsShowned = false;
-        public bool EditorIsShowned
+        bool _EditorIsShown = false;
+        public bool EditorIsShown
         {
-            get { return _EditorIsShowned; }
+            get { return _EditorIsShown; }
             set
             {
-                _EditorIsShowned = value;
-                NotifyPropertyChanged(nameof(EditorIsShowned));
+                _EditorIsShown = value;
+                NotifyPropertyChanged(nameof(EditorIsShown));
             }
         }
 
@@ -213,7 +213,7 @@ namespace Units_translate
                 if (_SelectedValue != value)
                 {
                     _SelectedValue = value;
-                    EditorIsShowned = EditorIsEnabled;
+                    EditorIsShown = EditorIsEnabled;
                     NotifyPropertiesChanged(nameof(SelectedValue), nameof(EditorIsEnabled));
                 }
             }

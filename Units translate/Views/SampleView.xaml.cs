@@ -120,7 +120,7 @@ namespace Units_translate.Views
 
         void Update()
         {
-            container.Children.Clear();
+            Children.Clear();
             var val = Value;
             if (val == null || Data == null)
                 return;
@@ -169,7 +169,7 @@ namespace Units_translate.Views
                         VerticalAlignment = VerticalAlignment.Center,
                         Margin = stackMargin
                     });
-                    container.Children.Add(new Expander()
+                    Children.Add(new Expander()
                     {
                         Header = stack,
                         Content = previewData.Item1,
