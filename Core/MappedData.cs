@@ -37,7 +37,7 @@ namespace Core
     {
         SortedObservableCollection<IMapData> Data { get; }
     }
-    public interface IMapValueRecord : IMapRecordFull
+    public interface IMapValueRecord : IMapRecordFull, INotifyPropertyChanged
     {
         string Translation { get; set; }
     }

@@ -33,7 +33,7 @@ namespace Units_translate.Views
 
         private void tbTranslation_PreviewKeyUp(object sender, KeyEventArgs e)
         {
-            if (Keyboard.IsKeyDown(Key.LeftCtrl))
+            if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
             {
                 switch (e.Key)
                 {

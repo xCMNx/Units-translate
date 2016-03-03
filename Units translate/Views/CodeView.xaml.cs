@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Media;
 using Core;
 
@@ -18,9 +19,8 @@ namespace Units_translate.Views
         TextBlock EmptyText = new TextBlock() { Text = "Нет перевода", Foreground = Brushes.Red };
         TextBlock ContentText = new TextBlock();
         TextBox ContentTextEdit = new TextBox() { MinWidth = 150, MaxWidth = 600, MaxHeight = 400, AcceptsReturn = true, AcceptsTab = true, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto};
-        System.Timers.Timer toolTipCloseTimer = new System.Timers.Timer(500);
-        //static Geometry glphEdit = Geometry.Parse("F1 M 53.2929,21.2929L 54.7071,22.7071C 56.4645,24.4645 56.4645,27.3137 54.7071,29.0711L 52.2323,31.5459L 44.4541,23.7677L 46.9289,21.2929C 48.6863,19.5355 51.5355,19.5355 53.2929,21.2929 Z M 31.7262,52.052L 23.948,44.2738L 43.0399,25.182L 50.818,32.9601L 31.7262,52.052 Z M 23.2409,47.1023L 28.8977,52.7591L 21.0463,54.9537L 23.2409,47.1023 Z M 17,28L 17,23L 23,23L 23,17L 28,17L 28,23L 34,23L 34,28L 28,28L 28,34L 23,34L 23,28L 17,28 Z");
-        //UserControl tooltipContent = new UserControl();
+        System.Timers.Timer toolTipCloseTimer = new System.Timers.Timer(1000);
+
         public CodeView()
         {
             InitializeComponent();
@@ -32,23 +32,14 @@ namespace Units_translate.Views
             ContentText.MouseDown += EmptyText_MouseDown;
             ContentTextEdit.PreviewLostKeyboardFocus += ContentTextEdit_LostFocus;
             ContentTextEdit.PreviewKeyUp += ContentTextEdit_PreviewKeyUp;
-        //var grd = new Grid();
-        //grd.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(20) });
-        //grd.ColumnDefinitions.Add(new ColumnDefinition());
-        //var btnEdit = new Button() { Content = new Path() { Data = glphEdit, Stretch = Stretch.Uniform, Fill = Brushes.Black } };
-        //grd.Children.Add(btnEdit);
-        //grd.Children.Add(tooltipContent);
-        //Grid.SetColumn(tooltipContent, 1);
-        //toolTip.Content = grd;
-        //toolTip.PlacementTarget = this;
-        //toolTip.MouseEnter += (s, e) => toolTipCloseTimer.Stop();
-        //btnEdit.IsHitTestVisible = true;
         }
 
         private void ContentTextEdit_PreviewKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if (e.Key == System.Windows.Input.Key.Escape)
+            if (e.Key == Key.Escape)
                 toolTip.IsOpen = false;
+            else if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control) && e.Key == Key.Enter)
+                (ContentTextEdit.Tag as IMapValueRecord).Translation = ContentTextEdit.Text;
         }
 
         private void ContentTextEdit_LostFocus(object sender, RoutedEventArgs e)
@@ -185,8 +176,6 @@ namespace Units_translate.Views
             ContentTextEdit.Text = str;
             ContentTextEdit.Tag = mapItm;
             toolBrd.Child = string.IsNullOrWhiteSpace(str) ? EmptyText : ContentText;
-            //toolTip.Content = string.IsNullOrWhiteSpace(str) ? EmptyText : (object)str;
-            //tooltipContent.Content = string.IsNullOrWhiteSpace(str) ? EmptyText : (object)str;
             toolTip.IsOpen = true;
             e.Handled = true;
         }
