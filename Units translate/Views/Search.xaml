@@ -25,5 +25,12 @@
     </Grid>
     <TextBox Name="tbSearch" Grid.Row="1" AcceptsReturn="True" Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged, Delay=1000}" TextWrapping="Wrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" KeyUp="tbSearch_KeyUp"/>
     <GridSplitter Grid.Row="2" Height="3" HorizontalAlignment="Stretch"/>
-    <ListBox Name="lbSearchResults" Grid.Row="3" SelectedItem="{Binding SelectedValue}" ItemsSource="{Binding SearchResults, Mode=OneWay}" DisplayMemberPath="Value" MouseDoubleClick="lbSearchResults_MouseDoubleClick"/>
+    <Grid Grid.Row="3">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <ProgressBar Grid.Row="0" Height="5" IsIndeterminate="True" Visibility="{Binding Searching, Converter={StaticResource BoolTovis}, ConverterParameter=C}"/>
+        <ListBox Grid.Row="1" Name="lbSearchResults" SelectedItem="{Binding SelectedValue}" ItemsSource="{Binding SearchResults, Mode=OneWay}" DisplayMemberPath="Value" MouseDoubleClick="lbSearchResults_MouseDoubleClick" Grid.RowSpan="2"/>
+    </Grid>
 </Grid>

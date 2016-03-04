@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -473,7 +474,7 @@ namespace Core
         /// <param name="expr">Искомое выражение</param>
         /// <param name="param">Параметры поиска</param>
         /// <returns>Список совпадающих записей словаря</returns>
-        public static IEnumerable<IMapRecord> Search(string expr, SearchParams param)
+        public static IEnumerable<IMapRecord> Search(string expr, SearchParams param, CancellationToken ct)
         {
             if (string.IsNullOrWhiteSpace(expr))
                 return null;
@@ -482,20 +483,22 @@ namespace Core
             {
                 var rgxp = new Regex(expr);
                 Func<IMapValueRecord, bool> cmpr = null;
-                if(param.HasFlag(SearchParams.Eng))
+                if (param.HasFlag(SearchParams.Eng))
                     if (param.HasFlag(SearchParams.Trans))
                         cmpr = it => rgxp.IsMatch(it.Value) && rgxp.IsMatch(it.Translation);
                     else
                         cmpr = it => rgxp.IsMatch(it.Value);
                 else if (param.HasFlag(SearchParams.Trans))
-                        cmpr = it => rgxp.IsMatch(it.Translation);
-                    else
-                        cmpr = it => rgxp.IsMatch(it.Value) || rgxp.IsMatch(it.Translation);
+                    cmpr = it => rgxp.IsMatch(it.Translation);
+                else
+                    cmpr = it => rgxp.IsMatch(it.Value) || rgxp.IsMatch(it.Translation);
                 foreach (IMapValueRecord it in _ValuesDictionary)
-                    if (it.Data.Count > 0 && cmpr(it))
+                    if (ct.IsCancellationRequested)
+                        return res;
+                    else if (it.Data.Count > 0 && cmpr(it))
                         res.Add(it);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Helpers.ConsoleWrite(e.ToString(), ConsoleColor.Green);
             }
@@ -508,16 +511,29 @@ namespace Core
         /// <param name="methodsFilter">Словарь методов где значение метода указывает, строка должна попадать или не попадать в область метода.</param>
         /// <param name="lst">Фильтруемый список значений.</param>
         /// <returns>Список значений прошедших фильтрацию.</returns>
-        public static IEnumerable<IMapRecord> MethodsFilter(IDictionary<IMapRecord, bool> methodsFilter, IEnumerable<IMapRecord> lst)
+        public static IEnumerable<IMapRecord> MethodsFilter(IDictionary<IMapRecord, bool> methodsFilter, IEnumerable<IMapRecord> lst, CancellationToken ct)
         {
             if (methodsFilter == null || methodsFilter.Count() == 0 || lst == null)
                 return lst;
+
+            //файлы в которых есть все нужные методы для фильтра
+            IEnumerable<IMapData> mData = null;
+            foreach (var itm in methodsFilter)
+                if (itm.Value)
+                {
+                    var tmp = (itm.Key as IMapRecordFull).Data as IEnumerable<IMapData>;
+                    mData = mData == null ? tmp : mData.Intersect(tmp);
+                }
 
             var res = new List<IMapRecord>();
             //осуществляем перебор всех значений
             foreach (IMapRecordFull r in lst)
             {
-                foreach (var d in r.Data)
+                if (ct.IsCancellationRequested)
+                    return res;
+                //зразу откинем файлы в которых нет методов которые должны быть по фильтру
+                var fData = mData == null ? r.Data : r.Data.Intersect(mData);
+                foreach (var d in fData)
                 {
                     //флаг обозначающий, что значение прошло все фильтры
                     var found = false;
@@ -565,7 +581,7 @@ namespace Core
         /// <para>?:[expr]    - вырожению должны соответствовать или строка или перевод</para>
         /// </param>
         /// <returns>Список совпадающих записей словаря</returns>
-        public static IEnumerable<IMapRecord> Search(string expr)
+        public static IEnumerable<IMapRecord> Search(string expr, CancellationToken ct)
         {
             var lexpr = expr;
 
@@ -585,7 +601,7 @@ namespace Core
                     var m = GetMethodRecord(prm);
                     if (m == null)
                     {
-                        Helpers.ConsoleWrite($"Запись {p} не найдена.");
+                        Helpers.ConsoleWrite($"Запись {prm} не найдена.");
                         return null;
                     }
                     methodsFilter[m] = p[0] != '!';
@@ -606,10 +622,10 @@ namespace Core
                 if (prm.Contains('t'))
                     param |= SearchParams.Trans;
 
-                return MethodsFilter(methodsFilter, Search(lexpr.Substring(i + 1), param));
+                return MethodsFilter(methodsFilter, Search(lexpr.Substring(i + 1), param, ct), ct);
             }
 
-            return MethodsFilter(methodsFilter, Search(lexpr, SearchParams.EngOrTrans));
+            return MethodsFilter(methodsFilter, Search(lexpr, SearchParams.EngOrTrans, ct), ct);
         }
 
         static MappedData()

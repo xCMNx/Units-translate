@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Booru.Ui;
@@ -536,11 +539,37 @@ namespace Units_translate
         /// </summary>
         public string SearchText
         {
-            set
+            set { Search(value); }
+        }
+
+        bool _Searching = false;
+        public bool Searching
+        {
+            get { return _Searching; }
+            protected set
             {
-                SearchResults = MappedData.Search(value);
-                NotifyPropertyChanged(nameof(SearchResults));
+                _Searching = value;
+                NotifyPropertyChanged(nameof(Searching));
             }
+        }
+
+        CancellationTokenSource _SearchCToken = new CancellationTokenSource();
+        void Search(string Expr)
+        {
+            _SearchCToken.Cancel();
+            var localToken = _SearchCToken = new CancellationTokenSource();
+            Searching = true;
+            Task.Factory.StartNew(() =>
+            {
+                var res = MappedData.Search(Expr, localToken.Token);
+                Helpers.mainCTX.Send(_ =>
+                {
+                    SearchResults = res;
+                    NotifyPropertyChanged(nameof(SearchResults));
+                    if (_SearchCToken == localToken)
+                        Searching = false;
+                }, null);
+            });
         }
 
         /// <summary>

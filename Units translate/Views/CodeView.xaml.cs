@@ -161,6 +161,7 @@ namespace Units_translate.Views
         {
             if (colorizer.Data == null || (toolTip.IsOpen && toolBrd.Child == ContentTextEdit))
                 return;
+            toolTip.IsOpen = false;
             var pos = code.GetPositionFromPoint(e.GetPosition(code));
             if (!pos.HasValue)
                 return;
