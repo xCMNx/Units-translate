@@ -474,18 +474,23 @@ namespace Units_translate
             if (watchers.ContainsKey(path))
                 return;
             var w = new FileSystemWatcher(path);
-            watchers.Add(path, w);
-            w.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
+            w.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
             w.Filter = "*.*";
             w.Changed += W_Changed;
             w.Deleted += W_Deleted;
-            w.EnableRaisingEvents = true;
-            //пройдем по имеющимся мониторам и подкорректируем 
-            foreach (var wtc in watchers)
-                if (wtc.Key.StartsWith(path))
-                    return;//новый путь входит в подкаталоги уже наблюдаемой папки, активация монитора не нужна
-                else if (path.StartsWith(wtc.Key))
-                    wtc.Value.EnableRaisingEvents = false;//новая папка содержит наблюдаемый каталог, выключим наблюдение, т.к. за старой папкой будет наблюдать новый монитор
+            try
+            {
+                //пройдем по имеющимся мониторам и подкорректируем 
+                foreach (var wtc in watchers)
+                    if (wtc.Key.StartsWith(path))
+                        return;//новый путь входит в подкаталоги уже наблюдаемой папки, активация монитора не нужна
+                    else if (path.StartsWith(wtc.Key))
+                        wtc.Value.EnableRaisingEvents = false;//новая папка содержит наблюдаемый каталог, выключим наблюдение, т.к. за старой папкой будет наблюдать новый монитор
+            }
+            finally
+            {
+                watchers.Add(path, w);
+            }
             //активируем наблюдение
             w.EnableRaisingEvents = true;
         }

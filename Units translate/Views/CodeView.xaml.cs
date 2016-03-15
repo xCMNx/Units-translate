@@ -123,16 +123,26 @@ namespace Units_translate.Views
         static Action<VisualLineElement> _guid = (VisualLineElement element) => element.TextRunProperties.SetForegroundBrush(Brushes.Gray);
         static Action<VisualLineElement> _directive = (VisualLineElement element) => element.TextRunProperties.SetForegroundBrush(Brushes.LightBlue);
         static Action<VisualLineElement> _string = (VisualLineElement element) => element.TextRunProperties.SetForegroundBrush(Brushes.Blue);
+        static Action<VisualLineElement> _stringNoTrans = (VisualLineElement element) =>
+        {
+            element.TextRunProperties.SetForegroundBrush(Brushes.Blue);
+            element.TextRunProperties.SetBackgroundBrush(Brushes.LightPink);
+        };
         static Action<VisualLineElement> _none = (VisualLineElement element) => element.TextRunProperties.SetForegroundBrush(Brushes.Red);
 
-        static Action<VisualLineElement> ValueTypeToAction(MapItemType vt)
+        static Action<VisualLineElement> ValueTypeToAction(IMapItem item)
         {
-            switch (vt)
+            switch (item.ItemType)
             {
                 case MapItemType.Commentary: return _comment;
                 case MapItemType.Interface: return _guid;
                 case MapItemType.Directive: return _directive;
-                case MapItemType.String: return _string;
+                case MapItemType.String:
+                    {
+                        if (string.IsNullOrWhiteSpace(((IMapRecordFull)MappedData.GetValueRecord(item.Value, MapItemType.String)).Translation))
+                            return _stringNoTrans;
+                        return _string;
+                    }
             }
             return _none;
         }
@@ -145,7 +155,7 @@ namespace Units_translate.Views
             int end = line.EndOffset;
             var items = Data.ItemsBetween(start, end);
             foreach (var item in items)
-                ChangeLinePart(Math.Max(start, item.Start), Math.Min(item.End, end), ValueTypeToAction(item.ItemType));
+                ChangeLinePart(Math.Max(start, item.Start), Math.Min(item.End, end), ValueTypeToAction(item));
         }
     }
 }
