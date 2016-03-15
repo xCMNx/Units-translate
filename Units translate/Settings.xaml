@@ -1,0 +1,48 @@
+﻿<UserControl x:Class="Units_translate.Settings"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Units_translate"
+             xmlns:core="clr-namespace:Core;assembly=Core"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="3"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <GroupBox Header="Игнор" ToolTip="Используются регулярки, можно одну на всё, можно несколько, разделяются новой строкой">
+            <TextBox x:Name="tbIgnore" Grid.Row="0" AcceptsReturn="True" Text="{Binding IgnoreText, Mode=OneWay}" TextWrapping="Wrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
+        </GroupBox>
+        <GridSplitter Grid.Row="1" Height="3" HorizontalAlignment="Stretch" />
+        <GroupBox Grid.Row="2" Header="Кодировка чтения файлов" ToolTip="Используется если не удалось автоматически определить кодировку">
+            <ComboBox Name="cbReadEncoding" ItemsSource="{Binding Encodings}" DisplayMemberPath="HeaderName" SelectedItem="{Binding ReadEncoding, Mode=OneWay}"/>
+        </GroupBox>
+        <GroupBox Grid.Row="3" Header="Кодировка записи файлов" ToolTip="Eсли не активен, будет использоваться запись в формате чтения">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <CheckBox VerticalAlignment="Center" Name="chbSaveEncodingChecked" IsChecked="{Binding UseWriteEncoding, Mode=OneWay}"/>
+                <ComboBox Grid.Column="1" IsEnabled="{Binding IsChecked, ElementName=chbSaveEncodingChecked}" Name="cbWriteEncoding" ItemsSource="{Binding Encodings}" DisplayMemberPath="HeaderName" SelectedItem="{Binding WriteEncoding, Mode=OneWay}"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="4" Header="Мапперы">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="3"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <ListBox Grid.Column="0" Name="mappers" DisplayMemberPath="Name" ItemsSource="{Binding Source={x:Static core:Mappers.List}}"/>
+                <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                <UserControl Content="{Binding SelectedItem.SettingsControl, ElementName=mappers}" Grid.Column="2" Name="container"/>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

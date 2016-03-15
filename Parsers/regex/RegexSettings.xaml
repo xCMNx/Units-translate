@@ -1,0 +1,24 @@
+﻿<Grid x:Class="regex.RegexSettings"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:regex"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <TextBox Name="Settings" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextWrapping="NoWrap" AcceptsReturn="True" Grid.Row="0"/>
+    <Expander Grid.Row="1">
+        <TextBlock Text="Группы:&#13;
+  S - строки&#13;
+  C - комментарии&#13;
+  G - GUID&#13;
+  D - директивы&#13;&#13;
+Пример:&#13;
+  PAS =\{(?&lt;D&gt;\$.*?)[\}\r\n]|//(?&lt;C&gt;.*?)$|'(?&lt;S&gt;.+?)['\r\n]">
+        </TextBlock>
+    </Expander>
+</Grid>
