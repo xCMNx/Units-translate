@@ -39,7 +39,10 @@ namespace Units_translate.Views
             if (e.Key == Key.Escape)
                 toolTip.IsOpen = false;
             else if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control) && e.Key == Key.Enter)
+            {
                 (ContentTextEdit.Tag as IMapValueRecord).Translation = ContentTextEdit.Text;
+                toolTip.IsOpen = false;
+            }
         }
 
         private void ContentTextEdit_LostFocus(object sender, RoutedEventArgs e)
@@ -173,9 +176,9 @@ namespace Units_translate.Views
                 return;
             toolTipCloseTimer.Stop();
             var str = mapItm.Translation;
-            ContentText.Text = str;
             ContentTextEdit.Text = str;
             ContentTextEdit.Tag = mapItm;
+            ContentText.Text = str;
             toolBrd.Child = string.IsNullOrWhiteSpace(str) ? EmptyText : ContentText;
             toolTip.IsOpen = true;
             e.Handled = true;

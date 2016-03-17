@@ -38,7 +38,7 @@ namespace Units_translate.Views
             public readonly List<int> LineLength;
             public readonly string Code;
 
-            static Regex linesRegex = new Regex(@"(?ixmn)(?<sl>^).*?(?<el>$)");
+            static Regex linesRegex = new Regex(@"(?ixmn)(?<sl>^).*?(?<el>[\r\n])");
             public PreviewMap(string code)
             {
                 Code = code;
@@ -48,8 +48,9 @@ namespace Units_translate.Views
                 foreach (Match m in matches)
                 {
                     var idx = m.Groups["sl"].Index;
+                    var eIdx = m.Groups["el"].Index;
                     LineStart.Add(idx);
-                    LineLength.Add(m.Groups["el"].Index - idx - 1);
+                    LineLength.Add(eIdx - idx);
                 }
             }
 
@@ -94,6 +95,19 @@ namespace Units_translate.Views
                 {
                     var rIdx = map.LineStart[lIdx];
                     var rLen = map.LineStart[lIdx2] + map.LineLength[lIdx2] - map.LineStart[lIdx];
+                    //var str = map.Code.Substring(rIdx, rLen);
+                    //try
+                    //{
+                    //    var iIdx = itm.EditStart - map.LineStart[lIdx];
+                    //    var len = itm.EditEnd - itm.EditStart;
+                    //    str = str.Remove(iIdx, len);
+                    //    str = str.Insert(iIdx, value).Replace("\r\n", "\n");
+                    //    str = str.Replace("\r\n", "\n");
+                    //}
+                    //catch
+                    //{
+                    //}
+                    //string[] lines = str.Split('\n');
                     string[] lines = map.Code.Substring(rIdx, rLen).
                             Remove(itm.EditStart - map.LineStart[lIdx], itm.EditEnd - itm.EditStart).
                             Insert(itm.EditStart - map.LineStart[lIdx], value).Replace("\r\n", "\n").Split('\n');

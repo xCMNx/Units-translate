@@ -126,7 +126,9 @@ namespace Units_translate
         /// <summary>
         /// последняя дата изменения файла
         /// </summary>
-        DateTime LastUpdate = DateTime.MinValue;
+        DateTime _LastUpdate = DateTime.MinValue;
+
+        public DateTime LastUpdate => _LastUpdate;
 
         public static bool ShowMappingErrors = true;
 
@@ -138,9 +140,9 @@ namespace Units_translate
         public void Remap(bool ifChanged, bool safe)
         {
             var lastwrite = File.GetLastWriteTime(FullPath);
-            if (ifChanged && LastUpdate == lastwrite)
+            if (ifChanged && _LastUpdate == lastwrite)
                 return;
-            LastUpdate = lastwrite;
+            _LastUpdate = lastwrite;
             try
             {
                 _Items = null;

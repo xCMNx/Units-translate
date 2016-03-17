@@ -50,11 +50,20 @@
     <Compile Include="Converters.cs" />
     <Compile Include="ObjectToVisibility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RotaitingPath.cs" />
     <Compile Include="TreeListView.cs" />
     <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="CheckBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="RotaitingPathDefaultStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Units_translate"
              xmlns:UI="clr-namespace:UI;assembly=UI"
-             StartupUri="MainWindow.xaml">
+             StartupUri="MainWindow.xaml" Exit="Application_Exit">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

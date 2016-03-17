@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -57,7 +60,7 @@ namespace Units_translate.Views
           nameof(Format)
           , typeof(string)
           , typeof(SampleView)
-          , new FrameworkPropertyMetadata("{0}", new PropertyChangedCallback(OnValueChanged))
+          , new FrameworkPropertyMetadata("{0}", OnValueChanged)
         );
 
         public string Format
@@ -74,7 +77,7 @@ namespace Units_translate.Views
           nameof(UseFormat)
           , typeof(bool)
           , typeof(SampleView)
-          , new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnValueChanged))
+          , new FrameworkPropertyMetadata(false, OnValueChanged)
         );
 
         public bool UseFormat
@@ -91,7 +94,7 @@ namespace Units_translate.Views
             nameof(Value)
             ,typeof(IMapRecord)
             ,typeof(SampleView)
-            ,new FrameworkPropertyMetadata(null, new PropertyChangedCallback(OnValueChanged))
+            ,new FrameworkPropertyMetadata(null, OnValueChanged)
         );
 
         private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -104,7 +107,7 @@ namespace Units_translate.Views
             get { return (Core.IMapRecord)GetValue(ValueProperty); }
             set
             {
-                SetValue(NewValueProperty, value);
+                SetValue(ValueProperty, value);
                 Update();
             }
         }
@@ -118,12 +121,103 @@ namespace Units_translate.Views
         static Thickness expanderMargin = new Thickness(5);
         static Thickness stackMargin = new Thickness() { Left = 10 };
 
+        static class UpdatePool
+        {
+            static SortedList<int, CancellationTokenSource> breaks = new SortedList<int, CancellationTokenSource>();
+            static SortedList<int, KeyValuePair<Action<CancellationToken>, DateTime>> Queue = new SortedList<int, KeyValuePair<Action<CancellationToken>, DateTime>>();
+            static object Lock = new object();
+            static ManualResetEvent activator = new ManualResetEvent(false);
+
+            public static void AddTask(object target, Action<CancellationToken> action, UInt16 delay)
+            {
+                lock (Lock)
+                {
+                    var tHash = target.GetHashCode();
+                    CancellationTokenSource tkn;
+                    if (breaks.TryGetValue(tHash.GetHashCode(), out tkn))
+                    {
+                        tkn.Cancel();
+                        breaks.Remove(tHash);
+                    }
+                    Queue[tHash.GetHashCode()] = new KeyValuePair<Action<CancellationToken>, DateTime>(action, DateTime.Now.AddMilliseconds(delay));
+                    activator.Set();
+                }
+            }
+
+            public static void CancellTask(object target)
+            {
+                lock (Lock)
+                {
+                    var tHash = target.GetHashCode();
+                    CancellationTokenSource tkn;
+                    if (breaks.TryGetValue(tHash, out tkn))
+                    {
+                        tkn.Cancel();
+                        breaks.Remove(tHash);
+                    }
+                    Queue.Remove(tHash);
+                }
+            }
+
+            static UpdatePool()
+            {
+                new Thread(exec).Start();
+                Helpers.mainCTS.Token.Register(() => activator.Set());
+            }
+
+            static void exec()
+            {
+                while (!Helpers.mainCTS.IsCancellationRequested)
+                {
+                    var lQueue = new List<KeyValuePair<Action<CancellationToken>, CancellationTokenSource>>();
+                    var cnt = 0;
+                    lock (Lock)
+                    {
+                        if (Queue.Count > 0)
+                        {
+                            var time = DateTime.Now;
+                            var qReady = new List<int>();
+                            foreach (var q in Queue)
+                                if (q.Value.Value <= time)
+                                {
+                                    var pair = new KeyValuePair<Action<CancellationToken>, CancellationTokenSource>(q.Value.Key, CancellationTokenSource.CreateLinkedTokenSource(Helpers.mainCTS.Token));
+                                    breaks.Add(q.Key, pair.Value);
+                                    qReady.Add(q.Key);
+                                    lQueue.Add(pair);
+                                }
+                            foreach (var qr in qReady)
+                                Queue.Remove(qr);
+                        }
+                        cnt = Queue.Count;
+                        activator.Reset();
+                    }
+                    foreach (var lq in lQueue)
+                        if (!lq.Value.IsCancellationRequested)
+                            Helpers.mainCTX.Send(_=> lq.Key(lq.Value.Token), null);
+                    if (cnt == 0)
+                        activator.WaitOne();
+                }
+            }
+        }
+
         void Update()
         {
-            Children.Clear();
-            var val = Value;
-            if (val == null || Data == null)
+            ContentContainer.Children.Clear();
+            //сия манстрятина помогает избежать лишних построений списка, т.к. при смене значения, сначала придет ивент нового значения, 
+            //а затем только сменится само значение, такжы при вводе значения или смене обрамления зачения будет сразу перестраиваться,
+            //что в некоторых случаях сделает весьма проблематичным редактирование
+            //данный кастыль добавляет дилэй для ребилда, который заодно пропустит лишние вызовы, и не будет мешать вводу.
+            if (Value == null || Data == null)
+                UpdatePool.CancellTask(this);
+            else
+                UpdatePool.AddTask(this, UpdateExecute, 500);
+        }
+
+        void UpdateExecute(CancellationToken ct)
+        {
+            if (Value == null || Data == null || ct.IsCancellationRequested)
                 return;
+            var val = Value;
             bool noChanges = val.Value == NewValue;
             bool filterEmpty = true;
             if (UseFormat)
@@ -137,8 +231,11 @@ namespace Units_translate.Views
             var previwCount = MainVM.Instance.PreviewLines / 2;
             var map = new PreviewMap(Data.Text);
 
+            List<UIElement> previews = new List<UIElement>();
             foreach (var item in Data.Items)
             {
+                if (ct.IsCancellationRequested)
+                    return;
                 var itm = item as IMapValueItem;
                 if (itm != null && itm.Value == val.Value)
                 {
@@ -169,7 +266,7 @@ namespace Units_translate.Views
                         VerticalAlignment = VerticalAlignment.Center,
                         Margin = stackMargin
                     });
-                    Children.Add(new Expander()
+                    previews.Add(new Expander()
                     {
                         Header = stack,
                         Content = previewData.Item1,
@@ -179,6 +276,9 @@ namespace Units_translate.Views
                     });
                 }
             }
+            if (!ct.IsCancellationRequested)
+                foreach (var p in previews)
+                    ContentContainer.Children.Add(p);
         }
 
         private void BtnShow_Click(object sender, RoutedEventArgs e)

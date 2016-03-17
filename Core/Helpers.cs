@@ -13,6 +13,7 @@ namespace Core
     public static class Helpers
     {
         public static SynchronizationContext mainCTX = SynchronizationContext.Current;
+        public static CancellationTokenSource mainCTS = new CancellationTokenSource();
 
         public static string ProgramPath { get; private set; }
         public static string SettingsPath { get; private set; }
@@ -27,6 +28,13 @@ namespace Core
                 config = ConfigurationManager.OpenExeConfiguration(fn.Replace(".vshost.", ".").Replace(".config", null));
             Encoding = Encoding.GetEncoding(ReadFromConfig(ENCODING, Default_Encoding));
             SettingsPath = ReadFromConfig("SettingsPath", System.IO.Path.Combine(ProgramPath, @"Settings"));
+        }
+
+        public static T SendNew<T>(this SynchronizationContext ctx, Func<T> NewMethod) where T : class
+        {
+            T res = null;
+            ctx.Send(_ => res = NewMethod(), null);
+            return res;
         }
 
         #region Mouse

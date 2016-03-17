@@ -1,4 +1,7 @@
-﻿using System.Windows.Input;
+﻿using System.IO;
+using System.Windows;
+using System.Windows.Input;
+using Core;
 
 namespace Units_translate.Views
 {
@@ -41,6 +44,18 @@ namespace Units_translate.Views
                     //case Key.Escape: Undo(); e.Handled = true; break;
                 }
             }
+        }
+
+        private void btnShowInExplorer_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            string filePath = ((sender as FrameworkElement).DataContext as IMapData).FullPath;
+            if (File.Exists(filePath))
+                System.Diagnostics.Process.Start("explorer.exe", @"/select, " + filePath);
+        }
+
+        private void btnOpenFile_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start(((sender as FrameworkElement).DataContext as IMapData).FullPath);
         }
     }
 }
