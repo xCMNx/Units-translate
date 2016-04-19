@@ -72,7 +72,7 @@ namespace regex
                 { ".PAS;.DPR", new Regex(@"(?ixmsn) uses.+?; | '(?<G>\{[a-fA-F\d]{8}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{12}\})' | \{(?<D>\$.*?)[\}\r\n] | {(?<C>.*?)} | //(?<C>.*?)$ | /\*(?<C>.*?)\*/ | \(\*(?<C>.*?)\*\) | (?:(?<S>\#[#\d]+')|')(?<S>([^']+)|(?:''|'\#[#\d]+'))+'") }
             };
             FixBindings();
-            _settings.Settings.Text = string.Join("\r\n", _data.Select(it => string.Format("{0} ={1}", it.Key, it.Value)));
+            _settings.Settings.Text = string.Join("\r\n", _data.Select(it => string.Format("{0} ={1}", it.Key, it.Value)).ToArray());
         }
 
         void FixBindings()

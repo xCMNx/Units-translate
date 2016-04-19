@@ -255,7 +255,7 @@ namespace Units_translate
             _Files.Clear();
             if (data.Count() == 0)
                 return;
-            var lst = data.OrderBy(it => it.Path);
+            var lst = data.OrderBy(it => it.Path).ToArray();
 
             List<TreeListViewItem> res = new List<TreeListViewItem>();
             try
@@ -352,17 +352,17 @@ namespace Units_translate
         {
             IEnumerable<IMapData> data = MappedData.Data.Cast<IMapData>();
             if (_MappedOnly)
-                data = data.Where(it => it.IsMapped);
+                data = data.Where(it => it.IsMapped).ToArray();
             if (_CyrilicOnly)
-                data = data.Where(it => (it as FileContainer).CyrilicCount > 0);
+                data = data.Where(it => (it as FileContainer).CyrilicCount > 0).ToArray();
             if (LiteralOnly)
-                data = data.Where(it => (it as FileContainer).ContainsLiteral());
+                data = data.Where(it => (it as FileContainer).ContainsLiteral()).ToArray();
             if (!string.IsNullOrWhiteSpace(filter))
             {
                 try
                 {
                     var expr = new Regex(filter);
-                    data = data.Where(it => expr.IsMatch(it.FullPath));
+                    data = data.Where(it => expr.IsMatch(it.FullPath)).ToArray();
                 }
                 catch(Exception e)
                 {
@@ -421,7 +421,7 @@ namespace Units_translate
             EditingEnabled = false;
             try
             {
-                var files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories).Where(f => !IsIgnored(f));
+                var files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories).Where(f => !IsIgnored(f)).ToArray();
                 if (callback != null) callback(null, files.Count());
                 int cnt = 0;
                 foreach (var f in files)
@@ -605,7 +605,7 @@ namespace Units_translate
             }
         }
 
-        public static IEnumerable<Encoding> _Encodings = Encoding.GetEncodings().Select(ei => ei.GetEncoding()).OrderBy(e => e.HeaderName);
+        public static IEnumerable<Encoding> _Encodings = Encoding.GetEncodings().Select(ei => ei.GetEncoding()).OrderBy(e => e.HeaderName).ToArray();
         public IEnumerable<Encoding> Encodings => _Encodings;
 
         public bool UseWriteEncoding
@@ -620,7 +620,7 @@ namespace Units_translate
         #endregion
 
         #region Ignore
-        List<Regex> IgnoreList = new List<Regex>(Helpers.ReadFromConfig(IGNORE_LIST, @"(?ix)\\\.|\.exe|\.dll|\.dcu|\.obj|\.[^\w]").Split(LinesSplitter, StringSplitOptions.RemoveEmptyEntries).Select(l => new Regex(l)));
+        List<Regex> IgnoreList = new List<Regex>(Helpers.ReadFromConfig(IGNORE_LIST, @"(?ix)\\\.|\.exe|\.dll|\.dcu|\.obj|\.[^\w]").Split(LinesSplitter, StringSplitOptions.RemoveEmptyEntries).Select(l => new Regex(l)).ToArray());
         static char[] LinesSplitter = new char[] { '\r', '\n' };
         static string IGNORE_LIST = "IGNORE_LIST";
         /// <summary>
@@ -637,7 +637,7 @@ namespace Units_translate
                 try
                 {
                     IgnoreList.Clear();
-                    IgnoreList.AddRange(value.Split(LinesSplitter, StringSplitOptions.RemoveEmptyEntries).Select(l => new Regex(l)));
+                    IgnoreList.AddRange(value.Split(LinesSplitter, StringSplitOptions.RemoveEmptyEntries).Select(l => new Regex(l)).ToArray());
                     Helpers.WriteToConfig(IGNORE_LIST, IgnoreText);
                 }
                 catch(Exception e)
@@ -748,7 +748,7 @@ namespace Units_translate
         {
             try
             {
-                Core.MappedData.SaveTranslations(path, Translations.Select(e => new Entry(e.Value, e.Translation)));
+                Core.MappedData.SaveTranslations(path, Translations.Select(e => new Entry(e.Value, e.Translation)).ToArray());
             }
             catch (Exception e)
             {
@@ -759,7 +759,7 @@ namespace Units_translate
 
         public void UpdateTranslatesEntries()
         {
-            Translations.Reset(MappedData.GetEntries().OrderBy(m => m.Value));
+            Translations.Reset(MappedData.GetEntries().OrderBy(m => m.Value).ToArray());
         }
         #endregion
 
@@ -785,13 +785,13 @@ namespace Units_translate
                 switch ((string)prp)
                 {
                     case "Count":
-                        lst = lst.OrderBy(e => e.Data.Count);
+                        lst = lst.OrderBy(e => e.Data.Count).ToArray();
                         break;
                     case "Value":
-                        lst = lst.OrderBy(e => e.Value);
+                        lst = lst.OrderBy(e => e.Value).ToArray();
                         break;
                     case "Translation":
-                        lst = lst.OrderBy(e => e.Translation);
+                        lst = lst.OrderBy(e => e.Translation).ToArray();
                         break;
                 }
                 Translations.Reset(lst);

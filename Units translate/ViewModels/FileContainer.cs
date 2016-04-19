@@ -42,7 +42,7 @@ namespace Units_translate
         public static Encoding WriteEncoding = Encoding.GetEncoding(Helpers.ReadFromConfig(WRITE_ENCODING, Helpers.Default_Encoding));
         public static bool UseWriteEncoding = Helpers.ConfigRead(WRITE_ENCODING_ACTIVE, false);
 
-        public override IEnumerable<IMapItemRange> ShowingItems => Items?.Where(it => it is IMapValueItem && (!LiteralOnly || ContainChar((it as IMapValueItem).Value)) );
+        public override IEnumerable<IMapItemRange> ShowingItems => Items?.Where(it => it is IMapValueItem && (!LiteralOnly || ContainChar((it as IMapValueItem).Value))).ToArray();
 
         /// <summary>
         /// Есть ли в файле строки с символами
@@ -154,7 +154,7 @@ namespace Units_translate
                     {
                         Action tryGet = () =>
                         {
-                            _Items = new List<IMapItemRange>(mapper.GetMap(Text, Ext).OrderBy(it => it.Start));
+                            _Items = mapper.GetMap(Text, Ext).OrderBy(it => it.Start).ToList();
                         };
                         try
                         {

@@ -146,7 +146,7 @@ namespace Core
         /// <summary>
         /// Словарь переводов которые связаны с файлами
         /// </summary>
-        public static IEnumerable<IMapRecord> UsedTranslates => _TranslatesDictionary.Where(tr => ((IMapRecordFull)tr).Data.Count > 0);
+        public static IEnumerable<IMapRecord> UsedTranslates => _TranslatesDictionary.Where(tr => ((IMapRecordFull)tr).Data.Count > 0).ToArray();
 
         /// <summary>
         /// Возвращает запись словаря по значению
@@ -382,7 +382,7 @@ namespace Core
                 }
             }
 
-            var data = OriginalData.Entryes.OrderBy(e => e.Eng);
+            var data = OriginalData.Entryes.OrderBy(e => e.Eng).ToArray();
             var lst = new SortedItems<IMapRecordFull>() { Comparer = MapRecordComparer.Comparer };
 
             int repeatCnt = 0;
@@ -522,7 +522,7 @@ namespace Core
                 if (itm.Value)
                 {
                     var tmp = (itm.Key as IMapRecordFull).Data as IEnumerable<IMapData>;
-                    mData = mData == null ? tmp : mData.Intersect(tmp);
+                    mData = mData == null ? tmp : mData.Intersect(tmp).ToArray();
                 }
 
             var res = new List<IMapRecord>();
@@ -532,7 +532,7 @@ namespace Core
                 if (ct.IsCancellationRequested)
                     return res;
                 //зразу откинем файлы в которых нет методов которые должны быть по фильтру
-                var fData = mData == null ? r.Data : r.Data.Intersect(mData);
+                var fData = mData == null ? r.Data as IList<IMapData> : r.Data.Intersect(mData).ToArray();
                 foreach (var d in fData)
                 {
                     //флаг обозначающий, что значение прошло все фильтры
@@ -545,7 +545,7 @@ namespace Core
                         //получим методы охватывающие значение 
                         var mts = d.ItemsAt<IMapMethodItem>(itm.Start);
                         //выберем из них те, что есть в фильтре
-                        var mtsF = mts.Select(m => methodsFilter.FirstOrDefault(mf => m.IsSameValue(mf.Key))).Where(k => k.Key != null);
+                        var mtsF = mts.Select(m => methodsFilter.FirstOrDefault(mf => m.IsSameValue(mf.Key))).Where(k => k.Key != null).ToArray();
                         found = true;
                         //посмотрим должны ли быть вхождения в методы не охватывающие значение 
                         foreach (var mf in methodsFilter.Except(mtsF))
