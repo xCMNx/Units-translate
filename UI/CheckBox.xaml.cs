@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace UI
+namespace Ui
 {
     /// <summary>
     /// Логика взаимодействия для CheckBox.xaml

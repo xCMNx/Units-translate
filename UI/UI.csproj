@@ -7,8 +7,8 @@
     <ProjectGuid>{5ED11428-EB26-4F78-8B3E-5B2E5E045835}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UI</RootNamespace>
-    <AssemblyName>UI</AssemblyName>
+    <RootNamespace>Ui</RootNamespace>
+    <AssemblyName>Ui</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>
@@ -48,6 +48,7 @@
     </Compile>
     <Compile Include="Command.cs" />
     <Compile Include="Converters.cs" />
+    <Compile Include="GridExpander.cs" />
     <Compile Include="ObjectToVisibility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RotaitingPath.cs" />
@@ -58,6 +59,10 @@
     <Page Include="CheckBox.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="GridExpander.Generic.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="RotaitingPathDefaultStyle.xaml">
       <Generator>MSBuild:Compile</Generator>

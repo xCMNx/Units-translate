@@ -1,7 +1,7 @@
 using System.Windows.Controls;
 using System.Windows;
 
-namespace UI
+namespace Ui
 {
     public class TreeListView : TreeView
     {

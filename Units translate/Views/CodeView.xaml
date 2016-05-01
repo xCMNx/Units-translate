@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:Units_translate"
              xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
-             xmlns:ui="clr-namespace:UI;assembly=UI"
+             xmlns:ui="clr-namespace:Ui;assembly=Ui"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <GroupBox>

@@ -1,5 +1,6 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:Booru.Ui">
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:Ui">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="pack://application:,,,/Ui;component/RotaitingPathDefaultStyle.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Ui;component/GridExpander.Generic.xaml" />
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

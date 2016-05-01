@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,9 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using Booru.Ui;
 using Core;
-using UI;
+using Ui;
 
 namespace Units_translate
 {
@@ -200,7 +197,17 @@ namespace Units_translate
             set
             {
                 _EditorIsShown = value;
-                NotifyPropertyChanged(nameof(EditorIsShown));
+                NotifyPropertiesChanged(nameof(EditorIsShown), nameof(EditorIsHidden));
+            }
+        }
+
+        public bool EditorIsHidden
+        {
+            get { return !_EditorIsShown; }
+            set
+            {
+                _EditorIsShown = !value;
+                NotifyPropertiesChanged(nameof(EditorIsShown), nameof(EditorIsHidden));
             }
         }
 

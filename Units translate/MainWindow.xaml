@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Units_translate"
         xmlns:views="clr-namespace:Units_translate.Views"
-        xmlns:UI="clr-namespace:UI;assembly=UI"
+        xmlns:UI="clr-namespace:Ui;assembly=Ui"
         mc:Ignorable="d"
         Title="Units translate" Height="600" Width="1000" WindowStartupLocation="CenterScreen">
     <Grid>
@@ -106,14 +106,22 @@
             <Grid Grid.Column="2" IsEnabled="{Binding EditingEnabled}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" MinHeight="200"/>
-                    <RowDefinition Height="3"/>
-                    <RowDefinition Height="Auto" Name="expanderRow"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <views:CodeView Grid.Row="0"/>
-                <GridSplitter Grid.Row="1" VerticalAlignment="Center" Height="3" HorizontalAlignment="Stretch" IsEnabled="{Binding IsExpanded, ElementName=editor}" ResizeDirection="Rows"/>
-                <Expander Grid.Row="2" Header="Редактор" Name="editor" IsExpanded="{Binding EditorIsShown}" IsEnabled="{Binding EditorIsEnabled}">
-                    <views:EditView DataContext="{Binding}" MinHeight="200" MaxHeight="{Binding ActualHeight, ElementName=editor}"/>
-                </Expander>
+                <UI:GridExpander Grid.Row="1" Direction="Next" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" HorizontalAlignment="Stretch" VerticalAlignment="Top" IsEnabled="{Binding EditorIsEnabled}" IsCollapsed="{Binding EditorIsHidden, Mode=OneWay}"/>
+                <views:EditView Grid.Row="2" DataContext="{Binding}"/>
+                <!--<Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Expander Grid.Row="1" Header="Редактор" Name="editor" IsExpanded="{Binding EditorIsShown}" IsEnabled="{Binding EditorIsEnabled}">
+                        <views:EditView DataContext="{Binding}"/>
+                    </Expander>
+                    <GridSplitter Grid.Row="1" VerticalAlignment="Top" Height="3" HorizontalAlignment="Stretch" IsEnabled="{Binding IsExpanded, ElementName=editor}" ResizeDirection="Rows" ResizeBehavior="PreviousAndCurrent"/>
+                </Grid>-->
 
                 <!--<Grid.RowDefinitions>
                     <RowDefinition Height="*"/>

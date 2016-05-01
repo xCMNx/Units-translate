@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Units translate", "Units translate\Units translate.csproj", "{96398108-44CE-4917-B9BC-F8CB2C0A9667}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{3A07D7F9-9401-4C63-9C02-ACEEA373B714}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI", "UI\UI.csproj", "{5ED11428-EB26-4F78-8B3E-5B2E5E045835}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ui", "UI\Ui.csproj", "{5ED11428-EB26-4F78-8B3E-5B2E5E045835}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "regex", "Parsers\regex\regex.csproj", "{2B692DF7-B0CB-4CD4-9DF8-E5229BF1A2B2}"
 EndProject
