@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 
@@ -194,34 +196,6 @@ namespace Ui
             IsAnimated = true;
             this.LayoutUpdated += delegate {
                 _gridCollapseDirection = GetCollapseDirection();
-                if (_isAnimating) return;
-                var def = GetDefinition();
-                if (def == null) return;
-                switch (_gridCollapseDirection)
-                {
-                    case GridCollapseOrientation.Auto: return;
-                    case GridCollapseOrientation.Rows:
-                        var rDef = def as RowDefinition;
-                        if (IsCollapsed)
-                        {
-                            if (rDef.ActualHeight == 0)
-                                return;
-                        }
-                        else if (rDef.ActualHeight == 0 || rDef.ActualHeight == _savedActualValue)
-                            return;
-                        break;
-                    case GridCollapseOrientation.Columns:
-                        var cDef = def as ColumnDefinition;
-                        if (IsCollapsed)
-                        {
-                            if (cDef.ActualWidth == 0)
-                                return;
-                        }
-                        else if (cDef.ActualWidth == 0 || cDef.ActualWidth == _savedActualValue)
-                            return;
-                        break;
-                }
-                ChangeState(IsCollapsed);
             };
 
             // All GridExpander visual states are handled by the parent GridSplitter class.
@@ -250,6 +224,43 @@ namespace Ui
                 _expanderButton.IsChecked = IsCollapsed;
             }
             OnIsCollapsedChanged(IsCollapsed);
+
+            changeDefinitionTracking();
+        }
+
+        private void DefinitionValueChanged(object sender, EventArgs e)
+        {
+            ChangeState(IsCollapsed);
+        }
+
+        DependencyPropertyDescriptor _descriptor = null;
+        DefinitionBase _previousDefinitionBinding = null;
+
+        void removeDefinitionBinding()
+        {
+            if (_previousDefinitionBinding != null && _descriptor != null)
+            {
+                _descriptor.RemoveValueChanged(_previousDefinitionBinding, DefinitionValueChanged);
+                _previousDefinitionBinding = null;
+                _descriptor = null;
+            }
+        }
+
+        void changeDefinitionTracking()
+        {
+            var def = GetDefinition();
+            if (def == null)
+                removeDefinitionBinding();
+            else
+            {
+                var depProp = _gridCollapseDirection == GridCollapseOrientation.Rows ? RowDefinition.HeightProperty : ColumnDefinition.WidthProperty;
+                if (def == _previousDefinitionBinding && _descriptor != null && _descriptor.DependencyProperty == depProp)
+                    return;
+                removeDefinitionBinding();
+                _previousDefinitionBinding = def;
+                _descriptor = DependencyPropertyDescriptor.FromProperty(depProp, typeof(ItemsControl));
+                _descriptor.AddValueChanged(_previousDefinitionBinding, DefinitionValueChanged);
+            }
         }
 
         /// <summary>
@@ -286,7 +297,7 @@ namespace Ui
                 // Ensure the handle is Visible.
                 _expanderButton.Visibility = Visibility.Visible;
             }
-
+            changeDefinitionTracking();
         }
 
         /// <summary>
@@ -330,8 +341,34 @@ namespace Ui
             return null;
         }
 
+        bool _isChanging = false;
+
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseDown(e);
+            _isChanging = true;
+        }
+
+        protected override void OnMouseUp(MouseButtonEventArgs e)
+        {
+            base.OnMouseUp(e);
+            _isChanging = false;
+        }
+
+        double ActualValue(DefinitionBase definition)
+        {
+            switch (_gridCollapseDirection)
+            {
+                case GridCollapseOrientation.Rows: return (definition as RowDefinition).ActualHeight;
+                case GridCollapseOrientation.Columns: return (definition as ColumnDefinition).ActualWidth;
+            }
+
+            return double.NaN;
+        }
+
         private void ChangeState(bool collapse)
         {
+            if (_isAnimating || _isChanging) return;
             DefinitionBase definition = GetDefinition();
 
             if (definition == null)
@@ -339,32 +376,36 @@ namespace Ui
 
             var byRow = _gridCollapseDirection == GridCollapseOrientation.Rows;
             var actionProp = byRow ? RowDefinition.HeightProperty : ColumnDefinition.WidthProperty;
+            double curVal = ActualValue(definition);
             if (collapse)
             {
-                if (byRow)
-                {
-                    _savedGridLength = (definition as RowDefinition).Height;
-                    _savedActualValue = (definition as RowDefinition).ActualHeight;
-                }
-                else
-                {
-                    _savedGridLength = (definition as ColumnDefinition).Width;
-                    _savedActualValue = (definition as ColumnDefinition).ActualWidth;
-                }
+                if (curVal == 0)
+                    return;
+                _savedGridLength = byRow ? (definition as RowDefinition).Height : (definition as ColumnDefinition).Width;
+                _savedActualValue = curVal;
                 // Collapse
                 if (IsAnimated)
                     AnimateCollapse(definition);
                 else
                     definition.SetValue(actionProp, new GridLength(0));
+                // Raise the Collapsed event.
+                OnCollapsed(EventArgs.Empty);
             }
             else
             {
+                if (_savedActualValue == 0 || curVal == _savedActualValue)
+                    return;
                 // Expand
                 if (IsAnimated)
                     AnimateExpand(definition);
                 else
                     definition.SetValue(actionProp, _savedGridLength);
+                // Raise the Expanded event.
+                OnExpanded(EventArgs.Empty);
             }
+
+            // Activate the background so the splitter can be dragged again.
+            _elementGridExpanderBackground.IsHitTestVisible = !collapse;
         }
 
         /// <summary>
@@ -393,17 +434,7 @@ namespace Ui
         /// <param name="e">Contains event arguments for the routed event that fired.</param>
         private void GridExpanderButton_Checked(object sender, RoutedEventArgs e)
         {
-            if (!IsCollapsed)
-            {
-                IsCollapsed = true;
-
-                // Deactivate the background so the splitter can not be dragged.
-                _elementGridExpanderBackground.IsHitTestVisible = false;
-                //_elementGridExpanderBackground.Opacity = 0.5;
-
-                // Raise the Collapsed event.
-                OnCollapsed(EventArgs.Empty);
-            }
+            ChangeState(true);
         }
 
         /// <summary>
@@ -414,17 +445,7 @@ namespace Ui
         /// <param name="e">Contains event arguments for the routed event that fired.</param>
         private void GridExpanderButton_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (IsCollapsed)
-            {
-                IsCollapsed = false;
-
-                // Activate the background so the splitter can be dragged again.
-                _elementGridExpanderBackground.IsHitTestVisible = true;
-                //_elementGridExpanderBackground.Opacity = 1;
-
-                // Raise the Expanded event.
-                OnExpanded(EventArgs.Empty);
-            }
+            ChangeState(false);
         }
 
         /// <summary>
@@ -455,12 +476,18 @@ namespace Ui
 
         private static void RowHeightAnimationChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            (d as GridExpander).AnimatingRow.Height = new GridLength((double)e.NewValue);
+            var extender = d as GridExpander;
+            extender._isAnimating = true;
+            extender.AnimatingRow.Height = new GridLength((double)e.NewValue);
+            extender._isAnimating = false;
         }
 
         private static void ColWidthAnimationChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            (d as GridExpander).AnimatingColumn.Width = new GridLength((double)e.NewValue);
+            var extender = d as GridExpander;
+            extender._isAnimating = true;
+            extender.AnimatingColumn.Width = new GridLength((double)e.NewValue);
+            extender._isAnimating = false;
         }
 
         bool _isAnimating = false;
@@ -505,8 +532,6 @@ namespace Ui
             gridLengthAnimation.From = currentValue;
             gridLengthAnimation.To = 0;
 
-            _isAnimating = true;
-            gridLengthAnimation.RemoveRequested += (s, e) => _isAnimating = false;
             // Start the StoryBoard.
             sb.Begin();
         }
@@ -550,8 +575,6 @@ namespace Ui
             gridLengthAnimation.From = currentValue;
             gridLengthAnimation.To = _savedActualValue;
 
-            _isAnimating = true;
-            gridLengthAnimation.RemoveRequested += (s, e) => _isAnimating = false;
             // Start the StoryBoard.
             sb.Begin();
         }
