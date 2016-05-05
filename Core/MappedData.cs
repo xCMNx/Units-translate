@@ -361,6 +361,11 @@ namespace Core
         static XmlWriterSettings WriterSettings = new XmlWriterSettings { Indent = true, IndentChars = "\t", NewLineHandling = NewLineHandling.None };
         static XmlSerializer serializer = new XmlSerializer(typeof(Linguist));
 
+        public static bool IsValueOriginal(string val)
+        {
+            return OriginalData.Entryes.FirstOrDefault(e => e.Eng == val) != null;
+        }
+
         /// <summary>
         /// Загружает новые данные переводов
         /// </summary>

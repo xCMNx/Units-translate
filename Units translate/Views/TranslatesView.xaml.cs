@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 using Core;
 using Microsoft.Win32;
 
@@ -39,17 +40,23 @@ namespace Units_translate.Views
         private void btnDelEmpty_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             var lst = (DataContext as MainVM).Translations;
+            var cnt = lst.Count;
             for (int i = lst.Count - 1; i >= 0; i--)
                 if (string.IsNullOrWhiteSpace(lst[i].Translation))
                     lst.RemoveAt(i);
+            if (cnt != lst.Count)
+                MessageBox.Show(string.Format("Удалено {0}.", cnt - lst.Count));
         }
 
         private void btnDelUnAttouched_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             var lst = (DataContext as MainVM).Translations;
+            var cnt = lst.Count;
             for (int i = lst.Count - 1; i >= 0; i--)
                 if (lst[i].Data.Count == 0)
                     lst.RemoveAt(i);
+            if (cnt != lst.Count)
+                MessageBox.Show(string.Format("Удалено {0}.", cnt - lst.Count));
         }
 
         private void ListView_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
@@ -64,6 +71,17 @@ namespace Units_translate.Views
                         (DataContext as MainVM).Translations.Remove(itm);
                 }
             }
+        }
+
+        private void btnDelUnusedNew_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var lst = (DataContext as MainVM).Translations;
+            var cnt = lst.Count;
+            for (int i = lst.Count - 1; i >= 0; i--)
+                if (lst[i].Data.Count == 0 && !MappedData.IsValueOriginal(lst[i].Value))
+                    lst.RemoveAt(i);
+            if (cnt != lst.Count)
+                MessageBox.Show(string.Format("Удалено {0}.", cnt - lst.Count));
         }
     }
 }

@@ -52,7 +52,7 @@
                     <GroupBox.Header>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Новое значение" Margin="2"/>
-                            <Button Background="Transparent" BorderBrush="{x:Null}" Height="15" Visibility="{Binding IsSelectedValueHasAnalogs, Converter={StaticResource BoolTovis}}" Click="Button_Click">
+                            <Button Background="Transparent" BorderBrush="{x:Null}" Height="18" Visibility="{Binding IsSelectedValueHasAnalogs, Converter={StaticResource BoolTovis}}" Click="Button_Click">
                                 <Button.ContextMenu>
                                     <ContextMenu ItemsSource="{Binding SelectedValueAnalogs}">
                                         <ContextMenu.Resources>
@@ -62,7 +62,7 @@
                                         </ContextMenu.Resources>
                                     </ContextMenu>
                                 </Button.ContextMenu>
-                                <Path Fill="Black" Stretch="Uniform" Margin="2" Data="M4.390018,2.0000006L16.005992,15.359989 27.615011,2.0000006z M0,0L32.001001,0 16.00703,18.409z"/>
+                                <Path Fill="Black" Stretch="Uniform" Margin="2" Data="M8.2750092,2.7140188L16.550995,10.982999 10.145996,10.982999 10.145996,30.195001 6.4000092,30.195001 6.4000092,10.982999 0,10.982999z M21.854004,0L25.596008,0 25.596008,19.213008 32,19.213008 23.725006,27.486016 15.449997,19.213008 21.854004,19.213008z"/>
                             </Button>
                         </StackPanel>
                     </GroupBox.Header>
