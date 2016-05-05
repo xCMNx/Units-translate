@@ -41,6 +41,10 @@ namespace Core
         /// Выполнена ли разметка
         /// </summary>
         bool IsMapped { get; }
+        /// <summary>
+        /// Были ли изменения с последней разметки
+        /// </summary>
+        bool IsChanged { get; }
 
         /// <summary>
         /// Возвращает области разметки попадающие в диапазон

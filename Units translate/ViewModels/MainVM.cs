@@ -188,7 +188,7 @@ namespace Units_translate
             }
         }
 
-        public bool EditorIsEnabled=> SelectedValue != null;
+        public bool EditorIsEnabled => SelectedValue != null;
 
         bool _EditorIsShown = false;
         public bool EditorIsShown
@@ -211,6 +211,9 @@ namespace Units_translate
             }
         }
 
+        public bool IsSelectedValueHasAnalogs { get; protected set; }
+        public ICollection<IMapValueRecord> SelectedValueAnalogs { get; protected set; }
+
         IMapValueRecord _SelectedValue;
         /// <summary>
         /// Выбранное значение
@@ -224,7 +227,9 @@ namespace Units_translate
                 {
                     _SelectedValue = value;
                     EditorIsShown = EditorIsEnabled;
-                    NotifyPropertiesChanged(nameof(SelectedValue), nameof(EditorIsEnabled));
+                    SelectedValueAnalogs = value?.GetAnalogs<IMapValueRecord>();
+                    IsSelectedValueHasAnalogs = SelectedValueAnalogs != null && SelectedValueAnalogs.Count() > 0;
+                    NotifyPropertiesChanged(nameof(SelectedValue), nameof(EditorIsEnabled), nameof(IsSelectedValueHasAnalogs), nameof(SelectedValueAnalogs));
                 }
             }
         }

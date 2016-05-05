@@ -4,10 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Units_translate.Views"
+             xmlns:core="clr-namespace:Core;assembly=Core"
              xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
              xmlns:stb="clr-namespace:SpellTextBox;assembly=SpellTextBox"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="600">
+             d:DesignHeight="300" d:DesignWidth="600" Name="root">
     <UserControl.Resources>
         <DataTemplate x:Key="CodeItemView">
             <GroupBox VerticalContentAlignment="Bottom">
@@ -22,13 +23,18 @@
                         </Button>
                     </StackPanel>
                 </GroupBox.Header>
-                <local:SampleView UseFormat="{Binding IsChecked, ElementName=cbWrap}" Format="{Binding Text, ElementName=formatEditor}" Translation="{Binding Text, ElementName=tbTranslation}" NewValue="{Binding Text, ElementName=valueEditor}" Value="{Binding DataContext.SelectedValue, ElementName=root}"/>
+                <local:SampleView UseFormat="{Binding IsChecked, ElementName=cbWrap}" Format="{Binding Text, ElementName=tbFormat}" Translation="{Binding Text, ElementName=tbTranslation}" NewValue="{Binding Text, ElementName=tbValue}" Value="{Binding DataContext.SelectedValue, ElementName=root}"/>
             </GroupBox>
         </DataTemplate>
+        
+        <Style TargetType="MenuItem">
+            <Setter Property="Command" Value="{Binding MenuCommand, Source={x:Reference root}}"/>
+            <Setter Property="CommandParameter" Value="{Binding}"/>
+        </Style>
     </UserControl.Resources>
     <Border>
 
-        <Grid Name="root">
+        <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="350" MinWidth="100"/>
                 <ColumnDefinition Width="3"/>
@@ -42,8 +48,25 @@
                     <RowDefinition Height="3"/>
                     <RowDefinition Height="*" MinHeight="42"/>
                 </Grid.RowDefinitions>
-                <GroupBox Header="Новое значение" Grid.Row="0">
-                    <TextBox Name="valueEditor" SpellCheck.IsEnabled="True" 
+                <GroupBox Grid.Row="0">
+                    <GroupBox.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Новое значение" Margin="2"/>
+                            <Button Background="Transparent" BorderBrush="{x:Null}" Height="15" Visibility="{Binding IsSelectedValueHasAnalogs, Converter={StaticResource BoolTovis}}" Click="Button_Click">
+                                <Button.ContextMenu>
+                                    <ContextMenu ItemsSource="{Binding SelectedValueAnalogs}">
+                                        <ContextMenu.Resources>
+                                            <DataTemplate DataType="{x:Type core:MapValueRecord}">
+                                                <TextBlock Text="{Binding Value}" ToolTip="{Binding Value}" MaxWidth="200"/>
+                                            </DataTemplate>
+                                        </ContextMenu.Resources>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                                <Path Fill="Black" Stretch="Uniform" Margin="2" Data="M4.390018,2.0000006L16.005992,15.359989 27.615011,2.0000006z M0,0L32.001001,0 16.00703,18.409z"/>
+                            </Button>
+                        </StackPanel>
+                    </GroupBox.Header>
+                    <TextBox Name="tbValue" SpellCheck.IsEnabled="True" 
                          Text="{Binding SelectedValue.Value, Mode=OneWay}" AcceptsTab="True" AcceptsReturn="True" 
                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
                 </GroupBox>
@@ -74,12 +97,12 @@
                             <TextBlock Text="Обернуть значение" VerticalAlignment="Center"/>
                         </StackPanel>
                     </GroupBox.Header>
-                    <TextBox Name="formatEditor" AcceptsTab="True" AcceptsReturn="True" Text="tr({0})"
+                    <TextBox Name="tbFormat" AcceptsTab="True" AcceptsReturn="True" Text="tr({0})"
                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
                 </GroupBox>
             </Grid>
             <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <GroupBox Grid.Column="2" Header="Предпросмотр" MaxHeight="{Binding ActualHeight, ElementName=root}">
+            <GroupBox Grid.Column="2" Header="Предпросмотр">
                 <ScrollViewer Name="scroll" VerticalScrollBarVisibility="Auto">
                     <ItemsControl Name="dataList" ItemsSource="{Binding SelectedValue.Data}" HorizontalContentAlignment="Stretch" ItemTemplate="{DynamicResource CodeItemView}"/>
                 </ScrollViewer>

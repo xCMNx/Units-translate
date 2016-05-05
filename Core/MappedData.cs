@@ -628,12 +628,25 @@ namespace Core
             return MethodsFilter(methodsFilter, Search(lexpr, SearchParams.EngOrTrans, ct), ct);
         }
 
-        public static ICollection<T> GetEquivalents<T>(IMapValueRecord rec) where T : IMapRecord
+        public static string RegexCompareExpression(this IMapValueRecord rec)
         {
-            if (rec == null)
+            var vVal = rec.Value.Trim();
+            var vTr = rec.Translation?.Trim();
+            return string.Format(@"(?s)^\s*{0}\s*$",
+                string.IsNullOrWhiteSpace(vVal) ?
+                    vTr :
+                    string.IsNullOrWhiteSpace(vTr) ?
+                        vVal :
+                        string.Format("{0}|{1}", vVal, vTr)
+            );
+        }
+
+        public static ICollection<T> GetAnalogs<T>(this IMapValueRecord rec) where T : IMapRecord
+        {
+            if (rec == null || (string.IsNullOrWhiteSpace(rec.Value) && string.IsNullOrWhiteSpace(rec.Translation)))
                 return new T[0];
-            var val = Regex.Escape(rec.Value);
-            return Search(string.Format("(?i){0}", val), SearchParams.Both, CancellationToken.None).OfType<T>().ToArray();
+            var rgxp = new Regex(rec.RegexCompareExpression(), RegexOptions.IgnoreCase);
+            return _ValuesDictionary.OfType<IMapValueRecord>().Where(v => rgxp.IsMatch(v.Value) || rgxp.IsMatch(v.Translation)).Except(new IMapValueRecord[] { rec }).OfType<T>().ToArray();
         }
 
         static MappedData()

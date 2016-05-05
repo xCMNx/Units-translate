@@ -1,7 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Core;
+using Ui;
 
 namespace Units_translate.Views
 {
@@ -10,9 +13,16 @@ namespace Units_translate.Views
     /// </summary>
     public partial class EditView
     {
+        public ICommand MenuCommand { get; private set; }
         public EditView()
         {
             InitializeComponent();
+            MenuCommand = new Command(prop =>
+            {
+                var val = prop as IMapValueRecord;
+                tbValue.SetCurrentValue(TextBox.TextProperty, val.Value);
+                tbTranslation.SetCurrentValue(TextBox.TextProperty, val.Translation);
+            });
         }
 
         private void dataList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -56,6 +66,11 @@ namespace Units_translate.Views
         private void btnOpenFile_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             System.Diagnostics.Process.Start(((sender as FrameworkElement).DataContext as IMapData).FullPath);
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            InputManager.Current.ProcessInput(new MouseButtonEventArgs(Mouse.PrimaryDevice, Environment.TickCount, MouseButton.Right) { RoutedEvent = Mouse.MouseUpEvent, Source = sender });
         }
     }
 }

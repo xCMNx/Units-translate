@@ -249,9 +249,9 @@ namespace Units_translate.Views
                     var stack = new StackPanel() { HorizontalAlignment = HorizontalAlignment.Right, Orientation = Orientation.Horizontal };
                     if (!noChanges || !filterEmpty)
                     {
-                        var btnAdd = new Button() { Style = addBtn, DataContext = previewData.Item2, Content = new System.Windows.Shapes.Path() { Data = apply, Fill = Brushes.Black, Stretch = Stretch.Uniform } };
-                        btnAdd.Click += Btn_Click;
-                        stack.Children.Add(btnAdd);
+                        var btnApply = new Button() { Style = addBtn, DataContext = previewData.Item2, Content = new System.Windows.Shapes.Path() { Data = apply, Fill = Brushes.Black, Stretch = Stretch.Uniform } };
+                        btnApply.Click += BtnApply_Click;
+                        stack.Children.Add(btnApply);
                     }
                     var btnShow = new Button() { Style = showBtn, DataContext = itm, Content = new System.Windows.Shapes.Path() { Data = show, Fill = Brushes.Black, Stretch = Stretch.Uniform } };
                     btnShow.Click += BtnShow_Click;
@@ -287,9 +287,17 @@ namespace Units_translate.Views
             MainVM.Instance.ShowValue(((Button)sender).DataContext as IMapItemRange);
         }
 
-        private void Btn_Click(object sender, RoutedEventArgs e)
+        private void BtnApply_Click(object sender, RoutedEventArgs e)
         {
+            if (Data.IsChanged)
+            {
+                MessageBox.Show("Не возможно произвести замену, т.к. данные были изменены.");
+                Data.Remap(false, false);
+                return;
+            }
+
             var itm = ((Button)sender).DataContext as Tuple<int, int, string>;
+
             //если запись уже есть, то проверим одинаковы ли переводы, и если они разные спросим как быть
             //иначе создадим новую запись и зададим её перевод
             if (MappedData.IsValueExists(NewValue))
