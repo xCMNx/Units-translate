@@ -20,7 +20,7 @@ namespace Units_translate
         public static bool FixingEnabled = false;
         #region IMapData
         List<IMapItemRange> _Items;
-        public IEnumerable<IMapItemRange> Items =>_Items;
+        public ICollection<IMapItemRange> Items =>_Items;
         public override string Path =>System.IO.Path.GetDirectoryName(_Path);
         public override string Name =>System.IO.Path.GetFileNameWithoutExtension(_Path);
         public override string Ext =>System.IO.Path.GetExtension(_Path);
@@ -42,7 +42,7 @@ namespace Units_translate
         public static Encoding WriteEncoding = Encoding.GetEncoding(Helpers.ReadFromConfig(WRITE_ENCODING, Helpers.Default_Encoding));
         public static bool UseWriteEncoding = Helpers.ConfigRead(WRITE_ENCODING_ACTIVE, false);
 
-        public override IEnumerable<IMapItemRange> ShowingItems => Items?.Where(it => it is IMapValueItem && (!LiteralOnly || ContainChar((it as IMapValueItem).Value))).ToArray();
+        public override ICollection<IMapItemRange> ShowingItems => Items?.Where(it => it is IMapValueItem && (!LiteralOnly || ContainChar((it as IMapValueItem).Value))).ToArray();
 
         /// <summary>
         /// Есть ли в файле строки с символами
@@ -101,7 +101,7 @@ namespace Units_translate
         /// <param name="start">Начало диапазона поиска</param>
         /// <param name="end">Конец диапазона поиска</param>
         /// <returns></returns>
-        public IEnumerable<T> ItemsBetween<T>(int start, int end) where T : class, IMapItemRange
+        public ICollection<T> ItemsBetween<T>(int start, int end) where T : class, IMapItemRange
         {
             var res = new List<T>();
             foreach (var item in _Items)
@@ -210,7 +210,7 @@ namespace Units_translate
         /// </summary>
         /// <param name="index">Смещение в тексте</param>
         /// <returns>Найденные области</returns>
-        public IList<T> ItemsAt<T>(int index) where T : class, IMapItemRange
+        public ICollection<T> ItemsAt<T>(int index) where T : class, IMapItemRange
         {
             var res = new List<T>();
             foreach (var item in _Items)
@@ -228,7 +228,7 @@ namespace Units_translate
         /// </summary>
         /// <param name="obj">Искомый объект</param>
         /// <returns></returns>
-        public IEnumerable<T> GetItemsWithValue<T>(object obj) where T : class, IMapItemBase
+        public ICollection<T> GetItemsWithValue<T>(object obj) where T : class, IMapItemBase
         {
             var lst = new List<T>();
             if (obj != null)

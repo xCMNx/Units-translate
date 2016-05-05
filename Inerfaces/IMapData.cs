@@ -20,7 +20,7 @@ namespace Core
         /// <summary>
         /// Размеченные области
         /// </summary>
-        IEnumerable<IMapItemRange> Items { get; }
+        ICollection<IMapItemRange> Items { get; }
         /// <summary>
         /// Путь к папке файла
         /// </summary>
@@ -48,14 +48,14 @@ namespace Core
         /// <param name="start">Начало диапазона поиска</param>
         /// <param name="end">Конец диапазона поиска</param>
         /// <returns></returns>
-        IEnumerable<T> ItemsBetween<T>(int start, int end) where T : class, IMapItemRange;
+        ICollection<T> ItemsBetween<T>(int start, int end) where T : class, IMapItemRange;
 
         /// <summary>
         /// Возвращает области разметки по указанному смещению
         /// </summary>
         /// <param name="index">Смещение в тексте</param>
         /// <returns>Найденные области</returns>
-        IList<T> ItemsAt<T>(int index) where T : class, IMapItemRange;
+        ICollection<T> ItemsAt<T>(int index) where T : class, IMapItemRange;
 
         /// <summary>
         /// Возвращает область разметки являющуюся значением по указанному смещению
@@ -69,7 +69,7 @@ namespace Core
         /// </summary>
         /// <param name="obj">Искомый объект</param>
         /// <returns></returns>
-        IEnumerable<T> GetItemsWithValue<T>(object obj) where T : class, IMapItemBase;
+        ICollection<T> GetItemsWithValue<T>(object obj) where T : class, IMapItemBase;
 
         /// <summary>
         /// Просит переразметить файл

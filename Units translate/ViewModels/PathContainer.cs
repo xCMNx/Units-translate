@@ -13,7 +13,7 @@ namespace Units_translate
         public virtual string Ext => string.Empty;
         public virtual int StringsCount => 0;
         public virtual int CyrilicCount => 0;
-        public virtual IEnumerable<IMapItemRange> ShowingItems => null;
+        public virtual ICollection<IMapItemRange> ShowingItems => null;
 
         public override string ToString() => Name;
 

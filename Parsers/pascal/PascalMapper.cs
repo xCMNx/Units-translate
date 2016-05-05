@@ -75,7 +75,7 @@ namespace pascal
             dpr
         }
 
-        public IEnumerable<IMapItemRange> Parse(string Text, PascalFileType pType)
+        public ICollection<IMapItemRange> Parse(string Text, PascalFileType pType)
         {
             var res = new List<IMapItemRange>();
                 int Start = -1, End = -1, newWordStart = -1;
@@ -268,7 +268,7 @@ namespace pascal
             return res;
         }
 
-        public IEnumerable<IMapItemRange> GetMap(string Text, string Ext)
+        public ICollection<IMapItemRange> GetMap(string Text, string Ext)
         {
             PascalFileType pType = PascalFileType.pas;
             if (".dpr".Equals(Ext, StringComparison.InvariantCultureIgnoreCase))

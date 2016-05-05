@@ -146,7 +146,7 @@ namespace Core
         /// <summary>
         /// Словарь переводов которые связаны с файлами
         /// </summary>
-        public static IEnumerable<IMapRecord> UsedTranslates => _TranslatesDictionary.Where(tr => ((IMapRecordFull)tr).Data.Count > 0).ToArray();
+        public static ICollection<IMapRecord> UsedTranslates => _TranslatesDictionary.Where(tr => ((IMapRecordFull)tr).Data.Count > 0).ToArray();
 
         /// <summary>
         /// Возвращает запись словаря по значению
@@ -438,7 +438,7 @@ namespace Core
         public static void SaveTranslations(string path, IEnumerable<Entry> Entries)
         {
             OriginalData.Entryes.Clear();
-            OriginalData.Entryes = Entries.OrderBy(ent => ent.Eng).ToList();
+            OriginalData.Entryes = Entries.OrderBy(ent => ent.Eng, StringComparer.InvariantCulture).ToList();
 
             using (StreamWriter sw = new StreamWriter(path, false, encoding))
             using (var xw = XmlWriter.Create(sw, WriterSettings))
@@ -474,7 +474,7 @@ namespace Core
         /// <param name="expr">Искомое выражение</param>
         /// <param name="param">Параметры поиска</param>
         /// <returns>Список совпадающих записей словаря</returns>
-        public static IEnumerable<IMapRecord> Search(string expr, SearchParams param, CancellationToken ct)
+        public static ICollection<IMapRecord> Search(string expr, SearchParams param, CancellationToken ct)
         {
             if (string.IsNullOrWhiteSpace(expr))
                 return null;
@@ -511,17 +511,17 @@ namespace Core
         /// <param name="methodsFilter">Словарь методов где значение метода указывает, строка должна попадать или не попадать в область метода.</param>
         /// <param name="lst">Фильтруемый список значений.</param>
         /// <returns>Список значений прошедших фильтрацию.</returns>
-        public static IEnumerable<IMapRecord> MethodsFilter(IDictionary<IMapRecord, bool> methodsFilter, IEnumerable<IMapRecord> lst, CancellationToken ct)
+        public static ICollection<IMapRecord> MethodsFilter(IDictionary<IMapRecord, bool> methodsFilter, ICollection<IMapRecord> lst, CancellationToken ct)
         {
             if (methodsFilter == null || methodsFilter.Count() == 0 || lst == null)
                 return lst;
 
             //файлы в которых есть все нужные методы для фильтра
-            IEnumerable<IMapData> mData = null;
+            ICollection<IMapData> mData = null;
             foreach (var itm in methodsFilter)
                 if (itm.Value)
                 {
-                    var tmp = (itm.Key as IMapRecordFull).Data as IEnumerable<IMapData>;
+                    var tmp = (itm.Key as IMapRecordFull).Data as ICollection<IMapData>;
                     mData = mData == null ? tmp : mData.Intersect(tmp).ToArray();
                 }
 
@@ -581,7 +581,7 @@ namespace Core
         /// <para>?:[expr]    - вырожению должны соответствовать или строка или перевод</para>
         /// </param>
         /// <returns>Список совпадающих записей словаря</returns>
-        public static IEnumerable<IMapRecord> Search(string expr, CancellationToken ct)
+        public static ICollection<IMapRecord> Search(string expr, CancellationToken ct)
         {
             var lexpr = expr;
 
@@ -626,6 +626,14 @@ namespace Core
             }
 
             return MethodsFilter(methodsFilter, Search(lexpr, SearchParams.EngOrTrans, ct), ct);
+        }
+
+        public static ICollection<T> GetEquivalents<T>(IMapValueRecord rec) where T : IMapRecord
+        {
+            if (rec == null)
+                return new T[0];
+            var val = Regex.Escape(rec.Value);
+            return Search(string.Format("(?i){0}", val), SearchParams.Both, CancellationToken.None).OfType<T>().ToArray();
         }
 
         static MappedData()

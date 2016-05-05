@@ -44,7 +44,7 @@ namespace regex
 
         static string[] GNames = new string[] { "G", "S", "C", "D" };
 
-        public IEnumerable<IMapItemRange> GetMap(string Text, string Ext)
+        public ICollection<IMapItemRange> GetMap(string Text, string Ext)
         {
             var res = new List<IMapItemRange>();
             var regex = _expressionsBindings[Ext.ToUpper()];

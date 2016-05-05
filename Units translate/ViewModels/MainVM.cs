@@ -168,11 +168,11 @@ namespace Units_translate
         /// <summary>
         /// Полный список переводов
         /// </summary>
-        public IEnumerable<IMapRecord> Translates => Core.MappedData.TranslatesDictionary;
+        public ICollection<IMapRecord> Translates => Core.MappedData.TranslatesDictionary;
         /// <summary>
         /// Список переводов которые связаны с файлами
         /// </summary>
-        public IEnumerable<IMapRecord> UsedTranslates => MappedData.UsedTranslates;
+        public ICollection<IMapRecord> UsedTranslates => MappedData.UsedTranslates;
 
         PathContainer _Selected = null;
         /// <summary>
@@ -355,9 +355,9 @@ namespace Units_translate
             BuildTree(ExecFilterFiles(filter));
         }
 
-        IEnumerable<IMapData> ExecFilterFiles(string filter = null)
+        ICollection<IMapData> ExecFilterFiles(string filter = null)
         {
-            IEnumerable<IMapData> data = MappedData.Data.Cast<IMapData>();
+            ICollection<IMapData> data = MappedData.Data.Cast<IMapData>().ToArray();
             if (_MappedOnly)
                 data = data.Where(it => it.IsMapped).ToArray();
             if (_CyrilicOnly)
@@ -582,7 +582,7 @@ namespace Units_translate
         /// <summary>
         /// Результаты поиска
         /// </summary>
-        public IEnumerable<IMapRecord> SearchResults { get; private set; }
+        public ICollection<IMapRecord> SearchResults { get; private set; }
         #endregion
 
         #region Encoding
@@ -612,8 +612,8 @@ namespace Units_translate
             }
         }
 
-        public static IEnumerable<Encoding> _Encodings = Encoding.GetEncodings().Select(ei => ei.GetEncoding()).OrderBy(e => e.HeaderName).ToArray();
-        public IEnumerable<Encoding> Encodings => _Encodings;
+        public static ICollection<Encoding> _Encodings = Encoding.GetEncodings().Select(ei => ei.GetEncoding()).OrderBy(e => e.HeaderName).ToArray();
+        public ICollection<Encoding> Encodings => _Encodings;
 
         public bool UseWriteEncoding
         {
@@ -788,7 +788,7 @@ namespace Units_translate
         {
             _TranslatesSortCommand = new Command((prp) =>
             {
-                IEnumerable<IMapValueRecord> lst = Translations.ToArray();
+                ICollection<IMapValueRecord> lst = Translations.ToArray();
                 switch ((string)prp)
                 {
                     case "Count":
