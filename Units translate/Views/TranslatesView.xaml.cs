@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Core;
 using Microsoft.Win32;
 
@@ -61,7 +62,7 @@ namespace Units_translate.Views
 
         private void ListView_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if (e.Key == System.Windows.Input.Key.Delete)
+            if (e.Key == System.Windows.Input.Key.Delete && Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
             {
                 var lv = sender as ListView;
                 if (lv != null)
@@ -82,6 +83,13 @@ namespace Units_translate.Views
                     lst.RemoveAt(i);
             if (cnt != lst.Count)
                 MessageBox.Show(string.Format("Удалено {0}.", cnt - lst.Count));
+        }
+
+        protected void SelectCurrentItem(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            ListViewItem item = (ListViewItem)sender;
+            translatesList.SelectedItem = item.DataContext;
+            //item.IsSelected = true;
         }
     }
 }

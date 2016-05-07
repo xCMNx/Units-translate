@@ -223,8 +223,6 @@ namespace Ui
                 _expanderButton.Unchecked += new RoutedEventHandler(GridExpanderButton_Unchecked);
                 _expanderButton.IsChecked = IsCollapsed;
             }
-            OnIsCollapsedChanged(IsCollapsed);
-
             changeDefinitionTracking();
         }
 
@@ -271,6 +269,8 @@ namespace Ui
         {
             if(_expanderButton != null)
                 _expanderButton.IsChecked = isCollapsed;
+            if (correntStoryBoard != null)
+                correntStoryBoard.Stop();
             ChangeState(isCollapsed);
         }
 
@@ -458,7 +458,8 @@ namespace Ui
             GridExpander s = d as GridExpander;
 
             bool value = (bool)e.NewValue;
-            s.OnIsCollapsedChanged(value);
+            if(e.NewValue != e.OldValue)
+                s.OnIsCollapsedChanged(value);
         }
 
         /// <summary>
@@ -503,10 +504,10 @@ namespace Ui
 
             // Setup the animation and StoryBoard
             DoubleAnimation gridLengthAnimation = new DoubleAnimation() { Duration = new Duration(TimeSpan.FromMilliseconds(_animationTimeMillis)) };
-            Storyboard sb = new Storyboard();
+            correntStoryBoard = new Storyboard();
 
             // Add the animation to the StoryBoard
-            sb.Children.Add(gridLengthAnimation);
+            correntStoryBoard.Children.Add(gridLengthAnimation);
 
             if (_gridCollapseDirection == GridCollapseOrientation.Rows)
             {
@@ -533,8 +534,10 @@ namespace Ui
             gridLengthAnimation.To = 0;
 
             // Start the StoryBoard.
-            sb.Begin();
+            correntStoryBoard.Begin();
         }
+
+        protected Storyboard correntStoryBoard = null;
 
         /// <summary>
         /// Uses DoubleAnimation and a StoryBoard to animate the expansion
@@ -546,10 +549,10 @@ namespace Ui
             double currentValue;
             // Setup the animation and StoryBoard
             DoubleAnimation gridLengthAnimation = new DoubleAnimation() { Duration = new Duration(TimeSpan.FromMilliseconds(_animationTimeMillis)) };
-            Storyboard sb = new Storyboard();
+            correntStoryBoard = new Storyboard();
 
             // Add the animation to the StoryBoard
-            sb.Children.Add(gridLengthAnimation);
+            correntStoryBoard.Children.Add(gridLengthAnimation);
 
             if (_gridCollapseDirection == GridCollapseOrientation.Rows)
             {
@@ -576,7 +579,7 @@ namespace Ui
             gridLengthAnimation.To = _savedActualValue;
 
             // Start the StoryBoard.
-            sb.Begin();
+            correntStoryBoard.Begin();
         }
 
         /// <summary>

@@ -637,13 +637,13 @@ namespace Core
         {
             var vVal = rec.Value.Trim();
             var vTr = rec.Translation?.Trim();
-            return string.Format(@"(?s)^\s*{0}\s*$",
+            return string.Format(@"(?s)^\s*{0}\s*$", Regex.Escape(
                 string.IsNullOrWhiteSpace(vVal) ?
                     vTr :
                     string.IsNullOrWhiteSpace(vTr) ?
                         vVal :
                         string.Format("{0}|{1}", vVal, vTr)
-            );
+            ));
         }
 
         public static ICollection<T> GetAnalogs<T>(this IMapValueRecord rec) where T : IMapRecord

@@ -160,8 +160,11 @@ namespace Units_translate
             get { return _EditingEnabled; }
             private set
             {
-                _EditingEnabled = value;
-                NotifyPropertyChanged(nameof(EditingEnabled));
+                if (_EditingEnabled != value)
+                {
+                    _EditingEnabled = value;
+                    NotifyPropertyChanged(nameof(EditingEnabled));
+                }
             }
         }
 
@@ -183,8 +186,11 @@ namespace Units_translate
             get { return _Selected; }
             set
             {
-                _Selected = value;
-                NotifyPropertyChanged(nameof(Selected));
+                if (_Selected != value)
+                {
+                    _Selected = value;
+                    NotifyPropertyChanged(nameof(Selected));
+                }
             }
         }
 
@@ -196,8 +202,11 @@ namespace Units_translate
             get { return _EditorIsShown; }
             set
             {
-                _EditorIsShown = value;
-                NotifyPropertiesChanged(nameof(EditorIsShown), nameof(EditorIsHidden));
+                if (_EditorIsShown != value)
+                {
+                    _EditorIsShown = value;
+                    NotifyPropertiesChanged(nameof(EditorIsShown), nameof(EditorIsHidden));
+                }
             }
         }
 
@@ -206,8 +215,11 @@ namespace Units_translate
             get { return !_EditorIsShown; }
             set
             {
-                _EditorIsShown = !value;
-                NotifyPropertiesChanged(nameof(EditorIsShown), nameof(EditorIsHidden));
+                if (_EditorIsShown == value)
+                {
+                    _EditorIsShown = !value;
+                    NotifyPropertiesChanged(nameof(EditorIsShown), nameof(EditorIsHidden));
+                }
             }
         }
 

@@ -13,6 +13,8 @@
         <cnv:RecordColorConverter x:Key="RecToBrush"/>
         <Style TargetType="{x:Type ListViewItem}">
             <Setter Property="Background" Value="{Binding Converter={StaticResource RecToBrush}}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <EventSetter Event="PreviewGotKeyboardFocus" Handler="SelectCurrentItem"/>
             <!--<Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ListBoxItem}">
@@ -22,6 +24,11 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>-->
+            <!--<Style.Triggers>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="IsSelected" Value="True"/>
+                </Trigger>
+            </Style.Triggers>-->
         </Style>
     </UserControl.Resources>
     <Grid>
@@ -46,12 +53,24 @@
                 <Path Stretch="Uniform" Fill="#FF000000" Data="M20.008871,10.900169L12.408899,19.200307C12.408899,19.200307,17.708841,27.200435,18.408848,28.900458L20.508867,27.700442C20.508867,27.700442 19.00888,24.800395 18.108864,24.000386 18.108864,24.000386 17.308881,22.900363 18.708833,23.30037 18.708833,23.30037 21.908819,26.000419 22.408813,26.200419L24.508833,24.300387C24.508833,24.300387,24.208786,23.600379,23.808826,23.100369L21.308847,20.300323C21.308847,20.300323 20.808851,19.400306 21.908819,19.700314 21.908819,19.700314 24.608808,21.900346 26.308805,22.400355L28.008802,20.100322C28.008802,20.100322 24.908792,17.100274 24.708782,16.600266 24.708782,16.600266 24.208786,16.100257 24.908792,16.000258 24.908792,16.000258 28.108778,18.20029 29.30878,18.100289 29.30878,18.100289 30.308771,16.200257 30.208734,16.100257 30.108761,15.900249 21.508857,11.900186 20.008871,10.900169z M19.708824,8.5001373C22.608824,11.100177 30.508781,14.100225 30.508781,14.100225 32.708715,14.600233 31.808758,16.400258 31.808758,16.400258 28.008802,25.400403 19.00888,30.400483 19.00888,30.400483 17.408857,31.500506 16.608875,29.100467 16.608875,29.100467 14.808903,25.400403 10.108931,19.100306 10.108931,19.100306z M1.8090139,0C2.0090243,5.2599489E-08,2.1089992,5.2599489E-08,2.2089738,0.10000036L10.908911,8.0001287C11.008948,8.1001291,11.008948,8.2001285,11.108923,8.3001289L13.008931,6.300097C14.608892,5.4000806,16.008905,6.2000966,16.008905,6.2000966L18.308874,7.8001208 9.0089643,17.800282 7.4089419,15.600249C6.4089501,13.600218,7.6089522,12.200193,7.6089522,12.200193L9.2089145,10.400162C9.1089399,10.400162,9.0089643,10.400162,8.9089286,10.300161L0.20899085,2.4000327C0.0090414112,2.2000324,-0.090994357,1.9000245,0.10901623,1.6000244L1.4089929,0.10000036C1.6090034,0.10000013,1.7089781,5.2599489E-08,1.8090139,0z"/>
             </Button>
         </StackPanel>
-        <ListView Grid.Row="1" ItemsSource="{Binding Translations}" SelectedItem="{Binding SelectedValue}" MouseDoubleClick="ListView_MouseDoubleClick" util:GridViewSort.Command="{Binding TranslatesSortCommand}" KeyUp="ListView_KeyUp">
+        <ListView Grid.Row="1" Name="translatesList" ItemsSource="{Binding Translations}" SelectedValue="{Binding SelectedValue, Delay=200}" MouseDoubleClick="ListView_MouseDoubleClick" util:GridViewSort.Command="{Binding TranslatesSortCommand}" KeyUp="ListView_KeyUp">
             <ListView.View>
-                <GridView>
+                <GridView >
                     <GridViewColumn Width="Auto" DisplayMemberBinding="{Binding Data.Count}" util:GridViewSort.PropertyName="Count"/>
                     <GridViewColumn Header="Eng" Width="150" DisplayMemberBinding="{Binding Value}" util:GridViewSort.PropertyName="Value"/>
-                    <GridViewColumn Header="Trans" Width="Auto" DisplayMemberBinding="{Binding Translation}" util:GridViewSort.PropertyName="Translation"/>
+                    <GridViewColumn Header="Trans" Width="Auto" util:GridViewSort.PropertyName="Translation">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Translation}" Name="tb" Background="Transparent" MaxLines="1" BorderBrush="{x:Null}" TextWrapping="Wrap" AcceptsTab="True" AcceptsReturn="True">
+                                </TextBox>
+                                <DataTemplate.Triggers>
+                                    <Trigger Property="IsKeyboardFocusWithin" Value="true">
+                                        <Setter Property="MaxLines" TargetName="tb" Value="5"/>
+                                    </Trigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>

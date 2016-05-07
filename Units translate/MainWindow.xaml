@@ -110,7 +110,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <views:CodeView Grid.Row="0"/>
-                <UI:GridExpander Grid.Row="1" Direction="Next" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" HorizontalAlignment="Stretch" VerticalAlignment="Top" IsEnabled="{Binding EditorIsEnabled}" IsCollapsed="{Binding EditorIsHidden, Mode=OneWay}"/>
+                <UI:GridExpander Grid.Row="1" Focusable="False" Direction="Next" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" HorizontalAlignment="Stretch" VerticalAlignment="Top" IsEnabled="{Binding EditorIsEnabled}" IsCollapsed="{Binding EditorIsHidden, Mode=OneWay}"/>
                 <views:EditView Grid.Row="2" DataContext="{Binding}"/>
                 <!--<Grid Grid.Row="1">
                     <Grid.RowDefinitions>
