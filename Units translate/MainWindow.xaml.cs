@@ -148,5 +148,10 @@ namespace Units_translate
             mainVm.ClearTranslationConflicts();
             tabs.SelectedItem = tiFiles;
         }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            e.Cancel = MappedData.IsTranslatesChanged() && MessageBox.Show("Переводы были изменены.\r\nВы уверены, что не хотите сохранить изменения?", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No;
+        }
     }
 }

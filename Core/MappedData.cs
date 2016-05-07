@@ -30,10 +30,11 @@ namespace Core
         public static readonly EntryesComparer Comparer = new EntryesComparer();
     }
 
-    public interface IMapRecord
+    public interface IMapRecord : IComparable
     {
         string Value { get; }
     }
+
     public interface IMapRecordFull : IMapRecord
     {
         SortedObservableCollection<IMapData> Data { get; }
@@ -55,6 +56,12 @@ namespace Core
         {
             value = val;
         }
+
+        public int CompareTo(object obj)
+        {
+            var rec = obj as IMapRecord;
+            return rec == null ? -1 : Value.CompareTo(rec.Value);
+        }
     }
 
     /// <summary>
@@ -71,6 +78,11 @@ namespace Core
         {
             value = val;
             data = new SortedObservableCollection<IMapData>() { Comparer = MapDataComparer.Comparer };
+        }
+        public int CompareTo(object obj)
+        {
+            var rec = obj as IMapRecord;
+            return rec == null ? -1 : Value.CompareTo(rec.Value);
         }
     }
 
@@ -104,6 +116,12 @@ namespace Core
 
         public MapValueRecord(string val) : this(val, string.Empty)
         {
+        }
+
+        public int CompareTo(object obj)
+        {
+            var rec = obj as IMapRecord;
+            return rec == null ? -1 : Value.CompareTo(rec.Value);
         }
     }
 
@@ -172,6 +190,16 @@ namespace Core
             if (itm == null)
                 return null;
             return GetValueRecord(itm.Value);
+        }
+
+        public static bool IsTranslatesChanged()
+        {
+            var newEntr = GetEntries().ToDictionary(e => e.Value);
+            return OriginalData.Entryes.Any(e =>
+            {
+                IMapValueRecord tr;
+                return !newEntr.TryGetValue(e.Eng, out tr) || tr.Translation != e.Trans;
+            });
         }
 
         /// <summary>
@@ -459,9 +487,9 @@ namespace Core
         /// Возвращает список значений из загружунных переводов, и дополняет его отсутствующими значениями имеющими перевод
         /// </summary>
         /// <returns></returns>
-        public static List<IMapValueRecord> GetEntries()
+        public static HashSet<IMapValueRecord> GetEntries()
         {
-            var lst = new List<IMapValueRecord>();
+            var lst = new HashSet<IMapValueRecord>();
             foreach (IMapValueRecord it in _TranslatesDictionary)
                 lst.Add(it);
             foreach (IMapValueRecord it in _ValuesDictionary.Except(_TranslatesDictionary))

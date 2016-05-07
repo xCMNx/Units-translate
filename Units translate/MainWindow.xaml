@@ -7,7 +7,7 @@
         xmlns:views="clr-namespace:Units_translate.Views"
         xmlns:UI="clr-namespace:Ui;assembly=Ui"
         mc:Ignorable="d"
-        Title="Units translate" Height="600" Width="1000" WindowStartupLocation="CenterScreen">
+        Title="Units translate" Height="600" Width="1000" WindowStartupLocation="CenterScreen" Closing="Window_Closing">
     <Grid>
         <Grid x:Name="settings" Visibility="Collapsed">
             <Grid.RowDefinitions>

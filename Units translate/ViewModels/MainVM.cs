@@ -168,6 +168,8 @@ namespace Units_translate
             }
         }
 
+        public bool IsTranslatesChanged => MappedData.IsTranslatesChanged();
+
         /// <summary>
         /// Полный список переводов
         /// </summary>
