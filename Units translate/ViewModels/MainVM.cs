@@ -508,6 +508,7 @@ namespace Units_translate
                 return;
             var w = new FileSystemWatcher(path);
             w.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            w.IncludeSubdirectories = true;
             w.Filter = "*.*";
             w.Changed += W_Changed;
             w.Deleted += W_Deleted;
