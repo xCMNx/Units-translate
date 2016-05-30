@@ -53,7 +53,7 @@ namespace pascal
         /// <returns></returns>
         protected string GenNewValue(string value, bool controlOnly, byte maxLength = 0)
         {
-            var pairs = StringToParts(value, controlOnly);
+            var pairs = StringToParts(value.Replace("'", "''"), controlOnly);
             if (pairs.Count == 0)
                 return "''";
             var str = new StringBuilder();
@@ -90,7 +90,7 @@ namespace pascal
             return GenNewValue(value, true, 125);
         }
 
-        public PascalMapItem(string value, int start, int end): base (value, start, end, start, end)
+        public PascalMapItem(string value, int start, int end): base (value.Replace("''", "'"), start, end, start, end)
         {
         }
     }
