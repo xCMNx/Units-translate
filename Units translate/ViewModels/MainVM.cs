@@ -430,7 +430,7 @@ namespace Units_translate
         /// <param name="name">Путь который надо выпилить</param>
         void RemoveFromFiles(string name)
         {
-            if (Selected.FullPath.Equals(name, StringComparison.InvariantCultureIgnoreCase))
+            if (Selected != null && Selected.FullPath.Equals(name, StringComparison.InvariantCultureIgnoreCase))
                 Selected = null;
             foreach (var f in _Files)
                 if (RemoveFromNode(f, name))
