@@ -507,11 +507,13 @@ namespace Units_translate
             if (watchers.ContainsKey(path))
                 return;
             var w = new FileSystemWatcher(path);
-            w.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            w.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.FileName;
             w.IncludeSubdirectories = true;
             w.Filter = "*.*";
             w.Changed += W_Changed;
             w.Deleted += W_Deleted;
+            w.Created += W_Created;
+            w.Renamed += W_Created;
             try
             {
                 //пройдем по имеющимся мониторам и подкорректируем 
@@ -529,6 +531,19 @@ namespace Units_translate
             w.EnableRaisingEvents = true;
         }
 
+        private void W_Created(object sender, FileSystemEventArgs e)
+        {
+            Helpers.mainCTX.Send(_ =>
+            {
+                Helpers.ConsoleWrite(string.Format("[{0}]{1} : {2}", DateTime.Now.ToString(), e.FullPath, e.ChangeType));
+                if (File.Exists(e.FullPath) && !IsIgnored(e.FullPath))
+                {
+                    MappedData.AddData(new FileContainer(e.FullPath), false);
+                    NotifyPropertyChanged(nameof(UsedTranslates));
+                }
+            }, null);
+        }
+
         /// <summary>
         /// происходит при изменении в папке или файле, вызывается асинхронно
         /// </summary>
@@ -538,8 +553,11 @@ namespace Units_translate
             {
                 //попросим обновить файл, и т.к. событие может произойти несколько раз, установим флаг проверки даты изменения
                 Helpers.ConsoleWrite(string.Format("[{0}]{1} : {2}", DateTime.Now.ToString(), e.FullPath, e.ChangeType));
-                MappedData.UpdateData(e.FullPath, true, true);
-                NotifyPropertyChanged(nameof(UsedTranslates));
+                if (File.Exists(e.FullPath) && !IsIgnored(e.FullPath))
+                {
+                    MappedData.UpdateData(e.FullPath, true, true);
+                    NotifyPropertyChanged(nameof(UsedTranslates));
+                }
             }, null);
         }
 
@@ -552,9 +570,12 @@ namespace Units_translate
             {
                 //выпилим файл из разметки
                 Helpers.ConsoleWrite(string.Format("[{0}]{1} : {2}", DateTime.Now.ToString(), e.FullPath, e.ChangeType));
-                MappedData.RemoveData(e.FullPath);
-                NotifyPropertyChanged(nameof(UsedTranslates));
-                RemoveFromFiles(e.FullPath);
+                if (File.Exists(e.FullPath) && !IsIgnored(e.FullPath))
+                {
+                    MappedData.RemoveData(e.FullPath);
+                    NotifyPropertyChanged(nameof(UsedTranslates));
+                    RemoveFromFiles(e.FullPath);
+                }
             }, null);
         }
 
