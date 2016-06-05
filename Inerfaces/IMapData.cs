@@ -76,6 +76,13 @@ namespace Core
         ICollection<T> GetItemsWithValue<T>(object obj) where T : class, IMapItemBase;
 
         /// <summary>
+        /// Вернет количество разметок значения которых является переданный объект. Разметки сами должны сверять себя с объектами.
+        /// </summary>
+        /// <param name="obj">Искомый объект</param>
+        /// <returns></returns>
+        int GetItemsCountWithValue(object obj);
+
+        /// <summary>
         /// Просит переразметить файл
         /// </summary>
         /// <param name="ifChanged">Только изменившийся</param>

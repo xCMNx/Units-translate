@@ -153,5 +153,10 @@ namespace Units_translate
         {
             e.Cancel = MappedData.IsTranslatesChanged() && MessageBox.Show("Переводы были изменены.\r\nВы уверены, что не хотите сохранить изменения?", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No;
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Work(mainVm.OpenSolution);
+        }
     }
 }

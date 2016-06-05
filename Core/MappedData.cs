@@ -38,6 +38,7 @@ namespace Core
     public interface IMapRecordFull : IMapRecord
     {
         SortedObservableCollection<IMapData> Data { get; }
+        int Count { get;}
     }
     public interface IMapValueRecord : IMapRecordFull, INotifyPropertyChanged
     {
@@ -67,22 +68,55 @@ namespace Core
     /// <summary>
     /// Структура для словаря размеченных методов, содержит название метода и связанные с ним размеченные данные
     /// </summary>
-    public struct MapMethodRecord : IMapRecordFull
+    public struct MapMethodRecord : INotifyPropertyChanged, IMapRecordFull
     {
         string value;
         public string Value => value;
         SortedObservableCollection<IMapData> data;
         public SortedObservableCollection<IMapData> Data => data;
 
+        bool needCalc;
+        int _Count;
+        public int Count => needCalc ? _Count = GetCount() : _Count;
+
         public MapMethodRecord(string val)
         {
             value = val;
             data = new SortedObservableCollection<IMapData>() { Comparer = MapDataComparer.Comparer };
+            _Count = 0;
+            needCalc = false;
+            PropertyChanged = null;
+            data.CollectionChanged += Data_CollectionChanged;
         }
+
+        int GetCount()
+        {
+            var cnt = 0;
+            foreach (var itm in data)
+                cnt += itm.GetItemsCountWithValue(this);
+            return cnt;
+        }
+
+        private void Data_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            needCalc = true;
+            NotifyPropertyChanged(nameof(Count));
+        }
+
         public int CompareTo(object obj)
         {
             var rec = obj as IMapRecord;
             return rec == null ? -1 : Value.CompareTo(rec.Value);
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void NotifyPropertyChanged(String propertyName = "")
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
         }
     }
 
@@ -104,7 +138,11 @@ namespace Core
             }
         }
 
-        SortedObservableCollection<IMapData> data;
+        bool needCalc = false;
+        int _Count = 0;
+        public int Count => needCalc ? _Count = GetCount() : _Count;
+
+        SortedObservableCollection <IMapData> data;
         public SortedObservableCollection<IMapData> Data => data;
 
         public MapValueRecord(string val, string trans)
@@ -112,6 +150,21 @@ namespace Core
             value = val;
             translation = trans;
             data = new SortedObservableCollection<IMapData>() { Comparer = MapDataComparer.Comparer };
+            data.CollectionChanged += Data_CollectionChanged;
+        }
+
+        int GetCount()
+        {
+            var cnt = 0;
+            foreach (var itm in data)
+                cnt += itm.GetItemsCountWithValue(this);
+            return cnt;
+        }
+
+        private void Data_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            needCalc = true;
+            NotifyPropertyChanged(nameof(Count));
         }
 
         public MapValueRecord(string val) : this(val, string.Empty)
@@ -373,6 +426,8 @@ namespace Core
             return _Data[idx] as IMapData;
         }
 
+        #region Translates
+
         /// <summary>
         /// Очищает переводы
         /// </summary>
@@ -498,6 +553,9 @@ namespace Core
             return lst;
         }
 
+        #endregion
+
+        #region Search
         [Flags]
         public enum SearchParams { EngOrTrans = 0, Eng = 1, Trans = 2, Both = 3}
 
@@ -660,6 +718,7 @@ namespace Core
 
             return MethodsFilter(methodsFilter, Search(lexpr, SearchParams.EngOrTrans, ct), ct);
         }
+        #endregion
 
         public static string RegexCompareExpression(this IMapValueRecord rec)
         {

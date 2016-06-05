@@ -9,7 +9,7 @@ using Core;
 
 namespace pascal
 {
-    [MapperFilter(new[]{".dfm", ".pas", ".dpr"})]
+    [MapperFilter(new[] { ".dfm", ".pas", ".dpr" })]
     public class PascalMapper : IMapper
     {
         public string Name => "pascal"; 
@@ -19,12 +19,12 @@ namespace pascal
 
         static Regex regex = new Regex(@"#(\d+)");
 
-        static Regex regexUses = new Regex(@"(?ixms)
- (?:\{.*?\})#skip comments
-|(?:\(\*.*?\*\))#skip comments
-|(?://.*?[\0\r\n])#skip comments
-|(?:'(?:[^'\0\r\n]*|'')*?')#skip strings
-|(?<uses>\buses\b(?:[^;\{/(']*|\{.*?}|//.*?[\0\r\n]|\((?:\*.*?\*\)|.*)|'(?:[^'\0\r\n]*|'')*?')*?;)
+        public static Regex regexUses = new Regex(@"(?ixms)
+ \{.*?\}#skip comments
+|\(\*.*?\*\)#skip comments
+|//.*?$#skip comments
+|'(?:[^'\0\r\n]*|'')*?'#skip strings
+|(?<uses>\b(uses|contains)\b(?:[^;\{/(']*|\{.*?}|//.*?[\0\r\n]|\((?:\*.*?\*\)|.*)|'(?:[^'\0\r\n]*|'')*?')*?;)
         ");
 
         static Regex regexUsesTr = new Regex(@"(?ixms)
@@ -48,25 +48,6 @@ namespace pascal
         ");
 
         static Regex regexGUID = new Regex(@"\{[a-fA-F\d]{8}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{12}\}");
-
-        static Regex regexTr = new Regex(@"(?ixm)
- (?:\{.*?\})#skip comments
-|(?:\(\*.*?\*\))#skip comments
-|(?://.*?[\0\r\n])#skip comments
-|(?:'(?:[^'\0\r\n]*|'')*?')#skip strings
-|(?<tr>\btr[\s]*?\(
-      (?: 
-          (?<n>\()                   #cycle stack +
-          |(?<inner-n>\))            #cycle stack -
-          |[^{/()']*
-          |\{.*?}
-          |//.*?[\0\r\n]
-          |\(\*.*?\*\)
-          |'(?:[^'\0\r\n]*|'')*?'
-      )
-*\)(?!(n))                          #while stack is not empty
-)
-        ");
 
         public enum PascalFileType
         {

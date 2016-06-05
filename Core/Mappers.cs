@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace Core
@@ -17,6 +18,12 @@ namespace Core
         /// Словарь для быстроко поиска парсера для расширения
         /// </summary>
         public static Dictionary<string, IMapper> _ExtToMapperList = new Dictionary<string, IMapper>();
+        /// <summary>
+        /// Словарь для быстроко поиска парсера для расширения решения
+        /// </summary>
+        public static Dictionary<string, ISolutionReader> _SolutionExtToMapperList = new Dictionary<string, ISolutionReader>();
+
+        public static string SolutionExts => string.Join("|", _SolutionExtToMapperList.Keys.Select(k => string.Format("{0}|*{0}", k)).ToArray());
 
         /// <summary>
         /// Парсер умеющий все расширения, его атрибут *
@@ -50,6 +57,16 @@ namespace Core
                 }
             }
             _List = mappers.ToArray();
+
+            //ищем парсеры решений
+            var solutionReadersTypes = Helpers.getModules(typeof(ISolutionReader), mappersLibs);
+            foreach (var mt in solutionReadersTypes)
+            {
+                var reader = (ISolutionReader)Activator.CreateInstance(mt);
+                var attribute = mt.GetCustomAttribute<MapperSolutionFilter>();
+                foreach (var ext in attribute.Extensions)
+                    _SolutionExtToMapperList[ext.ToUpper()] = reader;
+            }
         }
 
         /// <summary>
@@ -67,6 +84,22 @@ namespace Core
             //если нет, то спросим у уникума, умеет ли он в это расширение
             else if(_Unique != null && _Unique.IsExtAcceptable(Ext))
                 return _Unique;
+            //нет так нет
+            return null;
+        }
+
+        /// <summary>
+        /// Возвращает подходящий парсер решения
+        /// </summary>
+        /// <param name="Ext">Расширение</param>
+        /// <returns>Парсер если найден подходящий или null</returns>
+        public static ISolutionReader FindSolutionReader(string Ext)
+        {
+            Ext = Ext.ToUpper();
+            ISolutionReader m;
+            //сначала посмотрим в словаре
+            if (_SolutionExtToMapperList.TryGetValue(Ext, out m))
+                return m;
             //нет так нет
             return null;
         }

@@ -165,7 +165,7 @@ namespace Units_translate
                             if (!FixingEnabled)
                                 throw;
                             //попытка пофиксить
-                            Helpers.ConsoleWrite(e.ToString(), ConsoleColor.Red);
+                            Helpers.ConsoleWrite($"{FullPath}\r\n{e.ToString()}", ConsoleColor.DarkRed);
                             mapper.TryFix(FullPath, Helpers.GetEncoding(FullPath, Helpers.Encoding));
                             tryGet();
                             if (ShowMappingErrors)
@@ -174,7 +174,7 @@ namespace Units_translate
                     }
                     catch (Exception e)
                     {
-                        Helpers.ConsoleWrite(e.ToString(), ConsoleColor.Red);
+                        Helpers.ConsoleWrite($"{FullPath}\r\n{e.ToString()}", ConsoleColor.Red);
                         _Items = new List<IMapItemRange>();
                         if (ShowMappingErrors)
                             MessageBox.Show(string.Format("Произошла ошибка во время обработки файла:\r\n{0}\r\n\r\n{1}", FullPath, e));
@@ -239,6 +239,24 @@ namespace Units_translate
                         lst.Add(it);
                 }
             return lst;
+        }
+
+        /// <summary>
+        /// Вернет количество разметок значения которых является переданный объект. Разметки сами должны сверять себя с объектами.
+        /// </summary>
+        /// <param name="obj">Искомый объект</param>
+        /// <returns></returns>
+        public int GetItemsCountWithValue(object obj)
+        {
+            int cnt = 0;
+            if (obj != null)
+                foreach (var itm in Items)
+                {
+                    var it = itm as IMapItemBase;
+                    if (it != null && it.IsSameValue(obj))
+                        cnt++;
+                }
+            return cnt;
         }
     }
 }

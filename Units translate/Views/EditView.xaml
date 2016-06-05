@@ -11,22 +11,24 @@
              d:DesignHeight="300" d:DesignWidth="600" Name="root">
     <UserControl.Resources>
         <DataTemplate x:Key="CodeItemView">
-            <GroupBox VerticalContentAlignment="Bottom">
-                <GroupBox.Header>
+            <Expander VerticalContentAlignment="Bottom" IsExpanded="True">
+                <Expander.Header>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{Binding FileName}" ToolTip="{Binding FullPath}"/>
-                        <Button ToolTip="Показать в проводнике" Background="{x:Null}" BorderBrush="{x:Null}" Name="btnShowInExplorer" Width="16" Height="16" Margin="2" Click="btnShowInExplorer_Click">
+                        <TextBlock Text="{Binding Ext}" Foreground="LightGray" ToolTip="{Binding FullPath}"/>
+                        <TextBlock Text="{Binding Count, ElementName=view}" Foreground="Green" Margin="5,0,0,0"/>
+                        <Button ToolTip="Показать в проводнике" Background="Transparent" BorderBrush="{x:Null}" Name="btnShowInExplorer" Width="16" Height="16" Margin="2" Click="btnShowInExplorer_Click">
                             <Path Stretch="Uniform" Fill="Black" Data="F1 M 20,17L 43.25,17L 56,29.75L 56,40L 52,37.5L 52,34L 39,34L 39,21L 24,21L 24,55L 36,55L 32,59L 20,59L 20,17 Z M 43,22.25L 43,30L 50.75,30L 43,22.25 Z M 48,38C 53.5228,38 58,42.4772 58,48C 58,53.5229 53.5228,58 48,58C 46.1455,58 44.4089,57.4952 42.9201,56.6155L 36.1213,63.4142C 35.3403,64.1953 34.0739,64.1953 33.2929,63.4142L 32.5858,62.7071C 31.8047,61.9261 31.8047,60.6597 32.5858,59.8787L 39.3845,53.0799C 38.5048,51.5911 38,49.8545 38,48C 38,42.4772 42.4771,38 48,38 Z M 48,42C 44.6863,42 42,44.6863 42,48C 42,51.3137 44.6863,54 48,54C 51.3137,54 54,51.3137 54,48C 54,44.6863 51.3137,42 48,42 Z"/>
                         </Button>
-                        <Button ToolTip="Открыть" Background="{x:Null}" BorderBrush="{x:Null}" Name="btnOpenFile" Width="16" Height="16" Click="btnOpenFile_Click">
+                        <Button ToolTip="Открыть" Background="Transparent" BorderBrush="{x:Null}" Name="btnOpenFile" Width="16" Height="16" Click="btnOpenFile_Click">
                             <Path Stretch="Uniform" Fill="Black" Data="F1 M 22,17L 41.25,17L 54,29.75L 54,54L 22,54L 22,17 Z M 26,21L 26,50L 50,50L 50,34L 37,34L 37,21L 26,21 Z M 41,22.25L 41,30L 48.75,30L 41,22.25 Z M 38,57C 39.6568,57 41,58.3431 41,60C 41,61.6569 39.6568,63 38,63C 36.3431,63 35,61.6569 35,60C 35,58.3431 36.3431,57 38,57 Z M 50,57C 51.6568,57 53,58.3431 53,60C 53,61.6569 51.6568,63 50,63C 48.3431,63 47,61.6569 47,60C 47,58.3431 48.3431,57 50,57 Z M 26,57C 27.6569,57 29,58.3431 29,60C 29,61.6569 27.6569,63 26,63C 24.3431,63 23,61.6569 23,60C 23,58.3431 24.3431,57 26,57 Z"/>
                         </Button>
                     </StackPanel>
-                </GroupBox.Header>
-                <local:SampleView UseFormat="{Binding IsChecked, ElementName=cbWrap}" Format="{Binding Text, ElementName=tbFormat}" Translation="{Binding Text, ElementName=tbTranslation}" NewValue="{Binding Text, ElementName=tbValue}" Value="{Binding DataContext.SelectedValue, ElementName=root}"/>
-            </GroupBox>
+                </Expander.Header>
+                <local:SampleView x:Name="view" UseFormat="{Binding IsChecked, ElementName=cbWrap}" Format="{Binding Text, ElementName=tbFormat}" Translation="{Binding Text, ElementName=tbTranslation}" NewValue="{Binding Text, ElementName=tbValue}" Value="{Binding DataContext.SelectedValue, ElementName=root}"/>
+            </Expander>
         </DataTemplate>
-        
+
         <Style TargetType="MenuItem">
             <Setter Property="Command" Value="{Binding MenuCommand, Source={x:Reference root}}"/>
             <Setter Property="CommandParameter" Value="{Binding}"/>
@@ -45,13 +47,12 @@
                     <RowDefinition Height="*" MinHeight="42"/>
                     <RowDefinition Height="3"/>
                     <RowDefinition Height="*" MinHeight="42"/>
-                    <RowDefinition Height="3"/>
-                    <RowDefinition Height="*" MinHeight="42"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <GroupBox Grid.Row="0">
                     <GroupBox.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Новое значение" Margin="2"/>
+                            <TextBlock Text="Новое значение" FontWeight="Bold" Margin="2"/>
                             <Button Background="Transparent" BorderBrush="{x:Null}" Height="18" Visibility="{Binding IsSelectedValueHasAnalogs, Converter={StaticResource BoolTovis}}" Click="Button_Click">
                                 <Button.ContextMenu>
                                     <ContextMenu ItemsSource="{Binding SelectedValueAnalogs}">
@@ -71,7 +72,7 @@
                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
                 </GroupBox>
                 <GridSplitter Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                <GroupBox Header="Перевод" Grid.Row="2">
+                <GroupBox Header="Перевод" FontWeight="Bold" Grid.Row="2">
                     <Grid>
                         <AdornerDecorator>
                             <stb:SpellTextBox Name="tbTranslation" DictionaryPath=".\dictionaries\ru_RU" IsSpellCheckEnabled="true"
@@ -89,20 +90,19 @@
                         </StackPanel>
                     </Grid>
                 </GroupBox>
-                <GridSplitter Grid.Row="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                <GroupBox Grid.Row="4">
-                    <GroupBox.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <CheckBox Name="cbWrap"/>
-                            <TextBlock Text="Обернуть значение" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </GroupBox.Header>
+                <CheckBox Name="cbWrap" Grid.Row="3" ToolTip="Обернуть значение" HorizontalContentAlignment="Stretch">
                     <TextBox Name="tbFormat" AcceptsTab="True" AcceptsReturn="True" Text="tr({0})"
                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
-                </GroupBox>
+                </CheckBox>
             </Grid>
             <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <GroupBox Grid.Column="2" Header="Предпросмотр">
+            <GroupBox Grid.Column="2">
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Предпросмотр "/>
+                        <TextBlock Text="{Binding SelectedValue.Count}"/>
+                    </StackPanel>
+                </GroupBox.Header>
                 <ScrollViewer Name="scroll" VerticalScrollBarVisibility="Auto">
                     <ItemsControl Name="dataList" ItemsSource="{Binding SelectedValue.Data}" HorizontalContentAlignment="Stretch" ItemTemplate="{DynamicResource CodeItemView}"/>
                 </ScrollViewer>

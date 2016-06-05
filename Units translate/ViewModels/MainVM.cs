@@ -408,7 +408,7 @@ namespace Units_translate
         }
 
         /// <summary>
-        /// Проходит по узлу и ищет совпадение пути в подузлах 
+        /// Проходит по узлу и ищет совпадение пути в подузлах
         /// </summary>
         /// <param name="node">Узел в котором происходит поиск</param>
         /// <param name="name">Путь</param>
@@ -444,10 +444,15 @@ namespace Units_translate
         /// <param name="callback">Колбэк метод (путь, индекс), сначало вернет пустой путь и количество файлов, затем путь и индес файла</param>
         public void AddDir(string path, Action<string, int> callback = null)
         {
+            setWatcher(path);
+            AddFiles(Directory.GetFiles(path, "*.*", SearchOption.AllDirectories).Where(f => !IsIgnored(f)).ToArray(), callback);
+        }
+
+        void AddFiles(ICollection<string> files, Action<string, int> callback = null)
+        {
             EditingEnabled = false;
             try
             {
-                var files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories).Where(f => !IsIgnored(f)).ToArray();
                 if (callback != null) callback(null, files.Count());
                 int cnt = 0;
                 foreach (var f in files)
@@ -455,12 +460,37 @@ namespace Units_translate
                     if (callback != null) callback(f, ++cnt);
                     MappedData.AddData(new FileContainer(f), false);
                 }
-                setWatcher(path);
             }
             finally
             {
                 NotifyPropertyChanged(nameof(UsedTranslates));
                 EditingEnabled = true;
+            }
+        }
+
+        HashSet<string> _SolutionsFiles = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+
+        public void OpenSolution(Action<string, int> callback = null)
+        {
+            var od = new Microsoft.Win32.OpenFileDialog();
+            od.Filter = Mappers.SolutionExts;
+            if (od.ShowDialog() == true)
+            {
+                var files = Mappers.FindSolutionReader(Path.GetExtension(od.FileName))?.GetFiles(od.FileName);
+                if (files != null)
+                {
+                    if (MappedData.Data.Count > 0 && MessageBox.Show("Удалить уже добавленные файлы?", "", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    {
+                        Helpers.mainCTX.Send(_ => MappedData.Data.Clear(), null);
+                        foreach (var w in watchers)
+                            w.Value.EnableRaisingEvents = false;
+                        watchers.Clear();
+                    }
+                    setWatcher(Path.GetDirectoryName(Path.GetFullPath(od.FileName)));
+                    AddFiles(files, callback);
+                    foreach (var f in files)
+                        _SolutionsFiles.Add(f);
+                }
             }
         }
 
@@ -516,7 +546,7 @@ namespace Units_translate
             w.Renamed += W_Created;
             try
             {
-                //пройдем по имеющимся мониторам и подкорректируем 
+                //пройдем по имеющимся мониторам и подкорректируем
                 foreach (var wtc in watchers)
                     if (wtc.Key.StartsWith(path))
                         return;//новый путь входит в подкаталоги уже наблюдаемой папки, активация монитора не нужна
@@ -702,6 +732,8 @@ namespace Units_translate
         /// <returns>true если файл совпал с маской одного из игнора</returns>
         bool IsIgnored(string path)
         {
+            if (_SolutionsFiles.Count > 0 && !_SolutionsFiles.Contains(path))
+                return true;
             foreach (var r in IgnoreList)
                 if (r.IsMatch(path))
                     return true;
@@ -845,7 +877,6 @@ namespace Units_translate
                 Translations.Reset(lst);
             });
         }
-
 
         static MainVM()
         {

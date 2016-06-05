@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,7 +14,7 @@ namespace Units_translate.Views
     /// <summary>
     /// Логика взаимодействия для SampleView.xaml
     /// </summary>
-    public partial class SampleView
+    public partial class SampleView : INotifyPropertyChanged
     {
         public SampleView()
         {
@@ -27,6 +28,7 @@ namespace Units_translate.Views
           typeof(string),
           typeof(SampleView)
         );
+
 
         public string Translation
         {
@@ -109,6 +111,18 @@ namespace Units_translate.Views
             {
                 SetValue(ValueProperty, value);
                 Update();
+            }
+        }
+
+        public int Count { get; private set; } = 0;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void NotifyPropertyChanged(String propertyName = "")
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
 
@@ -210,7 +224,7 @@ namespace Units_translate.Views
             if (Value == null || Data == null)
                 UpdatePool.CancellTask(this);
             else
-                UpdatePool.AddTask(this, UpdateExecute, 500);
+                UpdatePool.AddTask(this, UpdateExecute, 1000);
         }
 
         void UpdateExecute(CancellationToken ct)
@@ -231,6 +245,7 @@ namespace Units_translate.Views
             var previwCount = MainVM.Instance.PreviewLines / 2;
             var map = new PreviewMap(Data.Text);
 
+            Count = 0;
             List<UIElement> previews = new List<UIElement>();
             foreach (var item in Data.Items)
             {
@@ -239,6 +254,7 @@ namespace Units_translate.Views
                 var itm = item as IMapValueItem;
                 if (itm != null && itm.Value == val.Value)
                 {
+                    Count++;
                     string nVal = string.Empty;
                     try
                     {
@@ -279,6 +295,7 @@ namespace Units_translate.Views
             if (!ct.IsCancellationRequested)
                 foreach (var p in previews)
                     ContentContainer.Children.Add(p);
+            Helpers.mainCTX.Post(_=> NotifyPropertyChanged(nameof(Count)), null);
         }
 
         private void BtnShow_Click(object sender, RoutedEventArgs e)
