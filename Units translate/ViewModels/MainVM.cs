@@ -486,7 +486,8 @@ namespace Units_translate
                             w.Value.EnableRaisingEvents = false;
                         watchers.Clear();
                     }
-                    setWatcher(Path.GetDirectoryName(Path.GetFullPath(od.FileName)));
+                    foreach (var d in new HashSet<string>(files.Select(f => Path.GetDirectoryName(f)), StringComparer.InvariantCultureIgnoreCase))
+                        setWatcher(d);
                     AddFiles(files, callback);
                     foreach (var f in files)
                         _SolutionsFiles.Add(f);
@@ -500,6 +501,7 @@ namespace Units_translate
         /// <param name="callback">Колбэк метод (путь, индекс), сначало вернет пустой путь и количество файлов, затем путь и индес файла</param>
         public void Remap(Action<string, int> callback = null)
         {
+            ResetWatchers();
             EditingEnabled = false;
             try
             {
@@ -528,37 +530,63 @@ namespace Units_translate
         Dictionary<string, FileSystemWatcher> watchers = new Dictionary<string, FileSystemWatcher>();
 
         /// <summary>
-        /// добавляеи папку для мониторинга
+        /// Создает новый монитор
         /// </summary>
-        /// <param name="path"></param>
-        void setWatcher(string path)
+        /// <param name="path">Путь к наблюдаемой директории</param>
+        /// <returns>Системный монитор файлов</returns>
+        FileSystemWatcher GetNewWatcher(string path)
         {
             path = path.ToUpper();
-            if (watchers.ContainsKey(path))
-                return;
             var w = new FileSystemWatcher(path);
-            w.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.FileName;
+            w.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
             w.IncludeSubdirectories = true;
             w.Filter = "*.*";
             w.Changed += W_Changed;
             w.Deleted += W_Deleted;
             w.Created += W_Created;
             w.Renamed += W_Created;
-            try
+            return w;
+        }
+
+        /// <summary>
+        /// Добавляет папку для мониторинга
+        /// </summary>
+        /// <param name="path">Путь к наблюдаемой директории</param>
+        void setWatcher(string path)
+        {
+            path = path.ToUpper();
+            if (watchers.ContainsKey(path))
+                return;
+            var w = GetNewWatcher(path);
+            //пройдем по имеющимся мониторам и подкорректируем
+            for (var i = watchers.Count - 1; i >= 0; i--)
             {
-                //пройдем по имеющимся мониторам и подкорректируем
-                foreach (var wtc in watchers)
-                    if (wtc.Key.StartsWith(path))
-                        return;//новый путь входит в подкаталоги уже наблюдаемой папки, активация монитора не нужна
-                    else if (path.StartsWith(wtc.Key))
-                        wtc.Value.EnableRaisingEvents = false;//новая папка содержит наблюдаемый каталог, выключим наблюдение, т.к. за старой папкой будет наблюдать новый монитор
+                var wtc = watchers.ElementAt(i);
+                if (wtc.Key.StartsWith(path))
+                {
+                    //новая папка содержит наблюдаемый каталог, выключим наблюдение, т.к. за старой папкой будет наблюдать новый монитор
+                    wtc.Value.EnableRaisingEvents = false;
+                    wtc.Value.Dispose();
+                    watchers.Remove(wtc.Key);
+                }
+                else if (path.StartsWith(wtc.Key))
+                    return;//новый путь входит в подкаталоги уже наблюдаемой папки, активация монитора не нужна
             }
-            finally
-            {
-                watchers.Add(path, w);
-            }
+            watchers.Add(path, w);
             //активируем наблюдение
             w.EnableRaisingEvents = true;
+        }
+
+        void ResetWatchers()
+        {
+            foreach (var w in watchers)
+            {
+                w.Value.EnableRaisingEvents = false;
+                w.Value.Dispose();
+                var nw = GetNewWatcher(w.Key);
+                watchers[w.Key] = nw;
+                nw.EnableRaisingEvents = true;
+            }
         }
 
         private void W_Created(object sender, FileSystemEventArgs e)
