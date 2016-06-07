@@ -57,7 +57,12 @@ namespace Core
         #endregion
 
         #region Console
-        [DllImport("kernel32.dll", SetLastError = true)]
+        private const UInt32 StdOutputHandle = 0xFFFFFFF5;
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr GetStdHandle(UInt32 nStdHandle);
+        [DllImport("kernel32.dll")]
+        private static extern void SetStdHandle(UInt32 nStdHandle, IntPtr handle);
+        [DllImport("kernel32", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool AllocConsole();
         [DllImport("kernel32.dll")]
@@ -69,6 +74,15 @@ namespace Core
         static bool CreateConsole()
         {
             var b = AllocConsole();
+            // stdout's handle seems to always be equal to 7
+            IntPtr defaultStdout = new IntPtr(7);
+            IntPtr currentStdout = GetStdHandle(StdOutputHandle);
+
+            if (currentStdout != defaultStdout)
+                // reset stdout
+                SetStdHandle(StdOutputHandle, defaultStdout);
+
+            // reopen stdout
             TextWriter writer = new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true };
             Console.SetOut(writer);
             return b;
@@ -84,11 +98,13 @@ namespace Core
                 {
                     if (_ConsoleEnabled != value)
                         _ConsoleEnabled = value ? AllocConsole() : !FreeConsole();
+#if !DEBUG
                     if (_ConsoleEnabled)
                     {
                         Console.BufferHeight = ConsoleBufferHeight;
                         Console.BufferWidth = ConsoleBufferWidth;
                     }
+#endif
                 }
             }
         }
@@ -105,9 +121,9 @@ namespace Core
                 }
             }
         }
-        #endregion
+#endregion
 
-        #region Encoding
+#region Encoding
         public static string Default_Encoding = "windows-1251";
         public const string ENCODING = "ENCODING";
         public static Encoding Encoding;
@@ -134,10 +150,10 @@ namespace Core
                 return Encoding.UTF32;
             return def;
         }
-        #endregion
+#endregion
 
 
-        #region Reflection
+#region Reflection
         public static Type[] getModules(string InterfaceName, IEnumerable<Assembly> assemblies = null)
         {
             var asmbls = assemblies ?? AppDomain.CurrentDomain.GetAssemblies();
@@ -192,9 +208,9 @@ namespace Core
             string path = Uri.UnescapeDataString(uri.Path + uri.Fragment);
             return Path.GetDirectoryName(path);
         }
-        #endregion
+#endregion
 
-        #region Config
+#region Config
         static Configuration config;
 
         public static void WriteToConfig(string Key, string Value)
@@ -260,7 +276,7 @@ namespace Core
                 return val;
             return Default;
         }
-        #endregion
+#endregion
 
         public static long TickCount
         {

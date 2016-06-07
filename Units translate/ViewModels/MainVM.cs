@@ -128,8 +128,18 @@ namespace Units_translate
             get { return Helpers.ConsoleEnabled; }
             set
             {
-                Helpers.ConsoleEnabled = value;
-                Helpers.ConfigWrite(CONSTOLE_ENABLED, Helpers.ConsoleEnabled);
+                Helpers.ConfigWrite(CONSTOLE_ENABLED, value);
+                try
+                {
+                    Helpers.ConsoleEnabled = value;
+                    if(Helpers.ConsoleEnabled)
+                        Helpers.ConsoleWrite("Console enabled");
+                }
+                catch (Exception e)
+                {
+                    Helpers.ConsoleEnabled = false;
+                    MessageBox.Show($"Ошибка запуска консоли. {e.Message}");
+                }
                 NotifyPropertyChanged(nameof(ConsoleEnabled));
             }
         }
