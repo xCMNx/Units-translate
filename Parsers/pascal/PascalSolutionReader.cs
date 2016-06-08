@@ -61,7 +61,12 @@ namespace pascal
                             {
                                 var fpath = Path.GetFullPath($"{m2.Groups[2].Value}.pas");
                                 if (File.Exists(fpath))
+                                {
                                     files.Add(fpath);
+                                    fpath = Path.ChangeExtension(fpath, ".dfm");
+                                    if (File.Exists(fpath))
+                                        files.Add(fpath);
+                                }
                             }
                         }
                 }
@@ -92,7 +97,12 @@ namespace pascal
                         {
                             var fpath = GetFilePath(reference.Include, dir);
                             if (File.Exists(fpath))
+                            {
                                 files.Add(fpath);
+                                fpath = Path.ChangeExtension(fpath, ".dfm");
+                                if (File.Exists(fpath))
+                                    files.Add(fpath);
+                            }
                         }
                     }
                     catch { }
