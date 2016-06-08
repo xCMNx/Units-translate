@@ -23,7 +23,14 @@
         <ComboBox Grid.Column="1"/>
         <TextBox Grid.Column="2"/>
     </Grid>
-    <TextBox Name="tbSearch" Grid.Row="1" AcceptsReturn="True" Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged, Delay=1000}" TextWrapping="Wrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" KeyUp="tbSearch_KeyUp"/>
+    <TextBox Name="tbSearch" Grid.Row="1" ToolTip="Искомое выражение, в начале можно указать параметры поиска в фармате и фильтры по методам #[filter]:?[params]:[expr]&#x0a;
+        ?e:[expr]       - вырожению должна соответствовать строка&#x0a;
+        ?t:[expr]       - вырожению должен соответствовать перевод&#x0a;
+        ?et:[expr]      - вырожению должны соответствовать и строка и её перевод&#x0a;
+        ?:[expr]        - вырожению должны соответствовать или строка или перевод&#x0a;
+        ?a:[expr]       - учитывать строки словаря не связанные с разметкой&#x0a;
+        #method:[expr]  - поиск выражения которое находится внутри метода, или не внутри если указано имя с !method
+" AcceptsReturn="True" Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged, Delay=1000}" TextWrapping="Wrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" KeyUp="tbSearch_KeyUp"/>
     <GridSplitter Grid.Row="2" Height="3" HorizontalAlignment="Stretch"/>
     <Grid Grid.Row="3">
         <Grid.RowDefinitions>

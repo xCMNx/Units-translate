@@ -564,8 +564,9 @@ namespace Core
         /// </summary>
         /// <param name="expr">Искомое выражение</param>
         /// <param name="param">Параметры поиска</param>
+        /// <param name="linkedOnly">Только связанные с разметкой</param>
         /// <returns>Список совпадающих записей словаря</returns>
-        public static ICollection<IMapRecord> Search(string expr, SearchParams param, CancellationToken ct)
+        public static ICollection<IMapRecord> Search(string expr, SearchParams param, bool linkedOnly, CancellationToken ct)
         {
             if (string.IsNullOrWhiteSpace(expr))
                 return null;
@@ -586,7 +587,7 @@ namespace Core
                 foreach (IMapValueRecord it in _ValuesDictionary)
                     if (ct.IsCancellationRequested)
                         return res;
-                    else if (it.Data.Count > 0 && cmpr(it))
+                    else if ((!linkedOnly || it.Data.Count > 0) && cmpr(it))
                         res.Add(it);
             }
             catch (Exception e)
@@ -713,10 +714,10 @@ namespace Core
                 if (prm.Contains('t'))
                     param |= SearchParams.Trans;
 
-                return MethodsFilter(methodsFilter, Search(lexpr.Substring(i + 1), param, ct), ct);
+                return MethodsFilter(methodsFilter, Search(lexpr.Substring(i + 1), param, !prm.Contains('a'), ct), ct);
             }
 
-            return MethodsFilter(methodsFilter, Search(lexpr, SearchParams.EngOrTrans, ct), ct);
+            return MethodsFilter(methodsFilter, Search(lexpr, SearchParams.EngOrTrans, true, ct), ct);
         }
         #endregion
 
