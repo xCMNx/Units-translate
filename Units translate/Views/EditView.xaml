@@ -72,7 +72,10 @@
                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
                 </GroupBox>
                 <GridSplitter Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                <GroupBox Header="Перевод" FontWeight="Bold" Grid.Row="2">
+                <GroupBox Grid.Row="2">
+                    <GroupBox.Header>
+                        <TextBlock Text="Перевод" FontWeight="Bold"/>
+                    </GroupBox.Header>
                     <Grid>
                         <AdornerDecorator>
                             <stb:SpellTextBox Name="tbTranslation" DictionaryPath=".\dictionaries\ru_RU" IsSpellCheckEnabled="true"
