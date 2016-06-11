@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Core;
+using Newtonsoft.Json.Linq;
 using Ui;
 
 namespace Units_translate
@@ -132,7 +134,7 @@ namespace Units_translate
                 try
                 {
                     Helpers.ConsoleEnabled = value;
-                    if(Helpers.ConsoleEnabled)
+                    if (Helpers.ConsoleEnabled)
                         Helpers.ConsoleWrite("Console enabled");
                 }
                 catch (Exception e)
@@ -400,7 +402,7 @@ namespace Units_translate
                     var expr = new Regex(filter);
                     data = data.Where(it => expr.IsMatch(it.FullPath)).ToArray();
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Helpers.ConsoleWrite(e.ToString(), ConsoleColor.Blue);
                 }
@@ -756,7 +758,7 @@ namespace Units_translate
                     IgnoreList.AddRange(value.Split(LinesSplitter, StringSplitOptions.RemoveEmptyEntries).Select(l => new Regex(l)).ToArray());
                     Helpers.WriteToConfig(IGNORE_LIST, IgnoreText);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Helpers.ConsoleWrite(e.ToString(), ConsoleColor.Red);
                 }
@@ -780,6 +782,84 @@ namespace Units_translate
         #endregion
 
         #region Translates
+        const string DICTIONARIES_PATH = @".\dictionaries\";
+        const string VAL_LANG_VALUE = "ValLang";
+        const string TRANS_LANG_VALUE = "TransLang";
+
+        HashSet<string> _SpellCheckerLangs = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+        public HashSet<string> SpellCheckerLangs => _SpellCheckerLangs;
+
+        public string ValLangPath => string.IsNullOrWhiteSpace(_ValLang) ? null : $"{DICTIONARIES_PATH}{_ValLang}";
+        string _ValLang;
+        public string ValLang
+        {
+            get { return _ValLang; }
+            set
+            {
+                var old = _ValLang;
+                _ValLang = value;
+                Helpers.ConfigWrite(VAL_LANG_VALUE, _ValLang);
+                NotifyPropertiesChanged(nameof(ValLang), nameof(ValLangPath));
+                if (!string.IsNullOrWhiteSpace(old) && string.Equals(_ValLang, _TransLang, StringComparison.InvariantCultureIgnoreCase))
+                    TransLang = old;
+            }
+        }
+
+        public string TransLangPath => string.IsNullOrWhiteSpace(_TransLang) ? null : $"{DICTIONARIES_PATH}{_TransLang}";
+        string _TransLang;
+        public string TransLang
+        {
+            get { return _TransLang; }
+            set
+            {
+                var old = _TransLang;
+                _TransLang = value;
+                Helpers.ConfigWrite(TRANS_LANG_VALUE, _TransLang);
+                NotifyPropertiesChanged(nameof(TransLang), nameof(TransLangPath));
+                if (!string.IsNullOrWhiteSpace(old) && string.Equals(_ValLang, _TransLang, StringComparison.InvariantCultureIgnoreCase))
+                    ValLang = old;
+            }
+        }
+
+        void InitLangs()
+        {
+            _ValLang = Helpers.ReadFromConfig(VAL_LANG_VALUE, "en_US");
+            _TransLang = Helpers.ReadFromConfig(TRANS_LANG_VALUE, "ru_RU");
+            _SpellCheckerLangs = new HashSet<string>(Directory.EnumerateFiles(DICTIONARIES_PATH, "*.dic", SearchOption.TopDirectoryOnly).Select(f => Path.GetFileNameWithoutExtension(f)).ToArray(), StringComparer.InvariantCultureIgnoreCase);
+            if (!_SpellCheckerLangs.Contains(_ValLang))
+                ValLang = _SpellCheckerLangs.FirstOrDefault(v => v.Equals(_TransLang, StringComparison.InvariantCultureIgnoreCase));
+            if (!_SpellCheckerLangs.Contains(_TransLang))
+                TransLang = _SpellCheckerLangs.FirstOrDefault(v => v.Equals(_ValLang, StringComparison.InvariantCultureIgnoreCase));
+            NotifyPropertyChanged(nameof(SpellCheckerLangs));
+        }
+
+        public static async Task<string> TranslateText(string input, string srcLanguageCode, string dstLanguageCode)
+        {
+            try
+            {
+                string url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl={srcLanguageCode}&tl={dstLanguageCode}&dt=t&q={Uri.EscapeDataString(input.Trim())}";
+                var webClient = new WebClient();
+                webClient.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36");
+                webClient.Encoding = System.Text.Encoding.UTF8;
+                var objects = JArray.Parse(await Task<string>.Factory.StartNew(() => webClient.DownloadString(url)));
+                var result = new StringBuilder();
+                foreach (var o in objects.First)
+                {
+                    result.Append(o.First.Value<string>());
+                    result.Append(' ');
+                }
+                //result = objects.First.First.First.Value<string>();
+                //var idxStart = input.IndexOf(c => !Char.IsWhiteSpace(c));
+                //if(idxStart > 0)
+                //    result = $"{input.Substring(0, idxStart)}{result}";
+                return result.ToString().Trim();
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+        }
+
         public bool HasTranslationConflicts => _TranslationConflicts.Count > 0;
         ObservableCollectionEx<IMapValueRecord> _Translations = new ObservableCollectionEx<IMapValueRecord>();
         public ObservableCollectionEx<IMapValueRecord> Translations => _Translations;
@@ -914,6 +994,7 @@ namespace Units_translate
                 }
                 Translations.Reset(lst);
             });
+            InitLangs();
         }
 
         static MainVM()

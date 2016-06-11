@@ -46,7 +46,12 @@ namespace SpellTextBox
 
         private static void TextPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
-            ((SpellTextBox)sender).IsSpellcheckCompleted = false;
+            (sender as SpellTextBox).RunSplellChecking();
+        }
+
+        public void RunSplellChecking()
+        {
+            IsSpellcheckCompleted = false;
             textChangedTimer.Stop();
             textChangedTimer.Start();
         }
@@ -54,7 +59,7 @@ namespace SpellTextBox
         private void textChangedTimer_Elapsed(object sender,
         System.Timers.ElapsedEventArgs e)
         {
-            Application.Current.Dispatcher.Invoke(new System.Action(() => 
+            Application.Current.Dispatcher.Invoke(new System.Action(() =>
             {
                 Checker.CheckSpelling(Text);
                 RaiseSpellcheckCompletedEvent();
@@ -66,7 +71,7 @@ namespace SpellTextBox
         #region SpellcheckCompleted Event
 
         public static readonly RoutedEvent SpellcheckCompletedEvent = EventManager.RegisterRoutedEvent(
-            "SpellcheckCompleted", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(SpellTextBox));
+            nameof(SpellcheckCompleted), RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(SpellTextBox));
 
         public event RoutedEventHandler SpellcheckCompleted
         {
@@ -104,9 +109,16 @@ namespace SpellTextBox
 
         public static readonly DependencyProperty DictionaryPathProperty =
             DependencyProperty.Register(
-            "DictionaryPath",
+            nameof(DictionaryPath),
             typeof(string),
-            typeof(SpellTextBox));
+            typeof(SpellTextBox)
+            , new FrameworkPropertyMetadata(DictionaryPathChanged)
+        );
+
+        private static void DictionaryPathChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
+        {
+            (sender as SpellTextBox).UpdateChecker();
+        }
 
         public string DictionaryPath
         {
@@ -116,9 +128,10 @@ namespace SpellTextBox
 
         public static readonly DependencyProperty CustomDictionaryPathProperty =
             DependencyProperty.Register(
-            "CustomDictionaryPath",
+            nameof(CustomDictionaryPath),
             typeof(string),
-            typeof(SpellTextBox));
+            typeof(SpellTextBox)
+        );
 
         public string CustomDictionaryPath
         {
@@ -128,9 +141,10 @@ namespace SpellTextBox
 
         public static readonly DependencyProperty IsSpellCheckEnabledProperty =
             DependencyProperty.Register(
-            "IsSpellCheckEnabled",
+            nameof(IsSpellCheckEnabled),
             typeof(bool),
-            typeof(SpellTextBox));
+            typeof(SpellTextBox)
+        );
 
         public bool IsSpellCheckEnabled
         {
@@ -163,14 +177,27 @@ namespace SpellTextBox
         public SpellChecker Checker
         {
             get { return checker ?? CreateSpellCheker(); }
-            set { checker = value; }
+            set
+            {
+                if (checker != value)
+                {
+                    checker?.Dispose();
+                    checker = value;
+                    RunSplellChecking();
+                }
+            }
         }
 
         private SpellChecker CreateSpellCheker()
         {
-            checker = new SpellChecker(new Hunspell(DictionaryPath + ".aff", DictionaryPath + ".dic"), this);
+            var checker = new SpellChecker(new Hunspell(DictionaryPath + ".aff", DictionaryPath + ".dic"), this);
             checker.LoadCustomDictionary();
             return checker;
+        }
+
+        private void UpdateChecker()
+        {
+            Checker = CreateSpellCheker();
         }
 
         public void ReplaceSelectedWord(Word WordToReplaceWith)

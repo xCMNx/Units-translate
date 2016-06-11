@@ -323,5 +323,22 @@ namespace Core
             return val;
         }
 
+        public static int IndexOf(this string str, Func<char, bool> expr, int startIndex = 0)
+        {
+            var strt = startIndex > 0 ? startIndex : 0;
+            for (int i = strt; i < str.Length; i++)
+                if (expr(str[i]))
+                    return i;
+            return -1;
+        }
+
+        public static int LastIndexOf(this string str, Func<char, bool> expr, int startIndex = -1)
+        {
+            var strt = startIndex < str.Length ? startIndex : str.Length - 1;
+            for (int i = strt; i >= 0; i--)
+                if (expr(str[i]))
+                    return i;
+            return -1;
+        }
     }
 }
