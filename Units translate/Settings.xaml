@@ -14,6 +14,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <GroupBox Header="Игнор" ToolTip="Используются регулярки, можно одну на всё, можно несколько, разделяются новой строкой">
@@ -23,7 +24,7 @@
         <GroupBox Grid.Row="2" Header="Кодировка чтения файлов" ToolTip="Используется если не удалось автоматически определить кодировку">
             <ComboBox Name="cbReadEncoding" ItemsSource="{Binding Encodings}" DisplayMemberPath="HeaderName" SelectedItem="{Binding ReadEncoding, Mode=OneWay}"/>
         </GroupBox>
-        <GroupBox Grid.Row="3" Header="Кодировка записи файлов" ToolTip="Eсли не активен, будет использоваться запись в формате чтения">
+        <GroupBox Grid.Row="3" Header="Кодировка записи файлов" ToolTip="Eсли не активен, будет использоваться запись в кодировке чтения">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -55,7 +56,8 @@
                 <ComboBox Grid.Column="1" Grid.Row="1"/>
             </Grid>-->
         </GroupBox>
-        <GroupBox Grid.Row="5" Header="Мапперы">
+        <CheckBox Grid.Row="5" Content="Поиск не чуствителен к регистру" IsChecked="{Binding CaseInsensitiveSearch}"/>
+        <GroupBox Grid.Row="6" Header="Мапперы">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

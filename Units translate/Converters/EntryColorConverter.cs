@@ -15,17 +15,17 @@ namespace Units_translate.Converters
         static Brush Added = new SolidColorBrush(Color.FromArgb(100, 149, 255, 0));
         public object Convert(object o, Type type, object parameter, CultureInfo culture)
         {
-            var entry = o as Entry;
-            if (string.IsNullOrWhiteSpace(entry.Trans))
+            var item = o as ITranslationItem;
+            if (string.IsNullOrWhiteSpace(item.Translation))
                 return NoTrans;
 
-            var rec = MappedData.GetValueRecord(entry.Eng) as IMapRecordFull;
+            var rec = MappedData.GetValueRecord(item.Value) as IMapRecordFull;
             if (rec.Data.Count == 0)
-                if (MappedData.TranslatesDictionary.IndexOf(rec) >= 0)
+                if (Translations.TranslatesDictionary.IndexOf(rec) >= 0)
                     return NotBindedTrans;
                 else
                     return NotBindedVal;
-            else if (MappedData.TranslatesDictionary.IndexOf(rec) < 0)
+            else if (Translations.TranslatesDictionary.IndexOf(rec) < 0)
                 return Brushes.SkyBlue;
 
             return null;
@@ -51,11 +51,11 @@ namespace Units_translate.Converters
                 return NoTrans;
 
             if (rec.Data.Count == 0)
-                if (MappedData.TranslatesDictionary.IndexOf(rec) >= 0)
+                if (Translations.TranslatesDictionary.IndexOf(rec) >= 0)
                     return NotBindedTrans;
                 else
                     return NotBindedVal;
-            else if (MappedData.TranslatesDictionary.IndexOf(rec) < 0)
+            else if (Translations.TranslatesDictionary.IndexOf(rec) < 0)
                 return Brushes.SkyBlue;
 
             return null;

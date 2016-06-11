@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Core;
+using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 using Ui;
 
@@ -124,13 +125,13 @@ namespace Units_translate
             }
         }
 
-        public const string CONSTOLE_ENABLED = "CONSOLE";
+        public const string CONSOLE_ENABLED = "CONSOLE";
         public bool ConsoleEnabled
         {
             get { return Helpers.ConsoleEnabled; }
             set
             {
-                Helpers.ConfigWrite(CONSTOLE_ENABLED, value);
+                Helpers.ConfigWrite(CONSOLE_ENABLED, value);
                 try
                 {
                     Helpers.ConsoleEnabled = value;
@@ -180,16 +181,12 @@ namespace Units_translate
             }
         }
 
-        public bool IsTranslatesChanged => MappedData.IsTranslatesChanged();
+        public bool IsTranslatesChanged => Core.Translations.IsTranslatesChanged();
 
         /// <summary>
         /// Полный список переводов
         /// </summary>
-        public ICollection<IMapRecord> Translates => Core.MappedData.TranslatesDictionary;
-        /// <summary>
-        /// Список переводов которые связаны с файлами
-        /// </summary>
-        public ICollection<IMapRecord> UsedTranslates => MappedData.UsedTranslates;
+        public ICollection<IMapRecord> Translates => Core.Translations.TranslatesDictionary;
 
         PathContainer _Selected = null;
         /// <summary>
@@ -475,7 +472,6 @@ namespace Units_translate
             }
             finally
             {
-                NotifyPropertyChanged(nameof(UsedTranslates));
                 EditingEnabled = true;
             }
         }
@@ -527,7 +523,6 @@ namespace Units_translate
             }
             finally
             {
-                NotifyPropertyChanged(nameof(UsedTranslates));
                 EditingEnabled = true;
             }
         }
@@ -609,7 +604,6 @@ namespace Units_translate
                 if (File.Exists(e.FullPath) && !IsIgnored(e.FullPath))
                 {
                     MappedData.AddData(new FileContainer(e.FullPath), false);
-                    NotifyPropertyChanged(nameof(UsedTranslates));
                 }
             }, null);
         }
@@ -626,7 +620,6 @@ namespace Units_translate
                 if (File.Exists(e.FullPath) && !IsIgnored(e.FullPath))
                 {
                     MappedData.UpdateData(e.FullPath, true, true);
-                    NotifyPropertyChanged(nameof(UsedTranslates));
                 }
             }, null);
         }
@@ -643,7 +636,6 @@ namespace Units_translate
                 if (File.Exists(e.FullPath) && !IsIgnored(e.FullPath))
                 {
                     MappedData.RemoveData(e.FullPath);
-                    NotifyPropertyChanged(nameof(UsedTranslates));
                     RemoveFromFiles(e.FullPath);
                 }
             }, null);
@@ -652,6 +644,25 @@ namespace Units_translate
         #endregion
 
         #region Search
+
+        const string CASE_INSANSITIVE_SEARCH = "CASE_INSANSITIVE_SEARCH";
+        /// <summary>
+        /// Делает поиск не чуствительным к регистру символов
+        /// </summary>
+        public bool CaseInsensitiveSearch
+        {
+            get { return Core.Search.CaseInsensitiveSearch; }
+            set
+            {
+                if (Core.Search.CaseInsensitiveSearch != value)
+                {
+                    Core.Search.CaseInsensitiveSearch = value;
+                    Helpers.ConfigWrite(CASE_INSANSITIVE_SEARCH, Core.Search.CaseInsensitiveSearch);
+                    NotifyPropertyChanged(nameof(CaseInsensitiveSearch));
+                }
+            }
+        }
+
         /// <summary>
         /// Вызывает поиск строки в словаре используя заданный текст как регулярку
         /// </summary>
@@ -679,7 +690,7 @@ namespace Units_translate
             Searching = true;
             Task.Factory.StartNew(() =>
             {
-                var res = MappedData.Search(Expr, localToken.Token);
+                var res = Core.Search.Exec(Expr, localToken.Token);
                 Helpers.mainCTX.Send(_ =>
                 {
                     SearchResults = res;
@@ -918,28 +929,29 @@ namespace Units_translate
         /// Загружает список переводов
         /// </summary>
         /// <param name="path">Путь к файлу переводов</param>
-        public void LoadTranslations(string path)
+        /// <param name="containerType">Тип контейнера</param>
+        public void LoadTranslations(string path, Type containerType)
         {
             if (MessageBox.Show("Очистить текущие переводы?", "Загрузка переводов", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                MappedData.ClearTranslates();
+                Core.Translations.Clear();
                 TranslationConflicts.Clear();
             }
-            MappedData.LoadTranslations(path, (itm, trans) =>
+            Core.Translations.LoadTranslations(path, containerType, (itm, trans) =>
             {
                 SortedItems<string> cur;
                 if (_TranslationConflicts.TryGetValue(itm, out cur))
                     cur.Add(trans);
                 else _TranslationConflicts[itm] = new SortedItems<string>() { trans };
             });
-            NotifyPropertiesChanged(nameof(UsedTranslates), nameof(TranslationConflicts), nameof(HasTranslationConflicts));
+            NotifyPropertiesChanged(nameof(TranslationConflicts), nameof(HasTranslationConflicts));
         }
 
-        public void SaveTranslations(string path)
+        public void SaveTranslations(string path, Type containerType)
         {
             try
             {
-                Core.MappedData.SaveTranslations(path,
+                Core.Translations.SaveTranslations(path, containerType,
                     MessageBox.Show("Добавить переведённые, но отсутствующие в загруженном файле строки?", "Сохранение переводов", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes,
                     MessageBox.Show("Удалить переводы которые не найдены в файлах?", "Сохранение переводов", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes
                 );
@@ -951,11 +963,11 @@ namespace Units_translate
             }
         }
 
-        public void SaveTranslationsNew(string path)
+        public void SaveTranslationsNew(string path, Type containerType)
         {
             try
             {
-                Core.MappedData.SaveTranslations(path, Translations.Select(e => new Entry(e.Value, e.Translation)).ToArray());
+                Core.Translations.SaveTranslations(path, containerType, Translations.Select(e => new BaseTranslationItem(e.Value, e.Translation)).ToArray());
             }
             catch (Exception e)
             {
@@ -964,9 +976,36 @@ namespace Units_translate
             }
         }
 
+        const string LAST_TRANSLATES_TYPE = "LAST_TRANSLATES_TYPE";
+        const string LAST_TRANSLATES_FILE = "LAST_TRANSLATES_FILE";
+        public static KeyValuePair<string, Type>? ExecTranslatesDialog(FileDialog dialog)
+        {
+            dialog.Filter = Core.Translations.Filter;
+            dialog.FilterIndex = Core.Translations.IndexOfContainer(Helpers.ReadFromConfig(LAST_TRANSLATES_TYPE)) + 1;
+            var fn = Helpers.ReadFromConfig(LAST_TRANSLATES_FILE);
+            if (!string.IsNullOrWhiteSpace(fn))
+            {
+                var p = Path.GetDirectoryName(fn);
+                if (Directory.Exists(p))
+                    dialog.InitialDirectory = p;
+                dialog.FileName = Path.GetFileName(fn);
+            }
+            if (dialog.ShowDialog().Value == true)
+            {
+                Helpers.ConfigWrite(LAST_TRANSLATES_TYPE, Core.Translations.List[dialog.FilterIndex - 1].Value.Name);
+                Helpers.ConfigWrite(LAST_TRANSLATES_FILE, dialog.FileName);
+                return new KeyValuePair<string, Type>(dialog.FileName, Core.Translations.List[dialog.FilterIndex - 1].Key);
+            }
+            return null;
+        }
+
+        public static KeyValuePair<string, Type>? ExecSaveTranslates() => ExecTranslatesDialog(new SaveFileDialog());
+
+        public static KeyValuePair<string, Type>? ExecOpenTranslates() => ExecTranslatesDialog(new OpenFileDialog());
+
         public void UpdateTranslatesEntries()
         {
-            Translations.Reset(MappedData.GetEntries().OrderBy(m => m.Value).ToArray());
+            Translations.Reset(Core.Translations.GetEntries().OrderBy(m => m.Value).ToArray());
         }
         #endregion
 
@@ -1009,7 +1048,8 @@ namespace Units_translate
         static MainVM()
         {
             Helpers.ConsoleBufferHeight = 1000;
-            Helpers.ConsoleEnabled = Helpers.ConfigRead(CONSTOLE_ENABLED, Helpers.ConsoleEnabled);
+            Helpers.ConsoleEnabled = Helpers.ConfigRead(CONSOLE_ENABLED, Helpers.ConsoleEnabled);
+            Core.Search.CaseInsensitiveSearch = Helpers.ConfigRead(CASE_INSANSITIVE_SEARCH, Core.Search.CaseInsensitiveSearch, true);
             FileContainer.LiteralOnly = Helpers.ConfigRead(ONLY_LITERAL, FileContainer.LiteralOnly);
             FileContainer.ShowMappingErrors = Helpers.ConfigRead(SHOW_MAPING_ERRORS, FileContainer.ShowMappingErrors);
             FileContainer.FixingEnabled = Helpers.ConfigRead(FIXING_ENABLED, FileContainer.FixingEnabled);

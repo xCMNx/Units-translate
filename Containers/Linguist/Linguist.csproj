@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EFE43656-CED7-496B-87C0-E89AD7CF3DBB}</ProjectGuid>
+    <ProjectGuid>{B0676932-B85A-4206-A606-070BD4A9C846}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Inerfaces</RootNamespace>
-    <AssemblyName>Inerfaces</AssemblyName>
+    <RootNamespace>Linguist</RootNamespace>
+    <AssemblyName>Linguist</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
@@ -17,41 +17,37 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\bin\</OutputPath>
-    <IntermediateOutputPath>..\obj\Debug\Interfaces</IntermediateOutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin\Containers\</OutputPath>
+    <IntermediateOutputPath>..\..\obj\Containers\Debug\Linguist</IntermediateOutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\bin\</OutputPath>
-    <IntermediateOutputPath>..\obj\Release\Interfaces</IntermediateOutputPath>
+    <OutputPath>..\..\bin\Containers\</OutputPath>
+    <IntermediateOutputPath>..\..\obj\Containers\Release\Linguist</IntermediateOutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PresentationCore" />
     <Reference Include="System" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IMapBackgroundColorRange.cs" />
-    <Compile Include="IMapData.cs" />
-    <Compile Include="IMapForeColorRange.cs" />
-    <Compile Include="IMapItemBase.cs" />
-    <Compile Include="IMapMethodItem.cs" />
-    <Compile Include="IMapValueItem.cs" />
-    <Compile Include="IMapItemValueRange.cs" />
-    <Compile Include="IMapper.cs" />
-    <Compile Include="IMapItemRange.cs" />
-    <Compile Include="ISolutionReader.cs" />
-    <Compile Include="ITranslationContainer.cs" />
-    <Compile Include="ITranslationItem.cs" />
+    <Compile Include="Linguist.cs" />
+    <Compile Include="LinguistContaier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Inerfaces\Inerfaces.csproj">
+      <Project>{efe43656-ced7-496b-87c0-e89ad7cf3dbb}</Project>
+      <Name>Inerfaces</Name>
+      <Private>False</Private>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

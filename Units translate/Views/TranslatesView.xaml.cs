@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Core;
@@ -32,10 +33,9 @@ namespace Units_translate.Views
 
         private void btnSave_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            var sd = new SaveFileDialog();
-            sd.Filter = "XML|*.xml";
-            if (sd.ShowDialog().Value == true)
-                (DataContext as MainVM).SaveTranslationsNew(sd.FileName);
+            var pair = MainVM.ExecSaveTranslates();
+            if (pair.HasValue)
+                (DataContext as MainVM).SaveTranslationsNew(pair.Value.Key, pair.Value.Value);
         }
 
         private void btnDelEmpty_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -79,7 +79,7 @@ namespace Units_translate.Views
             var lst = (DataContext as MainVM).Translations;
             var cnt = lst.Count;
             for (int i = lst.Count - 1; i >= 0; i--)
-                if (lst[i].Data.Count == 0 && !MappedData.IsValueOriginal(lst[i].Value))
+                if (lst[i].Data.Count == 0 && !Core.Translations.IsValueOriginal(lst[i].Value))
                     lst.RemoveAt(i);
             if (cnt != lst.Count)
                 MessageBox.Show(string.Format("Удалено {0}.", cnt - lst.Count));

@@ -57,8 +57,8 @@
             <ListView.View>
                 <GridView >
                     <GridViewColumn Width="Auto" DisplayMemberBinding="{Binding Data.Count}" util:GridViewSort.PropertyName="Count"/>
-                    <GridViewColumn Header="Eng" Width="150" DisplayMemberBinding="{Binding Value}" util:GridViewSort.PropertyName="Value"/>
-                    <GridViewColumn Header="Trans" Width="Auto" util:GridViewSort.PropertyName="Translation">
+                    <GridViewColumn Header="Значение" Width="150" DisplayMemberBinding="{Binding Value}" util:GridViewSort.PropertyName="Value"/>
+                    <GridViewColumn Header="Перевод" Width="Auto" util:GridViewSort.PropertyName="Translation">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBox Text="{Binding Translation}" Name="tb" Background="Transparent" MaxLines="1" BorderBrush="{x:Null}" TextWrapping="Wrap" AcceptsTab="True" AcceptsReturn="True">

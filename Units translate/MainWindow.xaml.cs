@@ -119,19 +119,16 @@ namespace Units_translate
 
         private void Button_Click_4(object sender, RoutedEventArgs e)
         {
-            var od = new OpenFileDialog();
-            od.Filter = "XML|*.xml";
-            od.FileName = "eng_rus.xml";
-            if (od.ShowDialog().Value == true)
-                mainVm.LoadTranslations(od.FileName);
+            var pair = MainVM.ExecOpenTranslates();
+            if (pair.HasValue)
+                mainVm.LoadTranslations(pair.Value.Key, pair.Value.Value);
         }
 
         private void Button_Click_5(object sender, RoutedEventArgs e)
         {
-            var sd = new SaveFileDialog();
-            sd.Filter = "XML|*.xml";
-            if (sd.ShowDialog().Value == true)
-                mainVm.SaveTranslations(sd.FileName);
+            var pair = MainVM.ExecSaveTranslates();
+            if (pair.HasValue)
+                mainVm.SaveTranslations(pair.Value.Key, pair.Value.Value);
         }
 
         private void ListBox_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -151,7 +148,7 @@ namespace Units_translate
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            e.Cancel = MappedData.IsTranslatesChanged() && MessageBox.Show("Переводы были изменены.\r\nВы уверены, что не хотите сохранить изменения?", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No;
+            e.Cancel = Core.Translations.IsTranslatesChanged() && MessageBox.Show("Переводы были изменены.\r\nВы уверены, что не хотите сохранить изменения?", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

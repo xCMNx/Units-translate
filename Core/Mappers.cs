@@ -15,11 +15,11 @@ namespace Core
         public static IMapper[] List => _List;
 
         /// <summary>
-        /// Словарь для быстроко поиска парсера для расширения
+        /// Словарь для быстрого поиска парсера для расширения
         /// </summary>
         public static Dictionary<string, IMapper> _ExtToMapperList = new Dictionary<string, IMapper>();
         /// <summary>
-        /// Словарь для быстроко поиска парсера для расширения решения
+        /// Словарь для быстрого поиска парсера для расширения решения
         /// </summary>
         public static Dictionary<string, ISolutionReader> _SolutionExtToMapperList = new Dictionary<string, ISolutionReader>();
 
