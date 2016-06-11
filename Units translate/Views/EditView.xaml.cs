@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -79,12 +80,19 @@ namespace Units_translate.Views
             InputManager.Current.ProcessInput(new MouseButtonEventArgs(Mouse.PrimaryDevice, Environment.TickCount, MouseButton.Right) { RoutedEvent = Mouse.MouseUpEvent, Source = sender });
         }
 
+        async static Task<string> tr(string str, string srcCode, string dstCode)
+        {
+            var src = srcCode?.Split('_')[0];
+            var dst = dstCode?.Split('_');
+            return await MainVM.TranslateText(str, src, dst[0], dst.Length > 1 && dst[1].StartsWith("lat", StringComparison.InvariantCultureIgnoreCase));
+        }
+
         private async void btnValueTrans_ToolTipOpening(object sender, ToolTipEventArgs e)
         {
             if ((string)btnValueTr.Tag != tbValue.Text || (string)cbValueLang.Tag != cbValueLang.Text || (string)cbTransLang.Tag != cbTransLang.Text)
             {
                 btnValueTr.ToolTip = "...";
-                btnValueTr.ToolTip = await MainVM.TranslateText(tbValue.Text, cbValueLang.Text?.Split('_')[0], cbTransLang.Text?.Split('_')[0]);
+                btnValueTr.ToolTip = await tr(tbValue.Text, cbValueLang.Text, cbTransLang.Text);
                 btnValueTr.Tag = tbValue.Text;
                 cbValueLang.Tag = cbValueLang.Text;
             }
@@ -95,7 +103,7 @@ namespace Units_translate.Views
             if ((string)btnTransTr.Tag != tbTranslation.Text || (string)cbValueLang.Tag != cbValueLang.Text || (string)cbTransLang.Tag != cbTransLang.Text)
             {
                 btnTransTr.ToolTip = "...";
-                btnTransTr.ToolTip = await MainVM.TranslateText(tbTranslation.Text, cbTransLang.Text?.Split('_')[0], cbValueLang.Text?.Split('_')[0]);
+                btnTransTr.ToolTip = await tr(tbTranslation.Text, cbTransLang.Text, cbValueLang.Text);
                 btnTransTr.Tag = tbTranslation.Text;
                 cbTransLang.Tag = cbTransLang.Text;
             }

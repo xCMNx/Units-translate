@@ -74,9 +74,6 @@
                     </AdornerDecorator>
                 </GroupBox>
                 <Grid Grid.Row="0">
-                    <StackPanel  Orientation="Horizontal">
-                        <Button></Button>
-                    </StackPanel>
                     <ComboBox Name="cbValueLang" Width="60" Margin="0,0,6,0" VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" SelectedItem="{Binding ValLang}" ItemsSource="{Binding SpellCheckerLangs}"/>
                     <Button ToolTip="..." Name="btnValueTr" Background="Transparent" Opacity="0.4" Margin="0,2,24,0" Height="18" Width="40" VerticalAlignment="Top" HorizontalAlignment="Right" Click="btnValueTr_Click" ToolTipOpening="btnValueTrans_ToolTipOpening"/>
                 </Grid>

@@ -827,27 +827,36 @@ namespace Units_translate
             _TransLang = Helpers.ReadFromConfig(TRANS_LANG_VALUE, "ru_RU");
             _SpellCheckerLangs = new HashSet<string>(Directory.EnumerateFiles(DICTIONARIES_PATH, "*.dic", SearchOption.TopDirectoryOnly).Select(f => Path.GetFileNameWithoutExtension(f)).ToArray(), StringComparer.InvariantCultureIgnoreCase);
             if (!_SpellCheckerLangs.Contains(_ValLang))
-                ValLang = _SpellCheckerLangs.FirstOrDefault(v => v.Equals(_TransLang, StringComparison.InvariantCultureIgnoreCase));
+                _ValLang = _SpellCheckerLangs.FirstOrDefault(v => v.Equals(_TransLang, StringComparison.InvariantCultureIgnoreCase));
             if (!_SpellCheckerLangs.Contains(_TransLang))
-                TransLang = _SpellCheckerLangs.FirstOrDefault(v => v.Equals(_ValLang, StringComparison.InvariantCultureIgnoreCase));
-            NotifyPropertyChanged(nameof(SpellCheckerLangs));
+                _TransLang = _SpellCheckerLangs.FirstOrDefault(v => v.Equals(_ValLang, StringComparison.InvariantCultureIgnoreCase));
+            NotifyPropertiesChanged(nameof(SpellCheckerLangs), nameof(TransLang), nameof(TransLangPath), nameof(ValLang), nameof(ValLangPath));
         }
 
-        public static async Task<string> TranslateText(string input, string srcLanguageCode, string dstLanguageCode)
+        public static async Task<string> TranslateText(string input, string srcLanguageCode, string dstLanguageCode, bool fonetic)
         {
             try
             {
                 string url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl={srcLanguageCode}&tl={dstLanguageCode}&dt=t&q={Uri.EscapeDataString(input.Trim())}";
+                var n1 = 0;
+                var n2 = 0;
+                if (fonetic)
+                {
+                    url += "&dt=rm";
+                    n1 = 1;
+                    n2 = 2;
+                }
                 var webClient = new WebClient();
                 webClient.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36");
                 webClient.Encoding = System.Text.Encoding.UTF8;
                 var objects = JArray.Parse(await Task<string>.Factory.StartNew(() => webClient.DownloadString(url)));
                 var result = new StringBuilder();
-                foreach (var o in objects.First)
-                {
-                    result.Append(o.First.Value<string>());
-                    result.Append(' ');
-                }
+                foreach (var o in objects)
+                    if (o.HasValues)
+                    {
+                        result.Append(o[n1][n2].Value<string>());
+                        result.Append(' ');
+                    }
                 //result = objects.First.First.First.Value<string>();
                 //var idxStart = input.IndexOf(c => !Char.IsWhiteSpace(c));
                 //if(idxStart > 0)
