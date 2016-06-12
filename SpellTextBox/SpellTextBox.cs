@@ -206,7 +206,7 @@ namespace SpellTextBox
             {
                 int index = Checker.SelectedMisspelledWord.Index;
                 string replacement = WordToReplaceWith.Text;
-                Text = Text.Remove(index, Checker.SelectedMisspelledWord.Length).Insert(index, replacement);
+                SetCurrentValue(TextProperty, Text.Remove(index, Checker.SelectedMisspelledWord.Length).Insert(index, replacement));
                 SelectionStart = index + WordToReplaceWith.Length;
             }
         }
@@ -215,8 +215,8 @@ namespace SpellTextBox
         {
             int c = SelectionStart;
             string s = Text;
-            Text = s + " ";
-            Text = s;
+            SetCurrentValue(TextProperty, s + " ");
+            SetCurrentValue(TextProperty, s);
             SelectionStart = c;
         }
 

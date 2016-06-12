@@ -8,7 +8,7 @@ namespace Core
     [ContainerFilter("Units translate", "*.utt")]
     public class UTTranslationsContainer : ITranslationContainer
     {
-        static XmlSerializer serializer = new XmlSerializer(typeof(BaseTranslationItem[]));
+        static XmlSerializer serializer = new XmlSerializer(typeof(BaseTranslationItem[]), new XmlRootAttribute("Items"));
 
         public ICollection<ITranslationItem> Load(string filePath, Encoding encoding)
         {
@@ -16,7 +16,7 @@ namespace Core
                 return serializer.Deserialize(txtreader) as BaseTranslationItem[];
         }
 
-        public bool Save(string filePath, Encoding encoding, IEnumerable<ITranslationItem> items)
+        public bool Save(string filePath, Encoding encoding, ICollection<ITranslationItem> items)
         {
             using (StreamWriter sw = new StreamWriter(filePath, false, encoding))
                 serializer.Serialize(sw, items);

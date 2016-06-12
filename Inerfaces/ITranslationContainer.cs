@@ -21,6 +21,6 @@ namespace Core
     public interface ITranslationContainer
     {
         ICollection<ITranslationItem> Load(string filePath, Encoding encoding);
-        bool Save(string filePath, Encoding encoding, IEnumerable<ITranslationItem> items);
+        bool Save(string filePath, Encoding encoding, ICollection<ITranslationItem> items);
     }
 }

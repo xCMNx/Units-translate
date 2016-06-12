@@ -32,7 +32,7 @@ namespace Linguist
             }
         }
 
-        public bool Save(string filePath, Encoding encoding, IEnumerable<ITranslationItem> items)
+        public bool Save(string filePath, Encoding encoding, ICollection<ITranslationItem> items)
         {
             using (StreamWriter sw = new StreamWriter(filePath, false, encoding))
             using (var xw = XmlWriter.Create(sw, WriterSettings))

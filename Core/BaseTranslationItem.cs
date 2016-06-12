@@ -2,11 +2,12 @@
 
 namespace Core
 {
+    [XmlType("I")]
     public class BaseTranslationItem : ITranslationItem
     {
-        [XmlAttribute]
+        [XmlAttribute("V")]
         public string Value { get; set; }
-        [XmlAttribute]
+        [XmlAttribute("T")]
         public string Translation { get; set; }
 
         public BaseTranslationItem()

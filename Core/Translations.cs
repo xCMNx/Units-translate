@@ -123,7 +123,7 @@ namespace Core
             SaveTranslations(path, containerType, lst);
         }
 
-        public static void SaveTranslations(string path, Type containerType, IEnumerable<ITranslationItem> items)
+        public static void SaveTranslations(string path, Type containerType, ICollection<ITranslationItem> items)
         {
             var container = Activator.CreateInstance(containerType) as ITranslationContainer;
             if (container.Save(path, encoding, items))
