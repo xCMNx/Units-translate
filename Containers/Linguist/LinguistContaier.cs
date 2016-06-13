@@ -8,7 +8,7 @@ using Core;
 
 namespace Linguist
 {
-    [ContainerFilter("Linguist", "*.xml")]
+    [ContainerFilter("Linguist", "xml")]
     public class LinguistContaier : ITranslationContainer
     {
         static XmlSerializerNamespaces namespaces = new XmlSerializerNamespaces();

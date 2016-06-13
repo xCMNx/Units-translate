@@ -17,13 +17,11 @@ namespace Core
         /// <summary>
         /// Словарь для быстрого поиска парсера для расширения
         /// </summary>
-        public static Dictionary<string, IMapper> _ExtToMapperList = new Dictionary<string, IMapper>();
+        public readonly static Dictionary<string, IMapper> ExtToMapperList = new Dictionary<string, IMapper>();
         /// <summary>
         /// Словарь для быстрого поиска парсера для расширения решения
         /// </summary>
-        public static Dictionary<string, ISolutionReader> _SolutionExtToMapperList = new Dictionary<string, ISolutionReader>();
-
-        public static string SolutionExts => string.Join("|", _SolutionExtToMapperList.Keys.Select(k => string.Format("{0}|*{0}", k)).ToArray());
+        public readonly static KeyValuePair<ISolutionReader, MapperSolutionFilter>[] SolutionReaders = new KeyValuePair<ISolutionReader, MapperSolutionFilter>[0];
 
         /// <summary>
         /// Парсер умеющий все расширения, его атрибут *
@@ -49,7 +47,7 @@ namespace Core
                     //наполяем словарь связывающий расширение с парсером
                     foreach (var ext in attribute.Extensions)
                     {
-                        _ExtToMapperList[ext.ToUpper()] = mapper;
+                        ExtToMapperList[ext.ToUpper()] = mapper;
                         if (_Unique == null && ext == "*")
                             //парсер умеющий всё
                             _Unique = mapper;
@@ -60,13 +58,14 @@ namespace Core
 
             //ищем парсеры решений
             var solutionReadersTypes = Helpers.getModules(typeof(ISolutionReader), mappersLibs);
+            var solLst = new List<KeyValuePair< ISolutionReader, MapperSolutionFilter>>();
             foreach (var mt in solutionReadersTypes)
             {
-                var reader = (ISolutionReader)Activator.CreateInstance(mt);
                 var attribute = mt.GetCustomAttribute<MapperSolutionFilter>();
-                foreach (var ext in attribute.Extensions)
-                    _SolutionExtToMapperList[ext.ToUpper()] = reader;
+                if (attribute != null)
+                    solLst.Add(new KeyValuePair<ISolutionReader, MapperSolutionFilter>((ISolutionReader)Activator.CreateInstance(mt), attribute));
             }
+            SolutionReaders = solLst.ToArray();
         }
 
         /// <summary>
@@ -79,27 +78,11 @@ namespace Core
             Ext = Ext.ToUpper();
             IMapper m;
             //сначала посмотрим в словаре
-            if (_ExtToMapperList.TryGetValue(Ext, out m))
+            if (ExtToMapperList.TryGetValue(Ext, out m))
                 return m;
             //если нет, то спросим у уникума, умеет ли он в это расширение
             else if(_Unique != null && _Unique.IsExtAcceptable(Ext))
                 return _Unique;
-            //нет так нет
-            return null;
-        }
-
-        /// <summary>
-        /// Возвращает подходящий парсер решения
-        /// </summary>
-        /// <param name="Ext">Расширение</param>
-        /// <returns>Парсер если найден подходящий или null</returns>
-        public static ISolutionReader FindSolutionReader(string Ext)
-        {
-            Ext = Ext.ToUpper();
-            ISolutionReader m;
-            //сначала посмотрим в словаре
-            if (_SolutionExtToMapperList.TryGetValue(Ext, out m))
-                return m;
             //нет так нет
             return null;
         }

@@ -6,15 +6,10 @@ namespace Core
     /// <summary>
     /// Атрибут для контейнеров, указывающий какие расширения контейнер умеет
     /// </summary>
-    [System.AttributeUsage(System.AttributeTargets.Class)]
-    public class ContainerFilter : System.Attribute
+    public class ContainerFilter : BaseParserRepresentationAttribute
     {
-        public string[] Extensions;
-        public string Name;
-        public ContainerFilter(string name, params string[] extensions)
+        public ContainerFilter(string name, params string[] extensions) : base(name, extensions)
         {
-            Extensions = extensions;
-            Name = name;
         }
     }
 

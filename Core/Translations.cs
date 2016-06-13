@@ -21,8 +21,6 @@ namespace Core
         /// </summary>
         public static KeyValuePair<Type, ContainerFilter>[] List => _List;
 
-        public static string Filter => string.Join("|", Core.Translations.List.Select(tc => $"{tc.Value.Name}|{string.Join(";", tc.Value.Extensions)}"));
-
         /// <summary>
         /// Очищает переводы
         /// </summary>
@@ -156,14 +154,6 @@ namespace Core
             if (attribute != null && !string.IsNullOrWhiteSpace(attribute.Name) && attribute.Extensions.Length > 0)
                 return new KeyValuePair<Type, ContainerFilter>(cType, attribute);
             return null;
-        }
-
-        public static int IndexOfContainer(string Name)
-        {
-            for (var idx = 0; idx < _List.Length; idx++)
-                if (_List[idx].Value.Name == Name)
-                    return idx;
-            return -1;
         }
 
         static Translations()

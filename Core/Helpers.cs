@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace Core
 {
-    public static class Helpers
+    public static partial class Helpers
     {
         public static SynchronizationContext mainCTX = SynchronizationContext.Current;
         public static CancellationTokenSource mainCTS = new CancellationTokenSource();

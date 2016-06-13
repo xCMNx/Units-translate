@@ -39,6 +39,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseParserRepresentationAttribute.cs" />
     <Compile Include="IMapBackgroundColorRange.cs" />
     <Compile Include="IMapData.cs" />
     <Compile Include="IMapForeColorRange.cs" />

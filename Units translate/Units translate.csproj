@@ -74,11 +74,15 @@
     <Compile Include="Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\MainVM\Files.cs" />
+    <Compile Include="ViewModels\MainVM\Monitoring.cs" />
+    <Compile Include="ViewModels\MainVM\Search.cs" />
+    <Compile Include="ViewModels\MainVM\Translates.cs" />
     <Compile Include="Views\TranslatesView.xaml.cs">
       <DependentUpon>TranslatesView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\FileContainer.cs" />
-    <Compile Include="ViewModels\MainVM.cs" />
+    <Compile Include="ViewModels\MainVM\MainVM.cs" />
     <Compile Include="ViewModels\PathContainer.cs" />
     <Compile Include="Views\CodePreviewBuilder.cs" />
     <Compile Include="Views\CodeView.xaml.cs">

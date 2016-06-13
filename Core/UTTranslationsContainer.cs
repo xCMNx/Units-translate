@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 
 namespace Core
 {
-    [ContainerFilter("Units translate", "*.utt")]
+    [ContainerFilter("Units translate", "utt")]
     public class UTTranslationsContainer : ITranslationContainer
     {
         static XmlSerializer serializer = new XmlSerializer(typeof(BaseTranslationItem[]), new XmlRootAttribute("Items"));

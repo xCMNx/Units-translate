@@ -3,15 +3,12 @@
 namespace Core
 {
     /// <summary>
-    /// Атрибут для парсеров, указывающий какие расширения решений парсер умеет
+    /// Атрибут для парсеров решений, указывающий какие расширения решений парсер умеет
     /// </summary>
-    [System.AttributeUsage(System.AttributeTargets.Class)]
-    public class MapperSolutionFilter : System.Attribute
+    public class MapperSolutionFilter : BaseParserRepresentationAttribute
     {
-        public string[] Extensions;
-        public MapperSolutionFilter(string[] extensions)
+        public MapperSolutionFilter(string name, params string[] extensions) : base(name, extensions)
         {
-            Extensions = extensions;
         }
     }
 

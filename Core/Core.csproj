@@ -48,6 +48,7 @@
     <Compile Include="BindableBase.cs" />
     <Compile Include="CoreHelpers.cs" />
     <Compile Include="Helpers.cs" />
+    <Compile Include="HelpersLocal.cs" />
     <Compile Include="MapItemBackgroundColorRangeBase.cs" />
     <Compile Include="MapItemForeColorRangeBase.cs" />
     <Compile Include="MapItemMethodBase.cs" />

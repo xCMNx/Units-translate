@@ -6,7 +6,7 @@ using Core;
 
 namespace pascal
 {
-    [MapperSolutionFilter(new[] { ".groupproj", ".dproj", ".dpr" })]
+    [MapperSolutionFilter("Delphi", new[] { "groupproj", "dproj", "dpr" })]
     class PascalSolutionReader : ISolutionReader
     {
 
