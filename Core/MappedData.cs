@@ -23,6 +23,35 @@ namespace Core
         /// </summary>
         static SortedItems<IMapRecord> _MethodsDictionary = new SortedItems<IMapRecord>() { Comparer = MapRecordComparer.Comparer };
 
+        public static bool FindRecodIndex(IList<IMapRecord> lst, string value, out int index)
+        {
+            index = 0;
+            var h = lst.Count;
+            var l = 0;
+            while (l < h)
+            {
+                var m = (h + l) >> 1;
+                var res = string.Compare(value, lst[m].Value, false);
+                if (res == 0)
+                {
+                    index = m;
+                    return true;
+                }
+                else if (res < 0)
+                    h = m;
+                else
+                    index = ++l;
+            }
+            return false;
+            //return lst.FindSorted(itm => string.Compare(value, itm.Value, false), out index);
+        }
+
+        public static bool FindValueIndex(string value, out int index)
+        {
+            return _ValuesDictionary.Find(new MapRecord(value), out index);
+            //return FindRecodIndex(_ValuesDictionary, value, out index);
+        }
+
         /// <summary>
         /// Возвращает запись словаря по значению
         /// </summary>
@@ -30,9 +59,9 @@ namespace Core
         /// <returns>Запись из словаря, или null</returns>
         public static IMapRecord GetValueRecord(string value)
         {
-            var idx = _ValuesDictionary.IndexOf(new MapRecord(value));
-            if (idx < 0)
-                return _ValuesDictionary[_ValuesDictionary.Add(new MapValueRecord(value))];
+            int idx;
+            if (!FindValueIndex(value, out idx))
+                _ValuesDictionary.Insert(idx, new MapValueRecord(value));
             return _ValuesDictionary[idx];
         }
 
@@ -49,6 +78,12 @@ namespace Core
             return GetValueRecord(itm.Value);
         }
 
+        public static bool FindMethodIndex(string value, out int index)
+        {
+            return _MethodsDictionary.Find(new MapRecord(value), out index);
+            //return FindRecodIndex(_MethodsDictionary, value, out index);
+        }
+
         /// <summary>
         /// Возвращает запись словаря по имени метода
         /// </summary>
@@ -56,9 +91,9 @@ namespace Core
         /// <returns>Запись из словаря, или null</returns>
         public static IMapRecord GetMethodRecord(string method)
         {
-            var idx = _MethodsDictionary.IndexOf(new MapRecord(method));
-            if (idx < 0)
-                return _MethodsDictionary[_MethodsDictionary.Add(new MapMethodRecord(method))];
+            int idx;
+            if (!FindMethodIndex(method, out idx))
+                _MethodsDictionary.Insert(idx, new MapMethodRecord(method));
             return _MethodsDictionary[idx];
         }
 
@@ -83,10 +118,7 @@ namespace Core
         /// </summary>
         /// <param name="value">Искомое значение</param>
         /// <returns>True если есть</returns>
-        public static bool IsValueExists(string value)
-        {
-            return _ValuesDictionary.IndexOf(new MapRecord(value)) >= 0;
-        }
+        public static bool IsValueExists(string value) => _ValuesDictionary.ContainsSorted(itm => string.Compare(value, itm.Value, false));
 
         /// <summary>
         /// Удаляет размеченные данные из словарей
@@ -155,7 +187,7 @@ namespace Core
         /// <param name="ifChanged">Только если файл изменен</param>
         public static void UpdateData(IMapData data, bool safe, bool ifChanged)
         {
-            if (data != null)
+            if (data != null && (!ifChanged || data.IsChanged))
             {
                 RemoveMapInfo(data);
                 data.Remap(ifChanged, safe);
@@ -190,21 +222,11 @@ namespace Core
         /// <param name="name">Путь к файлу</param>
         public static void RemoveData(string name)
         {
-            var idx = _Data.IndexOf(new Dummy() { fullpath = name });
-            if (idx < 0)
+            var data = GetData(name);
+            if (data == null)
                 return;
-            var data = _Data[idx] as IMapData;
             RemoveMapInfo(data);
             _Data.Remove(data);
-        }
-
-        /// <summary>
-        /// Пустышка для поиска файла
-        /// </summary>
-        struct Dummy : IMapDataBase
-        {
-            public string fullpath;
-            public string FullPath { get { return fullpath; } }
         }
 
         /// <summary>
@@ -212,13 +234,7 @@ namespace Core
         /// </summary>
         /// <param name="name">Путь к файлу</param>
         /// <returns>Разметка если найдена или null</returns>
-        public static IMapData GetData(string name)
-        {
-            var idx = _Data.IndexOf(new Dummy() { fullpath = name });
-            if (idx < 0)
-                return null;
-            return _Data[idx] as IMapData;
-        }
+        public static IMapData GetData(string name) => _Data.GetSorted(itm => string.Compare(name, itm.FullPath, true)) as IMapData;
 
         public static string RegexCompareExpression(this IMapValueRecord rec)
         {

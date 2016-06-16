@@ -2,9 +2,6 @@
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
-using System.Windows.Input;
-using Core;
-using Microsoft.Win32;
 
 namespace Units_translate
 {
@@ -115,20 +112,6 @@ namespace Units_translate
         {
             if (e.Key == System.Windows.Input.Key.Enter)
                 Scan();
-        }
-
-        private void Button_Click_4(object sender, RoutedEventArgs e)
-        {
-            var pair = MainVM.ExecOpenTranslates();
-            if (pair.HasValue)
-                mainVm.LoadTranslations(pair.Value.Key, pair.Value.Value);
-        }
-
-        private void Button_Click_5(object sender, RoutedEventArgs e)
-        {
-            var pair = MainVM.ExecSaveTranslates();
-            if (pair.HasValue)
-                mainVm.SaveTranslations(pair.Value.Key, pair.Value.Value);
         }
 
         private void ListBox_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)

@@ -18,7 +18,7 @@ namespace Units_translate.Views
         {
             var data = DataContext as MainVM;
             if (data != null)
-                data.Selected = (PathContainer)((TreeListViewItem)e.NewValue)?.Header;
+                data.Selected = ((TreeListViewItem)e.NewValue)?.Header as FileContainer;
         }
 
         private void TreeListView_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -26,7 +26,7 @@ namespace Units_translate.Views
             if (e.ChangedButton == System.Windows.Input.MouseButton.Left && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
             {
                 e.Handled = true;
-                var item = (((TreeListView)sender).SelectedItem as TreeListViewItem)?.Header as PathContainer;
+                var item = ((sender as TreeListView).SelectedItem as TreeListViewItem)?.Header as PathBase;
                 if (item != null)
                     Process.Start(item.FullPath);
             }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -30,9 +31,16 @@ namespace Core
             SettingsPath = ReadFromConfig("SettingsPath", System.IO.Path.Combine(ProgramPath, @"Settings"));
         }
 
-        public static T SendNew<T>(this SynchronizationContext ctx, Func<T> NewMethod) where T : class
+        public static T Get<T>(this SynchronizationContext ctx, Func<T> NewMethod) where T : class
         {
             T res = null;
+            ctx.Send(_ => res = NewMethod(), null);
+            return res;
+        }
+
+        public static T? Get<T>(this SynchronizationContext ctx, Func<T?> NewMethod) where T : struct
+        {
+            T? res = null;
             ctx.Send(_ => res = NewMethod(), null);
             return res;
         }
@@ -339,6 +347,57 @@ namespace Core
                 if (expr(str[i]))
                     return i;
             return -1;
+        }
+
+        public static char[] PathSeparator = new char[] { System.IO.Path.DirectorySeparatorChar };
+        public static string[] PathParts(this string path) => path.Split(PathSeparator, System.StringSplitOptions.RemoveEmptyEntries);
+
+        public static bool FindSorted(int count, Func<int, int> comparator, out int index)
+        {
+            index = 0;
+            var h = count;
+            var l = 0;
+            while (l < h)
+            {
+                var m = (h + l) >> 1;
+                var res = comparator(m);
+                if (res == 0)
+                {
+                    index = m;
+                    return true;
+                }
+                else if (res < 0)
+                    h = m;
+                else
+                    index = ++l;
+            }
+            return false;
+        }
+
+        public static bool FindSorted<T>(this IList<T> list, Func<T, int> comparator, out int index) => FindSorted(list.Count, idx => comparator(list[idx]), out index);
+
+        public static bool ContainsSorted<T>(this IList<T> list, Func<T, int> comparator)
+        {
+            int index;
+            return FindSorted(list.Count, idx => comparator(list[idx]), out index);
+        }
+
+        public static T GetSorted<T>(this IList<T> list, Func<T, int> comparator) where T : class
+        {
+            int i;
+            if (FindSorted(list.Count, idx => comparator(list[idx]), out i))
+                return list[i];
+            return null;
+        }
+
+        public static bool ContainsLetter(this string str) => str.Any(c => char.IsLetter(c));
+
+        public static T? GetSortedNullable<T>(this IList<T> list, Func<T, int> comparator) where T : struct
+        {
+            int i;
+            if (FindSorted(list.Count, idx => comparator(list[idx]), out i))
+                return list[i];
+            return null;
         }
     }
 }

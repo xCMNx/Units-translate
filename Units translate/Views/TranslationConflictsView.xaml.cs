@@ -17,7 +17,7 @@ namespace Units_translate.Views
 
         private void lbTranslatesConflicts_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            PathContainer p = null;
+            FileContainer p = null;
             var itm = ((KeyValuePair<IMapRecordFull, SortedItems<string>>)lbTranslatesConflicts.SelectedItem).Key;
             if (itm != null && itm.Data != null && itm.Data.Count > 0)
                 p = itm.Data[0] as FileContainer;

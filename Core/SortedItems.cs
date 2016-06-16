@@ -5,16 +5,22 @@ namespace Core
     public class SortedItems<T> : List<T>
     {
 
-        public bool Find(T item, out int index)
+        public bool Find(T item, out int index, IComparer<T> comparer = null)
         {
-            return (index = BinarySearch(item)) >= 0;
+            index = BinarySearch(item, comparer ?? Comparer);
+            if (index < 0)
+            {
+                index = ~index;
+                return false;
+            }
+            return true;
         }
 
         public IComparer<T> Comparer;
 
-        public new int Add(T item)
+        public int Add(T item, IComparer<T> comparer = null)
         {
-            int index = BinarySearch(item, Comparer);
+            int index = BinarySearch(item, comparer);
             if (index < 0)
             {
                 index = ~index;
@@ -23,11 +29,20 @@ namespace Core
             return index;
         }
 
-        public new void Remove(T item)
+        public new int Add(T item) => Add(item, Comparer);
+
+        public void Remove(T item, IComparer<T> comparer = null)
         {
-            int index = BinarySearch(item, Comparer);
+            int index = BinarySearch(item, comparer ?? Comparer);
             if (index >= 0)
                 RemoveAt(index);
+        }
+
+        public new void Remove(T item) => Remove(item, Comparer);
+
+        public int IndexOf(T item, IComparer<T> comparer = null)
+        {
+            return BinarySearch(item, comparer);
         }
 
         public new int IndexOf(T item)

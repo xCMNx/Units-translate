@@ -2,16 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Core;
 using Microsoft.Win32;
-using Newtonsoft.Json.Linq;
 using Ui;
 
 namespace Units_translate
@@ -19,12 +14,6 @@ namespace Units_translate
     public partial class MainVM : BindableBase
     {
         #region UI properties
-        ObservableCollectionEx<TreeListViewItem> _Files = new ObservableCollectionEx<TreeListViewItem>();
-        /// <summary>
-        /// массив с корнями узлов списка файлов
-        /// </summary>
-        public ObservableCollectionEx<TreeListViewItem> Files => _Files;
-
         #region Settings
         const string PREVIEW_LINSES_CNT = "PREVIEW_LINSES_CNT";
         byte _PreviewLines = Helpers.ConfigRead(PREVIEW_LINSES_CNT, (byte)10);
@@ -92,21 +81,21 @@ namespace Units_translate
             }
         }
 
-        const string ONLY_LITERAL = "ONLY_LITERAL";
+        const string ONLY_LETTERS = "ONLY_LETTERS";
         /// <summary>
         /// Флаг указывающий, что нужно отображать только файлы в которых найдены строки содержащие символы,
         /// т.е. строки из цифр и пустые строки будут игнорироваться
         /// Используется при отображении файлов, и отображении списка строк файла
         /// </summary>
-        public bool LiteralOnly
+        public bool LetterOnly
         {
-            get { return FileContainer.LiteralOnly; }
+            get { return FileContainer.LetterOnly; }
             set
             {
-                FileContainer.LiteralOnly = value;
+                FileContainer.LetterOnly = value;
                 ShowTree();
-                Helpers.ConfigWrite(ONLY_LITERAL, FileContainer.LiteralOnly);
-                NotifyPropertyChanged(nameof(LiteralOnly));
+                Helpers.ConfigWrite(ONLY_LETTERS, FileContainer.LetterOnly);
+                NotifyPropertyChanged(nameof(LetterOnly));
             }
         }
 
@@ -122,6 +111,21 @@ namespace Units_translate
                 FileContainer.ShowMappingErrors = value;
                 Helpers.ConfigWrite(SHOW_MAPING_ERRORS, FileContainer.ShowMappingErrors);
                 NotifyPropertyChanged(nameof(ShowMappingErrors));
+            }
+        }
+
+        const string MAP_METHODS = "MAP_METHODS";
+        /// <summary>
+        ///Разрешает мапперу размечать методы
+        /// </summary>
+        public bool MapMethods
+        {
+            get { return FileContainer.MapMethods; }
+            set
+            {
+                FileContainer.MapMethods = value;
+                Helpers.ConfigWrite(MAP_METHODS, FileContainer.MapMethods);
+                NotifyPropertyChanged(nameof(MapMethods));
             }
         }
 
@@ -181,11 +185,11 @@ namespace Units_translate
             }
         }
 
-        PathContainer _Selected = null;
+        FileContainer _Selected = null;
         /// <summary>
         /// Выбранный файл
         /// </summary>
-        public PathContainer Selected
+        public FileContainer Selected
         {
             get { return _Selected; }
             set
@@ -351,6 +355,56 @@ namespace Units_translate
 
         private static RoutedUICommand _Update;
         public static RoutedUICommand CmdUpdate => _Update;
+        public Command ShowInExplorer { get; } = new Command(filePath =>
+        {
+            if (File.Exists((string)filePath))
+                System.Diagnostics.Process.Start("explorer.exe", @"/select, " + filePath);
+        });
+
+        public Command OpenFile { get; } = new Command(filePath => System.Diagnostics.Process.Start((string)filePath));
+
+        public Command SaveTranslates { get; } = new Command(param =>
+        {
+            var pair = ExecSaveTranslates();
+            if (pair.HasValue)
+                Instance.SaveTranslations(pair.Value.Key, pair.Value.Value);
+        });
+
+        public Command OpenTranslates { get; } = new Command(param =>
+        {
+            var pair = ExecOpenTranslates();
+            if (pair.HasValue)
+                Instance.LoadTranslations(pair.Value.Key, pair.Value.Value);
+        });
+
+        public Command UpdateTranslationsSet { get; } = new Command(param => Instance.UpdateTranslatesEntries());
+
+        public Command SaveTranslatesNew { get; } = new Command(param =>
+        {
+            var pair = ExecSaveTranslates();
+            if (pair.HasValue)
+                Instance.SaveTranslationsNew(pair.Value.Key, pair.Value.Value);
+        });
+
+        public void CleanTranslations(Func<IMapValueRecord, bool> isInvalid)
+        {
+            var cnt = _Translations.Count;
+            for (int i = _Translations.Count - 1; i >= 0; i--)
+                if (isInvalid(_Translations[i]))
+                    _Translations.RemoveAt(i);
+            if (cnt != _Translations.Count)
+                MessageBox.Show(string.Format("Удалено {0}.", cnt - _Translations.Count));
+        }
+
+        public Command RemoveValuesWithoutTranslation { get; } = new Command(param => Instance.CleanTranslations(itm => string.IsNullOrWhiteSpace(itm.Translation)));
+
+        public Command RemoveTranslationsWithoutBinding { get; } = new Command(param => Instance.CleanTranslations(itm => itm.Data.Count == 0));
+
+        public Command RemoveUnused { get; } = new Command(param => Instance.CleanTranslations(itm => itm.Data.Count == 0 && !Core.Translations.IsValueOriginal(itm.Value)));
+
+        //public Command OpenFile { get; } = new Command(param => );
+        //public Command OpenFile { get; } = new Command(param => );
+        //public Command OpenFile { get; } = new Command(param => );
 
         static void _InitCommands()
         {
@@ -371,8 +425,9 @@ namespace Units_translate
             Helpers.ConsoleBufferHeight = 1000;
             Helpers.ConsoleEnabled = Helpers.ConfigRead(CONSOLE_ENABLED, Helpers.ConsoleEnabled);
             Core.Search.CaseInsensitiveSearch = Helpers.ConfigRead(CASE_INSANSITIVE_SEARCH, Core.Search.CaseInsensitiveSearch, true);
-            FileContainer.LiteralOnly = Helpers.ConfigRead(ONLY_LITERAL, FileContainer.LiteralOnly);
+            FileContainer.LetterOnly = Helpers.ConfigRead(ONLY_LETTERS, FileContainer.LetterOnly);
             FileContainer.ShowMappingErrors = Helpers.ConfigRead(SHOW_MAPING_ERRORS, FileContainer.ShowMappingErrors);
+            FileContainer.MapMethods = Helpers.ConfigRead(MAP_METHODS, FileContainer.MapMethods);
             FileContainer.FixingEnabled = Helpers.ConfigRead(FIXING_ENABLED, FileContainer.FixingEnabled);
             _InitCommands();
         }

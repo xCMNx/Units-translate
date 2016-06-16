@@ -1,9 +1,6 @@
-﻿using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using System.Windows.Input;
 using Core;
-using Microsoft.Win32;
 
 namespace Units_translate.Views
 {
@@ -17,47 +14,13 @@ namespace Units_translate.Views
             InitializeComponent();
         }
 
-        private void btnUpdate_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            (DataContext as MainVM).UpdateTranslatesEntries();
-        }
-
         private void ListView_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            PathContainer p = null;
+            FileContainer p = null;
             var itm = (sender as ListView).SelectedItem as Core.IMapRecordFull;
             if (itm != null && itm.Data != null && itm.Data.Count > 0)
                 p = itm.Data[0] as FileContainer;
             MainVM.Instance.Selected = p;
-        }
-
-        private void btnSave_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            var pair = MainVM.ExecSaveTranslates();
-            if (pair.HasValue)
-                (DataContext as MainVM).SaveTranslationsNew(pair.Value.Key, pair.Value.Value);
-        }
-
-        private void btnDelEmpty_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            var lst = (DataContext as MainVM).Translations;
-            var cnt = lst.Count;
-            for (int i = lst.Count - 1; i >= 0; i--)
-                if (string.IsNullOrWhiteSpace(lst[i].Translation))
-                    lst.RemoveAt(i);
-            if (cnt != lst.Count)
-                MessageBox.Show(string.Format("Удалено {0}.", cnt - lst.Count));
-        }
-
-        private void btnDelUnAttouched_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            var lst = (DataContext as MainVM).Translations;
-            var cnt = lst.Count;
-            for (int i = lst.Count - 1; i >= 0; i--)
-                if (lst[i].Data.Count == 0)
-                    lst.RemoveAt(i);
-            if (cnt != lst.Count)
-                MessageBox.Show(string.Format("Удалено {0}.", cnt - lst.Count));
         }
 
         private void ListView_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
@@ -72,17 +35,6 @@ namespace Units_translate.Views
                         (DataContext as MainVM).Translations.Remove(itm);
                 }
             }
-        }
-
-        private void btnDelUnusedNew_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            var lst = (DataContext as MainVM).Translations;
-            var cnt = lst.Count;
-            for (int i = lst.Count - 1; i >= 0; i--)
-                if (lst[i].Data.Count == 0 && !Core.Translations.IsValueOriginal(lst[i].Value))
-                    lst.RemoveAt(i);
-            if (cnt != lst.Count)
-                MessageBox.Show(string.Format("Удалено {0}.", cnt - lst.Count));
         }
 
         protected void SelectCurrentItem(object sender, KeyboardFocusChangedEventArgs e)

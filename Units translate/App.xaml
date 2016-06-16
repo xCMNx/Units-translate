@@ -8,9 +8,11 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Styles\ScrollBarTemplate.xaml"/>
+                <ResourceDictionary Source=".\Icons.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <UI:ObjectToVisibility x:Key="ObjToVisCnv"/>
+            <UI:ObjectToVisibility x:Key="ObjToVisCnvClp" Default="Collapsed"/>
             <UI:BoolToVisibility x:Key="BoolTovisInv" Inverted="True"/>
             <UI:BoolToVisibility x:Key="BoolTovis"/>
         </ResourceDictionary>

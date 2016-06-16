@@ -157,7 +157,7 @@ namespace Units_translate.Views
         private void btnUpdateFile_Click(object sender, RoutedEventArgs e)
         {
             if (colorizer.Data != null)
-                MappedData.UpdateData(colorizer.Data.FullPath, true, false);
+                MappedData.UpdateData(colorizer.Data, true, false);
         }
 
         private void code_MouseHover(object sender, System.Windows.Input.MouseEventArgs e)

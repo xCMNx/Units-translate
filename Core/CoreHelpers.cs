@@ -174,25 +174,6 @@ namespace Core
         public static readonly MapRecordComparer Comparer = new MapRecordComparer();
     }
 
-    /// <summary>
-    /// Компарер для словаря размеченных значений
-    /// Сравнивает непосредственно значения, чувствителен к регистру
-    /// </summary>
-    public class MapRecordEqualityComparer : EqualityComparer<IMapRecord>
-    {
-        public override bool Equals(IMapRecord x, IMapRecord y)
-        {
-            return string.Equals(x.Value, y.Value, StringComparison.InvariantCultureIgnoreCase);
-        }
-
-        public override int GetHashCode(IMapRecord obj)
-        {
-            return obj == null ? 0 : obj.Value.GetHashCode();
-        }
-
-        public static readonly MapRecordEqualityComparer EqualityComparer = new MapRecordEqualityComparer();
-    }
-
     public class TranslationItemEqualityComparer : EqualityComparer<ITranslationItem>
     {
         public override bool Equals(ITranslationItem x, ITranslationItem y)

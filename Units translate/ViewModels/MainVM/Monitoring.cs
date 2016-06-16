@@ -22,13 +22,13 @@ namespace Units_translate
         {
             path = path.ToUpper();
             var w = new FileSystemWatcher(path);
-            w.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            w.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
             w.IncludeSubdirectories = true;
             w.Filter = "*.*";
             w.Changed += W_Changed;
             w.Deleted += W_Deleted;
             w.Created += W_Created;
-            w.Renamed += W_Created;
+            w.Renamed += W_Renamed;
             return w;
         }
 
@@ -63,12 +63,16 @@ namespace Units_translate
 
         void ResetWatchers()
         {
+            var paths = watchers.Keys.ToArray();
             foreach (var w in watchers)
             {
                 w.Value.EnableRaisingEvents = false;
                 w.Value.Dispose();
-                var nw = GetNewWatcher(w.Key);
-                watchers[w.Key] = nw;
+            }
+            foreach (var p in paths)
+            {
+                var nw = GetNewWatcher(p);
+                watchers[p] = nw;
                 nw.EnableRaisingEvents = true;
             }
         }
@@ -78,10 +82,8 @@ namespace Units_translate
             Helpers.mainCTX.Send(_ =>
             {
                 Helpers.ConsoleWrite(string.Format("[{0}]{1} : {2}", DateTime.Now.ToString(), e.FullPath, e.ChangeType));
-                if (File.Exists(e.FullPath) && !IsIgnored(e.FullPath))
-                {
-                    MappedData.AddData(new FileContainer(e.FullPath), false);
-                }
+                if (!IsIgnored(e.FullPath))
+                    FilesTree.AddFile(e.FullPath);
             }, null);
         }
 
@@ -94,9 +96,25 @@ namespace Units_translate
             {
                 //попросим обновить файл, и т.к. событие может произойти несколько раз, установим флаг проверки даты изменения
                 Helpers.ConsoleWrite(string.Format("[{0}]{1} : {2}", DateTime.Now.ToString(), e.FullPath, e.ChangeType));
-                if (File.Exists(e.FullPath) && !IsIgnored(e.FullPath))
+                FilesTree.UpdateData(e.FullPath, true, true);
+            }, null);
+        }
+
+        private void W_Renamed(object sender, RenamedEventArgs e)
+        {
+            Helpers.mainCTX.Send(_ =>
+            {
+                //попросим обновить файл, и т.к. событие может произойти несколько раз, установим флаг проверки даты изменения
+                Helpers.ConsoleWrite(string.Format("[{0}]{1} => {2} : {3}", DateTime.Now.ToString(), e.OldFullPath, e.FullPath, e.ChangeType));
+                if (!IsIgnored(e.OldFullPath))
                 {
-                    MappedData.UpdateData(e.FullPath, true, true);
+                    if (_SolutionsFiles.Contains(e.OldFullPath))
+                    {
+                        _SolutionsFiles.Remove(e.OldFullPath);
+                        _SolutionsFiles.Add(e.FullPath);
+                    }
+                    RemoveFromFiles(e.OldFullPath);
+                    FilesTree.AddFile(e.FullPath);
                 }
             }, null);
         }
@@ -110,11 +128,7 @@ namespace Units_translate
             {
                 //выпилим файл из разметки
                 Helpers.ConsoleWrite(string.Format("[{0}]{1} : {2}", DateTime.Now.ToString(), e.FullPath, e.ChangeType));
-                if (File.Exists(e.FullPath) && !IsIgnored(e.FullPath))
-                {
-                    MappedData.RemoveData(e.FullPath);
-                    RemoveFromFiles(e.FullPath);
-                }
+                RemoveFromFiles(e.FullPath);
             }, null);
         }
     }

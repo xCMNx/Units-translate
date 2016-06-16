@@ -28,7 +28,7 @@ namespace Core
         /// <summary>
         /// Название файла без расширения
         /// </summary>
-        string Name { get; }
+        string FileName { get; }
         /// <summary>
         /// расширение файла
         /// </summary>
@@ -88,11 +88,6 @@ namespace Core
         /// <param name="ifChanged">Только изменившийся</param>
         /// <param name="safe">Нужна ли синхронизация</param>
         void Remap(bool ifChanged, bool safe);
-
-        /// <summary>
-        /// Очищает список областей разметки
-        /// </summary>
-        void ClearItems();
 
         /// <summary>
         /// Сохраняем новый текст файла

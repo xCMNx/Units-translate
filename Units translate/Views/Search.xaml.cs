@@ -14,7 +14,7 @@ namespace Units_translate.Views
 
         private void lbSearchResults_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            PathContainer p = null;
+            FileContainer p = null;
             var itm = lbSearchResults.SelectedItem as Core.IMapRecordFull;
             if (itm != null && itm.Data != null && itm.Data.Count > 0)
                 p = itm.Data[0] as FileContainer;

@@ -217,7 +217,7 @@ namespace Units_translate.Views
         void Update()
         {
             ContentContainer.Children.Clear();
-            //сия манстрятина помогает избежать лишних построений списка, т.к. при смене значения, сначала придет ивент нового значения, 
+            //сия манстрятина помогает избежать лишних построений списка, т.к. при смене значения, сначала придет ивент нового значения,
             //а затем только сменится само значение, такжы при вводе значения или смене обрамления зачения будет сразу перестраиваться,
             //что в некоторых случаях сделает весьма проблематичным редактирование
             //данный кастыль добавляет дилэй для ребилда, который заодно пропустит лишние вызовы, и не будет мешать вводу.
@@ -300,7 +300,7 @@ namespace Units_translate.Views
 
         private void BtnShow_Click(object sender, RoutedEventArgs e)
         {
-            MainVM.Instance.Selected = Data as PathContainer;
+            MainVM.Instance.Selected = Data as FileContainer;
             MainVM.Instance.ShowValue(((Button)sender).DataContext as IMapItemRange);
         }
 

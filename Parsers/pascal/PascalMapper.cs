@@ -12,7 +12,7 @@ namespace pascal
     [MapperFilter(new[] { ".dfm", ".pas", ".dpr" })]
     public class PascalMapper : IMapper
     {
-        public string Name => "pascal"; 
+        public string Name => "pascal";
         static Brush InterfaceBrush = Brushes.Gray;
         static Brush CommentBrush = Brushes.Green;
         static Brush DirectiveBrush = Brushes.LightBlue;
@@ -34,7 +34,7 @@ namespace pascal
 |(?:'(?:[^'\0\r\n]*|'')*?')#skip strings
 |(?<uses>\buses\b(?:[^;\{/(']*|\{.*?}|//.*?[\0\r\n]|\((?:\*.*?\*\)|.*)|'(?:[^'\0\r\n]*|'')*?')*?;)
 |(?<tr>\btr[\s]*?\(
-      (?: 
+      (?:
           (?<n>\()                   #cycle stack +
           |(?<inner-n>\))            #cycle stack -
           |[^{/()']*
@@ -56,26 +56,27 @@ namespace pascal
             dpr
         }
 
-        public ICollection<IMapItemRange> Parse(string Text, PascalFileType pType)
+        public ICollection<IMapItemRange> Parse(string Text, PascalFileType pType, MapperOptions Options)
         {
+            var mapMethods = Options.HasFlag(MapperOptions.MapMethods);
             var res = new List<IMapItemRange>();
-                int Start = -1, End = -1, newWordStart = -1;
-                bool uses = false;
-                var value = string.Empty;
-                var comb = 0;
-                var word = string.Empty;
-                var wordStart = -1;
-                Action<int> setWord = pType == PascalFileType.dfm ? (_ => { }) : (Action<int>)((idx) =>
+            int Start = -1, End = -1, newWordStart = -1;
+            bool uses = false;
+            var value = string.Empty;
+            var comb = 0;
+            var word = string.Empty;
+            var wordStart = -1;
+            Action<int> setWord = pType == PascalFileType.dfm ? (_ => { }) : (Action<int>)((idx) =>
+            {
+                if (newWordStart > -1)
                 {
-                    if (newWordStart > -1)
-                    {
-                        wordStart = newWordStart;
-                        word = Text.Substring(newWordStart, idx - newWordStart);
-                        uses = uses || word.Equals("uses", StringComparison.InvariantCultureIgnoreCase);
-                        newWordStart = -1;
-                    }
-                });
-                Stack<KeyValuePair<string, int>> methods = new Stack<KeyValuePair<string, int>>();
+                    wordStart = newWordStart;
+                    word = Text.Substring(newWordStart, idx - newWordStart);
+                    uses = uses || word.Equals("uses", StringComparison.InvariantCultureIgnoreCase);
+                    newWordStart = -1;
+                }
+            });
+            Stack<KeyValuePair<string, int>> methods = new Stack<KeyValuePair<string, int>>();
             for (int idx = 0; idx < Text.Length; idx++)
             {
                 switch (Text[idx])
@@ -197,7 +198,7 @@ namespace pascal
                                         newWordStart = -1;
                                         continue;
                                     case '(':
-                                        if (pType != PascalFileType.dfm)
+                                        if (mapMethods && pType != PascalFileType.dfm)
                                         {
                                             uses = false;
                                             setWord(idx);
@@ -207,7 +208,7 @@ namespace pascal
                                         continue;
                                     case ')':
                                         newWordStart = -1;
-                                        if (pType != PascalFileType.dfm && methods.Count > 0)
+                                        if (mapMethods && pType != PascalFileType.dfm && methods.Count > 0)
                                         {
                                             var method = methods.Pop();
                                             if (method.Value > -1
@@ -249,14 +250,14 @@ namespace pascal
             return res;
         }
 
-        public ICollection<IMapItemRange> GetMap(string Text, string Ext)
+        public ICollection<IMapItemRange> GetMap(string Text, string Ext, MapperOptions Options)
         {
             PascalFileType pType = PascalFileType.pas;
             if (".dpr".Equals(Ext, StringComparison.InvariantCultureIgnoreCase))
                 pType = PascalFileType.dpr;
             else if (".dfm".Equals(Ext, StringComparison.InvariantCultureIgnoreCase))
                 pType = PascalFileType.dfm;
-            return Parse(Text, pType);
+            return Parse(Text, pType, Options);
         }
 
         public bool IsExtAcceptable(string Ext)

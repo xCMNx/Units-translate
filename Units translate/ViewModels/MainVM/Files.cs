@@ -11,6 +11,13 @@ namespace Units_translate
 {
     public partial class MainVM
     {
+        public FilesList FilesTree { get; } = new FilesList();
+        ObservableCollectionEx<TreeListViewItem> _Files = new ObservableCollectionEx<TreeListViewItem>();
+        /// <summary>
+        /// массив с корнями узлов списка файлов
+        /// </summary>
+        public ObservableCollectionEx<TreeListViewItem> Files => _Files;
+
         /// <summary>
         /// Строит дерево файлов на основе переданного списка размеченых данных
         /// </summary>
@@ -26,7 +33,7 @@ namespace Units_translate
             try
             {
                 //текущий узел в дереве
-                var currentNode = new PathContainer(lst.First().Path);
+                PathBase currentNode = (lst.First() as FileContainer).Parent;
                 res.Add(new TreeListViewItem() { Header = currentNode });
                 //стэк узлов до корня дерева
                 Stack<TreeListViewItem> st = new Stack<TreeListViewItem>();
@@ -37,11 +44,11 @@ namespace Units_translate
                 Action<IMapData> add = (md) =>
                 {
                     var p = md.Path.Split(pathDelimiter, StringSplitOptions.RemoveEmptyEntries);
-                    var fp = currentNode.Path;
+                    var fp = currentNode.FullPath;
                     for (int i = fp.Split(pathDelimiter, StringSplitOptions.RemoveEmptyEntries).Length; i < p.Length; i++)
                     {
                         fp = Path.Combine(fp, p[i]);
-                        currentNode = new PathContainer(fp);
+                        FilesTree.Find(fp, out currentNode);
                         var tmp = new TreeListViewItem() { Header = currentNode };
                         st.Peek().Items.Add(tmp);
                         st.Push(tmp);
@@ -63,7 +70,7 @@ namespace Units_translate
                             //пройдемся по стеку, в поисках совпадающего пути
                             while (st.Count > 0)
                             {
-                                currentNode = (PathContainer)st.Peek().Header;
+                                currentNode = (PathBase)st.Peek().Header;
                                 if (path.Equals(currentNode.Path, StringComparison.InvariantCultureIgnoreCase))
                                 {
                                     //найден подходящий узел
@@ -82,7 +89,7 @@ namespace Units_translate
                             if (tmp == null)
                             {
                                 //стэк пуст, значит нужен новый рут
-                                currentNode = new PathContainer(it.Path);
+                                FilesTree.Find(it.Path, out currentNode);
                                 tmp = new TreeListViewItem() { Header = currentNode };
                                 res.Add(tmp);
                             }
@@ -120,7 +127,7 @@ namespace Units_translate
                 data = data.Where(it => it.IsMapped).ToArray();
             if (_CyrilicOnly)
                 data = data.Where(it => (it as FileContainer).CyrilicCount > 0).ToArray();
-            if (LiteralOnly)
+            if (LetterOnly)
                 data = data.Where(it => (it as FileContainer).ContainsLiteral()).ToArray();
             if (!string.IsNullOrWhiteSpace(filter))
             {
@@ -155,7 +162,7 @@ namespace Units_translate
         bool RemoveFromNode(TreeListViewItem node, string name)
         {
             foreach (TreeListViewItem item in node.Items)
-                if (((PathContainer)item.Header).FullPath.Equals(name, StringComparison.InvariantCultureIgnoreCase))
+                if (((DirectoryContainer)item.Header).FullPath.Equals(name, StringComparison.InvariantCultureIgnoreCase))
                 {
                     node.Items.Remove(item);
                     return true;
@@ -167,14 +174,7 @@ namespace Units_translate
         /// Проходит по дереву и удаляет узел с указанным путем
         /// </summary>
         /// <param name="name">Путь который надо выпилить</param>
-        void RemoveFromFiles(string name)
-        {
-            if (Selected != null && Selected.FullPath.Equals(name, StringComparison.InvariantCultureIgnoreCase))
-                Selected = null;
-            foreach (var f in _Files)
-                if (RemoveFromNode(f, name))
-                    return;
-        }
+        void RemoveFromFiles(string name) => FilesTree.Remove(name);
 
         /// <summary>
         /// Добавляем файлы в каталоге и его подкаталогах
@@ -192,13 +192,16 @@ namespace Units_translate
             EditingEnabled = false;
             try
             {
-                if (callback != null) callback(null, files.Count());
+                callback?.Invoke(null, files.Count());
                 int cnt = 0;
+                System.Diagnostics.Stopwatch w = new System.Diagnostics.Stopwatch();
+                //w.Start();
                 foreach (var f in files)
                 {
-                    if (callback != null) callback(f, ++cnt);
-                    MappedData.AddData(new FileContainer(f), false);
+                    callback?.Invoke(f, ++cnt);
+                    FilesTree.AddFile(f);
                 }
+                //w.Stop();
             }
             finally
             {
@@ -232,11 +235,11 @@ namespace Units_translate
 
         public void OpenSolution(Action<string, int> callback = null)
         {
-            var pair = ExecDialog(new Microsoft.Win32.OpenFileDialog()
+            var pair = Helpers.mainCTX.Get(() => ExecDialog(new Microsoft.Win32.OpenFileDialog()
                 , Mappers.SolutionReaders
                 , LAST_SOLUTION_READER
                 , LAST_SOLUTION_FILE
-            );
+            ));
             if (pair.HasValue)
                 OpenSolution(pair.Value.Value, pair.Value.Key, callback);
         }

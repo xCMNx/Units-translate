@@ -37,12 +37,12 @@
 
     <DataTemplate x:Key="TreeMainColumnTemplate">
         <DockPanel>
-            <ToggleButton x:Name="Expander" 
-                      Style="{StaticResource ExpandCollapseToggleStyle}" 
+            <ToggleButton x:Name="Expander"
+                      Style="{StaticResource ExpandCollapseToggleStyle}"
                       Margin="{Binding Level,Converter={StaticResource LevelToIndentConverter},RelativeSource={RelativeSource AncestorType={x:Type UI:TreeListViewItem}}}"
                       IsChecked="{Binding Path=IsExpanded,RelativeSource={RelativeSource AncestorType={x:Type UI:TreeListViewItem}}}"
                       ClickMode="Press"/>
-            <TextBlock Text="{Binding}"/>
+            <TextBlock Text="{Binding Name}"/>
         </DockPanel>
         <DataTemplate.Triggers>
             <DataTrigger Binding="{Binding Path=HasItems,RelativeSource={RelativeSource AncestorType={x:Type UI:TreeListViewItem}}}" Value="False">

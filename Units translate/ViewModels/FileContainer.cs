@@ -10,51 +10,44 @@ using Core;
 
 namespace Units_translate
 {
-    public class FileContainer : PathContainer, IMapData
+    public class FileContainer : PathBase, IPathNode, IMapData
     {
+        public PathPart Parent { get; protected set; }
+
+        public override string Path => Parent.Path;
+        public override string FullPath => System.IO.Path.Combine(Path, Name);
+        public override int StringsCount => Items == null ? 0 : Items.Where(it => it is IMapValueItem).Count();
+        public override int CyrilicCount => Items == null ? 0 : Items.Where(it => it is IMapValueItem && cyrRegex.IsMatch((it as IMapValueItem).Value)).Count();
+        public override string[] FullPathParts => Parent.FullPathParts.Concat(new string[] { Name }).ToArray();
+
         //регулярка для проверки наличия кирилицы в строке
         static Regex cyrRegex = new Regex(@"\p{IsCyrillic}|\p{IsCyrillicSupplement}");
         //переключалка отображения только строк с символами
-        public static bool LiteralOnly = false;
+        public static bool LetterOnly = false;
         //Разрешает фиксить файлы мапперу
         public static bool FixingEnabled = false;
+        //Разрешает мапперу размечать методы
+        public static bool MapMethods = false;
+
         #region IMapData
         List<IMapItemRange> _Items;
-        public ICollection<IMapItemRange> Items =>_Items;
-        public override string Path =>System.IO.Path.GetDirectoryName(_Path);
-        public override string Name =>System.IO.Path.GetFileNameWithoutExtension(_Path);
-        public override string Ext =>System.IO.Path.GetExtension(_Path);
-        public bool IsMapped  =>_Items != null;
+        public ICollection<IMapItemRange> Items => _Items;
+        public string FileName => System.IO.Path.GetFileNameWithoutExtension(Name);
+        public string Ext => System.IO.Path.GetExtension(Name);
+        public bool IsMapped  => _Items != null;
         #endregion
-        public override int StringsCount => Items == null ? 0 : Items.Where(it => it is IMapValueItem).Count();
-        public override int CyrilicCount => Items == null ? 0 : Items.Where(it => it is IMapValueItem && cyrRegex.IsMatch((it as IMapValueItem).Value)).Count();
-
-        public static bool ContainChar(string str)
-        {
-            for (int i = 0; i < str.Length; i++)
-                if (char.IsLetter(str[i]))
-                    return true;
-            return false;
-        }
 
         public const string WRITE_ENCODING = "WRITE_ENCODING";
         public const string WRITE_ENCODING_ACTIVE = "WRITE_ENCODING_ACTIVE";
         public static Encoding WriteEncoding = Encoding.GetEncoding(Helpers.ReadFromConfig(WRITE_ENCODING, Helpers.Default_Encoding));
         public static bool UseWriteEncoding = Helpers.ConfigRead(WRITE_ENCODING_ACTIVE, false);
 
-        public override ICollection<IMapItemRange> ShowingItems => Items?.Where(it => it is IMapValueItem && (!LiteralOnly || ContainChar((it as IMapValueItem).Value))).ToArray();
+        public ICollection<IMapItemRange> ShowingItems => Items?.Where(it => it is IMapValueItem && (!LetterOnly || (it as IMapValueItem).Value.ContainsLetter())).ToArray();
 
         /// <summary>
         /// Есть ли в файле строки с символами
         /// </summary>
-        public bool ContainsLiteral()
-        {
-            if (_Items != null)
-                foreach (var it in Items)
-                    if (it is IMapValueItem && ContainChar((it as IMapValueItem).Value))
-                        return true;
-            return false;
-        }
+        public bool ContainsLiteral() => _Items != null && _Items.Any(it => it is IMapValueItem && (it as IMapValueItem).Value.Any(c => char.IsLetter(c)));
 
         public string Text
         {
@@ -66,7 +59,8 @@ namespace Units_translate
                 while (i < 3)
                     try
                     {
-                        return System.IO.File.Exists(_Path) ? File.ReadAllText(_Path, Helpers.GetEncoding(FullPath, Helpers.Encoding)) : string.Empty;
+                        string path = FullPath;
+                        return System.IO.File.Exists(path) ? File.ReadAllText(path, Helpers.GetEncoding(path, Helpers.Encoding)) : string.Empty;
                     }
                     catch (Exception e)
                     {
@@ -78,21 +72,16 @@ namespace Units_translate
             }
         }
 
-        public IDictionary<IMapItemRange, int> CustomRanges { get; private set; }
-
         /// <summary>
         /// Сохраняем новый текст файла
         /// </summary>
         /// <param name="text">Новый текст</param>
         public void SaveText(string text)
         {
-            var encoding = UseWriteEncoding ? WriteEncoding : Helpers.GetEncoding(FullPath, Helpers.Encoding);
-            System.IO.File.WriteAllText(FullPath, text, encoding);
+            var path = FullPath;
+            var encoding = UseWriteEncoding ? WriteEncoding : Helpers.GetEncoding(path, Helpers.Encoding);
+            System.IO.File.WriteAllText(path, text, encoding);
             MappedData.UpdateData(this, true, false);
-        }
-
-        public FileContainer(string fullpath) : base(fullpath)
-        {
         }
 
         /// <summary>
@@ -115,15 +104,6 @@ namespace Units_translate
         }
 
         /// <summary>
-        /// Очищает список областей разметки
-        /// </summary>
-        public void ClearItems()
-        {
-            _Items = null;
-            NotifyPropertyChanged(nameof(Items));
-        }
-
-        /// <summary>
         /// последняя дата изменения файла
         /// </summary>
         public DateTime LastUpdate { get; private set; } = DateTime.MinValue;
@@ -139,14 +119,15 @@ namespace Units_translate
         /// <param name="safe">Нужна ли синхронизация</param>
         public void Remap(bool ifChanged, bool safe)
         {
-            var lastwrite = File.GetLastWriteTime(FullPath);
+            var path = FullPath;
+            var lastwrite = File.GetLastWriteTime(path);
             if (ifChanged && LastUpdate == lastwrite)
                 return;
             LastUpdate = lastwrite;
             try
             {
                 _Items = null;
-                if (!System.IO.File.Exists(_Path))
+                if (!System.IO.File.Exists(path))
                     return;
                 var mapper = Core.Mappers.FindMapper(Ext);
                 if (mapper != null)
@@ -154,7 +135,7 @@ namespace Units_translate
                     {
                         Action tryGet = () =>
                         {
-                            _Items = mapper.GetMap(Text, Ext).OrderBy(it => it.Start).ToList();
+                            _Items = mapper.GetMap(Text, Ext, MapMethods ? MapperOptions.MapMethods : MapperOptions.None).OrderBy(it => it.Start).ToList();
                         };
                         try
                         {
@@ -165,24 +146,24 @@ namespace Units_translate
                             if (!FixingEnabled)
                                 throw;
                             //попытка пофиксить
-                            Helpers.ConsoleWrite($"{FullPath}\r\n{e.ToString()}", ConsoleColor.DarkRed);
-                            mapper.TryFix(FullPath, Helpers.GetEncoding(FullPath, Helpers.Encoding));
+                            Helpers.ConsoleWrite($"{path}\r\n{e.ToString()}", ConsoleColor.DarkRed);
+                            mapper.TryFix(path, Helpers.GetEncoding(path, Helpers.Encoding));
                             tryGet();
                             if (ShowMappingErrors)
-                                MessageBox.Show(string.Format("Произошла ошибка во время обработки файла, файл был исправлен:\r\n{0}\r\n\r\n{1}", FullPath, e));
+                                MessageBox.Show(string.Format("Произошла ошибка во время обработки файла, файл был исправлен:\r\n{0}\r\n\r\n{1}", path, e));
                         }
                     }
                     catch (Exception e)
                     {
-                        Helpers.ConsoleWrite($"{FullPath}\r\n{e.ToString()}", ConsoleColor.Red);
+                        Helpers.ConsoleWrite($"{path}\r\n{e.ToString()}", ConsoleColor.Red);
                         _Items = new List<IMapItemRange>();
                         if (ShowMappingErrors)
-                            MessageBox.Show(string.Format("Произошла ошибка во время обработки файла:\r\n{0}\r\n\r\n{1}", FullPath, e));
+                            MessageBox.Show(string.Format("Произошла ошибка во время обработки файла:\r\n{0}\r\n\r\n{1}", path, e));
                     }
             }
             finally
             {
-                SendOrPostCallback notify = _ => NotifyPropertiesChanged(nameof(Items), nameof(ShowingItems));
+                SendOrPostCallback notify = _ => NotifyPropertiesChanged(nameof(CyrilicCount), nameof(StringsCount));
                 if (safe)
                     notify(null);
                 else
@@ -257,6 +238,26 @@ namespace Units_translate
                         cnt++;
                 }
             return cnt;
+        }
+
+        public void UnMap()
+        {
+            MappedData.RemoveData(this);
+        }
+
+        public override void Dispose()
+        {
+            UnMap();
+            Parent.Remove(this);
+            base.Dispose();
+        }
+
+        public FileContainer(PathPart parent, string name) : base(name)
+        {
+            Parent = parent;
+            Parent.Add(this);
+            if (this != MappedData.AddData(this, false))
+                throw new Exception("Duplicated.");
         }
     }
 }

@@ -74,16 +74,21 @@
     <Compile Include="Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\IPathNode.cs" />
+    <Compile Include="ViewModels\DriveContainer.cs" />
+    <Compile Include="ViewModels\FilesList.cs" />
     <Compile Include="ViewModels\MainVM\Files.cs" />
     <Compile Include="ViewModels\MainVM\Monitoring.cs" />
     <Compile Include="ViewModels\MainVM\Search.cs" />
     <Compile Include="ViewModels\MainVM\Translates.cs" />
+    <Compile Include="ViewModels\PathBase.cs" />
+    <Compile Include="ViewModels\PathPart.cs" />
     <Compile Include="Views\TranslatesView.xaml.cs">
       <DependentUpon>TranslatesView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\FileContainer.cs" />
     <Compile Include="ViewModels\MainVM\MainVM.cs" />
-    <Compile Include="ViewModels\PathContainer.cs" />
+    <Compile Include="ViewModels\DirectoryContainer.cs" />
     <Compile Include="Views\CodePreviewBuilder.cs" />
     <Compile Include="Views\CodeView.xaml.cs">
       <DependentUpon>CodeView.xaml</DependentUpon>
@@ -104,6 +109,10 @@
     <Compile Include="Views\TranslationConflictsView.xaml.cs">
       <DependentUpon>TranslationConflictsView.xaml</DependentUpon>
     </Compile>
+    <Page Include="Icons.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

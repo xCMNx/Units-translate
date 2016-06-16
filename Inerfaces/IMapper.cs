@@ -23,6 +23,9 @@ namespace Core
     /// </summary>
     public class MapperFixableException : Exception { public MapperFixableException(string msg) : base(msg) { } }
 
+    [Flags]
+    public enum MapperOptions { None = 0, MapMethods = 1 }
+
     /// <summary>
     /// Собсно интерфейс парсера
     /// </summary>
@@ -38,7 +41,7 @@ namespace Core
         /// <param name="Text">Текст для обработки</param>
         /// <param name="Ext">Расширение на случай если парсер умеет много типов и в процессе ему нужно уточнить, с чем он работает</param>
         /// <returns></returns>
-        ICollection<IMapItemRange> GetMap(string Text, string Ext);
+        ICollection<IMapItemRange> GetMap(string Text, string Ext, MapperOptions Options);
         /// <summary>
         /// Просим маппер исправить файл
         /// </summary>

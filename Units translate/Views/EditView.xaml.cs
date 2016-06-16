@@ -63,18 +63,6 @@ namespace Units_translate.Views
             }
         }
 
-        private void btnShowInExplorer_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            string filePath = ((sender as FrameworkElement).DataContext as IMapData).FullPath;
-            if (File.Exists(filePath))
-                System.Diagnostics.Process.Start("explorer.exe", @"/select, " + filePath);
-        }
-
-        private void btnOpenFile_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            System.Diagnostics.Process.Start(((sender as FrameworkElement).DataContext as IMapData).FullPath);
-        }
-
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             InputManager.Current.ProcessInput(new MouseButtonEventArgs(Mouse.PrimaryDevice, Environment.TickCount, MouseButton.Right) { RoutedEvent = Mouse.MouseUpEvent, Source = sender });
@@ -119,6 +107,13 @@ namespace Units_translate.Views
         {
             if ((string)btnValueTr.Tag == tbValue.Text)
                 Clipboard.SetText((string)btnValueTr.ToolTip);
+        }
+
+        private void btnSwitchTrAndValue_Click(object sender, RoutedEventArgs e)
+        {
+            var tr = tbTranslation.Text;
+            tbTranslation.SetCurrentValue(TextBox.TextProperty, tbValue.Text);
+            tbValue.SetCurrentValue(TextBox.TextProperty, tr);
         }
     }
 }

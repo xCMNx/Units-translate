@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -76,6 +75,9 @@ namespace Units_translate
 
         public static async Task<string> TranslateText(string input, string srcLanguageCode, string dstLanguageCode, bool fonetic)
         {
+            //строки не содержащие букв переводить бессмысленно
+            if (!input.Any(c => char.IsLetter(c)))
+                return $"[{input}]";
             try
             {
                 string url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl={srcLanguageCode}&tl={dstLanguageCode}&dt=t&q={Uri.EscapeDataString(input.Trim())}";
@@ -91,14 +93,15 @@ namespace Units_translate
                 webClient.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36");
                 webClient.Encoding = System.Text.Encoding.UTF8;
                 var objects = JArray.Parse(await Task<string>.Factory.StartNew(() => webClient.DownloadString(url)));
-                var result = new StringBuilder();
-                foreach (var o in objects)
-                    if (o.HasValues)
-                    {
-                        result.Append(o[n1][n2].Value<string>());
-                        result.Append(' ');
-                    }
-                return result.ToString().Trim();
+                return string.Join(" ", objects.Where(o => o.HasValues).Select(o => o[n1][n2].Value<string>()));
+                //var result = new StringBuilder();
+                //foreach (var o in objects)
+                //    if (o.HasValues)
+                //    {
+                //        result.Append(o[n1][n2].Value<string>());
+                //        result.Append(' ');
+                //    }
+                //return result.ToString().Trim();
             }
             catch (Exception e)
             {

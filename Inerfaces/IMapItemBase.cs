@@ -5,10 +5,7 @@
         /// <summary>
         /// Значение области
         /// </summary>
-        string Value
-        {
-            get;
-        }
+        string Value { get; }
 
         /// <summary>
         /// Одинаковые ли значения
