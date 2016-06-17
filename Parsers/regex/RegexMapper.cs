@@ -19,19 +19,19 @@ namespace regex
 
         public string Name { get { return "RegEx"; } }
 
-        static IMapItemRange GroupToType(string g, int start, int end, int valueStart, int valueEnd, string value)
+        static IMapRangeItem GroupToType(string g, int start, int end, int valueStart, int valueEnd, string value)
         {
             switch (g)
             {
-                case "G": return new MapItemForeColorRangeBase(start, end, Brushes.Gray);
-                case "S": return new MapItemRangedValueBase(value, start, end, valueStart, valueEnd);
-                case "C": return new MapItemForeColorRangeBase(start, end, Brushes.Green);
-                case "D": return new MapItemForeColorRangeBase(start, end, Brushes.LightBlue);
+                case "G": return new MapForeColorRangeItemBase(start, end, Brushes.Gray);
+                case "S": return new MapValueRangeItemBase(value, start, end, valueStart, valueEnd);
+                case "C": return new MapForeColorRangeItemBase(start, end, Brushes.Green);
+                case "D": return new MapForeColorRangeItemBase(start, end, Brushes.LightBlue);
             }
             return null;
         }
 
-        IMapItemRange FindGroup(Match m, IEnumerable<string> names)
+        IMapRangeItem FindGroup(Match m, IEnumerable<string> names)
         {
             foreach (var gn in names)
             {
@@ -44,9 +44,9 @@ namespace regex
 
         static string[] GNames = new string[] { "G", "S", "C", "D" };
 
-        public ICollection<IMapItemRange> GetMap(string Text, string Ext, MapperOptions Options)
+        public ICollection<IMapRangeItem> GetMap(string Text, string Ext, MapperOptions Options)
         {
-            var res = new List<IMapItemRange>();
+            var res = new List<IMapRangeItem>();
             var regex = _expressionsBindings[Ext.ToUpper()];
             var regex_names = regex.GetGroupNames();
             var ms = regex.Matches(Text);
@@ -93,7 +93,7 @@ namespace regex
             throw new NotImplementedException();
         }
 
-        public IDictionary<IMapItemRange, int> GetCustomRanges(string Text, string Ext) => null;
+        public IDictionary<IMapRangeItem, int> GetCustomRanges(string Text, string Ext) => null;
 
         public RegexMapper()
         {

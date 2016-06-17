@@ -56,10 +56,10 @@ namespace pascal
             dpr
         }
 
-        public ICollection<IMapItemRange> Parse(string Text, PascalFileType pType, MapperOptions Options)
+        public ICollection<IMapRangeItem> Parse(string Text, PascalFileType pType, MapperOptions Options)
         {
             var mapMethods = Options.HasFlag(MapperOptions.MapMethods);
-            var res = new List<IMapItemRange>();
+            var res = new List<IMapRangeItem>();
             int Start = -1, End = -1, newWordStart = -1;
             bool uses = false;
             var value = string.Empty;
@@ -92,7 +92,7 @@ namespace pascal
                         {
                             var start = idx - 1;
                             while (++idx < Text.Length && !(Text[idx] == '\r' || Text[idx] == '\n')) ;
-                            res.Add(new MapItemForeColorRangeBase(start, idx + 1, CommentBrush));
+                            res.Add(new MapForeColorRangeItemBase(start, idx + 1, CommentBrush));
                         }
                         break;
 
@@ -100,7 +100,7 @@ namespace pascal
                         {
                             var start = idx;
                             while (++idx < Text.Length && Text[idx] != '}') ;
-                            res.Add(new MapItemForeColorRangeBase(start, idx + 1, (idx > start && Text[start + 1] == '$') ? DirectiveBrush : CommentBrush));
+                            res.Add(new MapForeColorRangeItemBase(start, idx + 1, (idx > start && Text[start + 1] == '$') ? DirectiveBrush : CommentBrush));
                         }
                         break;
 
@@ -110,7 +110,7 @@ namespace pascal
                             var start = idx - 1;
                             while (++idx < Text.Length && !(Text[idx] == ')' && Text[idx - 1] == '*'))
                                 ;
-                            res.Add(new MapItemForeColorRangeBase(start, idx + 1, CommentBrush));
+                            res.Add(new MapForeColorRangeItemBase(start, idx + 1, CommentBrush));
                         }
                         break;
 
@@ -172,9 +172,9 @@ namespace pascal
                                     res.Add(new DfmMapItem(value, Start, End));
                                 else if (uses)
                                     //если строка попала в область Uses то запишем её как пустой тип значения, тогда разметка в файле будет но не строковая
-                                    res.Add(new MapItemForeColorRangeBase(Start, End, Brushes.Red));
+                                    res.Add(new MapForeColorRangeItemBase(Start, End, Brushes.Red));
                                 else if (regexGUID.IsMatch(value))
-                                    res.Add(new MapItemForeColorRangeBase(Start, End, InterfaceBrush));
+                                    res.Add(new MapForeColorRangeItemBase(Start, End, InterfaceBrush));
                                 else
                                     res.Add(new PascalMapItem(value, Start, End));
                                 Start = -1;
@@ -218,7 +218,7 @@ namespace pascal
                                                 && !method.Key.Equals("and", StringComparison.InvariantCultureIgnoreCase)
                                                 && !method.Key.Equals("xor", StringComparison.InvariantCultureIgnoreCase)
                                               )
-                                                res.Add(new MapItemMethodBase(method.Key, method.Value, idx + 1));
+                                                res.Add(new MapMethodItemBase(method.Key, method.Value, idx + 1));
                                         }
                                         break;
                                     case ' ':
@@ -250,7 +250,7 @@ namespace pascal
             return res;
         }
 
-        public ICollection<IMapItemRange> GetMap(string Text, string Ext, MapperOptions Options)
+        public ICollection<IMapRangeItem> GetMap(string Text, string Ext, MapperOptions Options)
         {
             PascalFileType pType = PascalFileType.pas;
             if (".dpr".Equals(Ext, StringComparison.InvariantCultureIgnoreCase))

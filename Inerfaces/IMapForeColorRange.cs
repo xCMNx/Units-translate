@@ -2,7 +2,7 @@
 
 namespace Core
 {
-    public interface IMapForeColorRange : IMapItemRange
+    public interface IMapForeColorRange : IMapRangeItem
     {
         /// <summary>
         /// Цвет

@@ -162,7 +162,7 @@ namespace Units_translate
         bool RemoveFromNode(TreeListViewItem node, string name)
         {
             foreach (TreeListViewItem item in node.Items)
-                if (((DirectoryContainer)item.Header).FullPath.Equals(name, StringComparison.InvariantCultureIgnoreCase))
+                if (((PathBase)item.Header).FullPath.Equals(name, StringComparison.OrdinalIgnoreCase))
                 {
                     node.Items.Remove(item);
                     return true;
@@ -174,7 +174,13 @@ namespace Units_translate
         /// Проходит по дереву и удаляет узел с указанным путем
         /// </summary>
         /// <param name="name">Путь который надо выпилить</param>
-        void RemoveFromFiles(string name) => FilesTree.Remove(name);
+        void RemoveFromFiles(string name)
+        {
+            FilesTree.Remove(name);
+            foreach (var n in _Files)
+                if (RemoveFromNode(n, name))
+                    break;
+        }
 
         /// <summary>
         /// Добавляем файлы в каталоге и его подкаталогах
@@ -194,7 +200,7 @@ namespace Units_translate
             {
                 callback?.Invoke(null, files.Count());
                 int cnt = 0;
-                System.Diagnostics.Stopwatch w = new System.Diagnostics.Stopwatch();
+                //System.Diagnostics.Stopwatch w = new System.Diagnostics.Stopwatch();
                 //w.Start();
                 foreach (var f in files)
                 {
@@ -206,6 +212,7 @@ namespace Units_translate
             finally
             {
                 EditingEnabled = true;
+                GC.Collect();
             }
         }
 
@@ -265,6 +272,7 @@ namespace Units_translate
             finally
             {
                 EditingEnabled = true;
+                GC.Collect();
             }
         }
 

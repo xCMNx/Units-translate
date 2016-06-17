@@ -13,14 +13,14 @@ namespace Units_translate
 
     public class PathBaseComparer : Comparer<IPathBase>
     {
-        public override int Compare(IPathBase x, IPathBase y) => string.Compare(x.FullPath, y.FullPath, true);
+        public override int Compare(IPathBase x, IPathBase y) => string.Compare(x.FullPath, y.FullPath, StringComparison.OrdinalIgnoreCase);
 
         public static PathBaseComparer Comparer = new PathBaseComparer();
     }
 
     public class PathNameComparer : Comparer<IPathBase>
     {
-        public override int Compare(IPathBase x, IPathBase y) => string.Compare(x.Name, y.Name, true);
+        public override int Compare(IPathBase x, IPathBase y) => string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase);
 
         public static PathNameComparer Comparer = new PathNameComparer();
     }
@@ -37,9 +37,9 @@ namespace Units_translate
 
         public override string ToString() => FullPath;
 
-        public int CompareTo(IPathBase other) => string.Compare(FullPath, other.FullPath, true);
+        public int CompareTo(IPathBase other) => string.Compare(FullPath, other.FullPath, StringComparison.OrdinalIgnoreCase);
 
-        public bool Equals(IPathBase other) => FullPath.Equals(other.FullPath, StringComparison.InvariantCultureIgnoreCase);
+        public bool Equals(IPathBase other) => FullPath.Equals(other.FullPath, StringComparison.OrdinalIgnoreCase);
 
         public virtual void Dispose()
         {

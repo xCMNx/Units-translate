@@ -41,7 +41,7 @@ namespace Core
         /// <param name="Text">Текст для обработки</param>
         /// <param name="Ext">Расширение на случай если парсер умеет много типов и в процессе ему нужно уточнить, с чем он работает</param>
         /// <returns></returns>
-        ICollection<IMapItemRange> GetMap(string Text, string Ext, MapperOptions Options);
+        ICollection<IMapRangeItem> GetMap(string Text, string Ext, MapperOptions Options);
         /// <summary>
         /// Просим маппер исправить файл
         /// </summary>

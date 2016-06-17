@@ -1,6 +1,6 @@
 ﻿namespace Core
 {
-    public class MapItemRangeBase : IMapItemRange
+    public class MapRangeItemBase : IMapRangeItem
     {
         protected int _Start;
         protected int _End;
@@ -12,7 +12,7 @@
         /// Индекс конца области
         /// </summary>
         public int End => _End;
-        public MapItemRangeBase(int start, int end)
+        public MapRangeItemBase(int start, int end)
         {
             _Start = start;
             _End = end;

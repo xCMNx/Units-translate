@@ -49,9 +49,9 @@
     <Compile Include="PascalSolutionReader.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\Core.csproj">
-      <Project>{3a07d7f9-9401-4c63-9c02-aceea373b714}</Project>
-      <Name>Core</Name>
+    <ProjectReference Include="..\..\Base\Base.csproj">
+      <Project>{67cf7617-e0be-4126-8ec1-5854b8df79dc}</Project>
+      <Name>Base</Name>
       <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\Inerfaces\Inerfaces.csproj">

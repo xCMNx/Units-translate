@@ -13,7 +13,7 @@ namespace Units_translate.Views
         static TextDecorationCollection decorsUnderline = new TextDecorationCollection() { TextDecorations.Underline };
         public IMapData Data = null;
 
-        static Action<VisualLineElement> ValueTypeToAction(IMapItemRange item)
+        static Action<VisualLineElement> ValueTypeToAction(IMapRangeItem item)
         {
             if (item is IMapMethodItem)
                 return (VisualLineElement element) =>
@@ -59,7 +59,7 @@ namespace Units_translate.Views
                 return;
             int start = line.Offset;
             int end = line.EndOffset;
-            var items = Data.ItemsBetween<IMapItemRange>(start, end);
+            var items = Data.ItemsBetween<IMapRangeItem>(start, end);
             foreach (var item in items)
                 ChangeLinePart(Math.Max(start, item.Start), Math.Min(item.End, end), ValueTypeToAction(item));
         }

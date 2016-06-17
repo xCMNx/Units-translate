@@ -3,7 +3,7 @@
     /// <summary>
     /// Область разметки
     /// </summary>
-    public interface IMapValueItem : IMapItemBase
+    public interface IMapValueItem : IMapBaseItem
     {
         /// <summary>
         /// Индекс начала области редактирования. Используется для определения области замены текста, т.к. Start может захватывать символы не входящие в значение

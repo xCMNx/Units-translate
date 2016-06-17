@@ -1,6 +1,6 @@
 ﻿namespace Core
 {
-    public interface IMapMethodItem : IMapItemBase
+    public interface IMapMethodItem : IMapBaseItem
     {
     }
 }

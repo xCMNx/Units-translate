@@ -2,11 +2,11 @@
 
 namespace Core
 {
-    public class MapItemForeColorRangeBase : MapItemRangeBase, IMapForeColorRange
+    public class MapForeColorRangeItemBase : MapRangeItemBase, IMapForeColorRange
     {
         Brush _ForegroundColor;
         public Brush ForegroundColor => _ForegroundColor;
-        public MapItemForeColorRangeBase(int start, int end, Brush foregroundColor) : base (start, end)
+        public MapForeColorRangeItemBase(int start, int end, Brush foregroundColor) : base (start, end)
         {
             _ForegroundColor = foregroundColor;
         }

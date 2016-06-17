@@ -4,7 +4,7 @@ using Core;
 
 namespace pascal
 {
-    public class PascalMapItem : MapItemRangedValueBase
+    public class PascalMapItem : MapValueRangeItemBase
     {
         bool isCodeChar(char chr, bool controlOnly) => !controlOnly && ((int)chr > 255) || char.IsControl(chr);
 

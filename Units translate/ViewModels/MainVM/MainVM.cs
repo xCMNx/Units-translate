@@ -260,9 +260,9 @@ namespace Units_translate
         /// <summary>
         /// Подписчик получает запрос на отображение строки
         /// </summary>
-        public event Action<IMapItemRange> ShowValueQuery;
+        public event Action<IMapRangeItem> ShowValueQuery;
 
-        protected void OnShowValueQuery(IMapItemRange e)
+        protected void OnShowValueQuery(IMapRangeItem e)
         {
             if (ShowValueQuery != null)
                 ShowValueQuery(e);
@@ -272,7 +272,7 @@ namespace Units_translate
         /// Просит отобразить строку подписчиков
         /// </summary>
         /// <param name="value">Строка для отображения</param>
-        public void ShowValue(IMapItemRange value) => OnShowValueQuery(value);
+        public void ShowValue(IMapRangeItem value) => OnShowValueQuery(value);
         #endregion
 
         static char[] pathDelimiter = new[] { '\\' };

@@ -18,7 +18,7 @@ namespace Units_translate
         public bool Find(IEnumerable<string> pathParts, out PathBase last)
         {
             var fd = pathParts.First();
-            var drive = Drives.GetSorted(d => string.Compare(fd, d.Name, true));
+            var drive = Drives.GetSorted(d => string.Compare(fd, d.Name, StringComparison.OrdinalIgnoreCase));
             last = drive;
             return last != null && (pathParts.Count() == 1 || drive.Find(pathParts.Skip(1), ref last));
         }

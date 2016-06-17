@@ -1,6 +1,6 @@
 ﻿namespace Core
 {
-    public interface IMapItemBase : IMapItemRange
+    public interface IMapBaseItem : IMapRangeItem
     {
         /// <summary>
         /// Значение области

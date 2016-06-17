@@ -1,6 +1,6 @@
 ﻿namespace Core
 {
-    public interface IMapItemRange
+    public interface IMapRangeItem
     {
         /// <summary>
         /// Индекс начала области

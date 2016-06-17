@@ -23,6 +23,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "containers", "containers", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linguist", "containers\Linguist\Linguist.csproj", "{B0676932-B85A-4206-A606-070BD4A9C846}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Base", "Base\Base.csproj", "{67CF7617-E0BE-4126-8EC1-5854B8DF79DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,10 @@ Global
 		{B0676932-B85A-4206-A606-070BD4A9C846}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0676932-B85A-4206-A606-070BD4A9C846}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0676932-B85A-4206-A606-070BD4A9C846}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67CF7617-E0BE-4126-8EC1-5854B8DF79DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67CF7617-E0BE-4126-8EC1-5854B8DF79DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67CF7617-E0BE-4126-8EC1-5854B8DF79DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67CF7617-E0BE-4126-8EC1-5854B8DF79DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

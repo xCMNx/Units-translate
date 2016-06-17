@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 
 namespace Core
 {
@@ -7,7 +6,7 @@ namespace Core
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void NotifyPropertyChanged(String propertyName = "")
+        public void NotifyPropertyChanged(string propertyName = "")
         {
             if (PropertyChanged != null)
             {
@@ -15,7 +14,7 @@ namespace Core
             }
         }
 
-        public void NotifyPropertiesChanged(params String[] propertyNames)
+        public void NotifyPropertiesChanged(params string[] propertyNames)
         {
             if (PropertyChanged != null)
             {

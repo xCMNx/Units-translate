@@ -301,7 +301,7 @@ namespace Units_translate.Views
         private void BtnShow_Click(object sender, RoutedEventArgs e)
         {
             MainVM.Instance.Selected = Data as FileContainer;
-            MainVM.Instance.ShowValue(((Button)sender).DataContext as IMapItemRange);
+            MainVM.Instance.ShowValue(((Button)sender).DataContext as IMapRangeItem);
         }
 
         private void BtnApply_Click(object sender, RoutedEventArgs e)

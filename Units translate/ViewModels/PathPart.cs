@@ -41,14 +41,14 @@ namespace Units_translate
         public bool Find(IEnumerable<string> pathParts, ref PathBase last)
         {
             var fp = pathParts.First();
-            var path = Childs.GetSorted(p => string.Compare(fp, p.Name, true));
+            var path = Childs.GetSorted(p => string.Compare(fp, p.Name, StringComparison.OrdinalIgnoreCase));
             if (path == null)
                 return false;
             last = path;
             return pathParts.Count() == 1 || (path is PathPart && (path as PathPart).Find(pathParts.Skip(1), ref last));
         }
 
-        public FileContainer GetFile(string name) => Childs.GetSorted(p => string.Compare(name, p.Name, true)) as FileContainer;
+        public FileContainer GetFile(string name) => Childs.GetSorted(p => string.Compare(name, p.Name, StringComparison.OrdinalIgnoreCase)) as FileContainer;
 
         //public FileContainer AddFile(string filename) => GetFile(filename) ?? new FileContainer(this, filename);
 

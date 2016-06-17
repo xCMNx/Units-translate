@@ -7,9 +7,9 @@
     <ProjectGuid>{EFE43656-CED7-496B-87C0-E89AD7CF3DBB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Inerfaces</RootNamespace>
+    <RootNamespace>Core</RootNamespace>
     <AssemblyName>Inerfaces</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
@@ -43,13 +43,18 @@
     <Compile Include="IMapBackgroundColorRange.cs" />
     <Compile Include="IMapData.cs" />
     <Compile Include="IMapForeColorRange.cs" />
-    <Compile Include="IMapItemBase.cs" />
+    <Compile Include="IMapBaseItem.cs" />
     <Compile Include="IMapMethodItem.cs" />
+    <Compile Include="IMapOptimizableValueItem.cs" />
+    <Compile Include="IMapRecord.cs" />
+    <Compile Include="IMapRecordFull.cs" />
     <Compile Include="IMapValueItem.cs" />
-    <Compile Include="IMapItemValueRange.cs" />
+    <Compile Include="IMapValueRangeItem.cs" />
     <Compile Include="IMapper.cs" />
-    <Compile Include="IMapItemRange.cs" />
+    <Compile Include="IMapRangeItem.cs" />
+    <Compile Include="IMapValueRecord.cs" />
     <Compile Include="ISolutionReader.cs" />
+    <Compile Include="ISortedObservableCollection.cs" />
     <Compile Include="ITranslationContainer.cs" />
     <Compile Include="ITranslationItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

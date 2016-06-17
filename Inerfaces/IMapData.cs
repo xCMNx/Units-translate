@@ -20,7 +20,7 @@ namespace Core
         /// <summary>
         /// Размеченные области
         /// </summary>
-        ICollection<IMapItemRange> Items { get; }
+        ICollection<IMapRangeItem> Items { get; }
         /// <summary>
         /// Путь к папке файла
         /// </summary>
@@ -52,14 +52,14 @@ namespace Core
         /// <param name="start">Начало диапазона поиска</param>
         /// <param name="end">Конец диапазона поиска</param>
         /// <returns></returns>
-        ICollection<T> ItemsBetween<T>(int start, int end) where T : class, IMapItemRange;
+        ICollection<T> ItemsBetween<T>(int start, int end) where T : class, IMapRangeItem;
 
         /// <summary>
         /// Возвращает области разметки по указанному смещению
         /// </summary>
         /// <param name="index">Смещение в тексте</param>
         /// <returns>Найденные области</returns>
-        ICollection<T> ItemsAt<T>(int index) where T : class, IMapItemRange;
+        ICollection<T> ItemsAt<T>(int index) where T : class, IMapRangeItem;
 
         /// <summary>
         /// Возвращает область разметки являющуюся значением по указанному смещению
@@ -73,7 +73,7 @@ namespace Core
         /// </summary>
         /// <param name="obj">Искомый объект</param>
         /// <returns></returns>
-        ICollection<T> GetItemsWithValue<T>(object obj) where T : class, IMapItemBase;
+        ICollection<T> GetItemsWithValue<T>(object obj) where T : class, IMapBaseItem;
 
         /// <summary>
         /// Вернет количество разметок значения которых является переданный объект. Разметки сами должны сверять себя с объектами.

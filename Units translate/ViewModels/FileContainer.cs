@@ -30,8 +30,8 @@ namespace Units_translate
         public static bool MapMethods = false;
 
         #region IMapData
-        List<IMapItemRange> _Items;
-        public ICollection<IMapItemRange> Items => _Items;
+        List<IMapRangeItem> _Items;
+        public ICollection<IMapRangeItem> Items => _Items;
         public string FileName => System.IO.Path.GetFileNameWithoutExtension(Name);
         public string Ext => System.IO.Path.GetExtension(Name);
         public bool IsMapped  => _Items != null;
@@ -42,7 +42,7 @@ namespace Units_translate
         public static Encoding WriteEncoding = Encoding.GetEncoding(Helpers.ReadFromConfig(WRITE_ENCODING, Helpers.Default_Encoding));
         public static bool UseWriteEncoding = Helpers.ConfigRead(WRITE_ENCODING_ACTIVE, false);
 
-        public ICollection<IMapItemRange> ShowingItems => Items?.Where(it => it is IMapValueItem && (!LetterOnly || (it as IMapValueItem).Value.ContainsLetter())).ToArray();
+        public ICollection<IMapRangeItem> ShowingItems => Items?.Where(it => it is IMapValueItem && (!LetterOnly || (it as IMapValueItem).Value.ContainsLetter())).ToArray();
 
         /// <summary>
         /// Есть ли в файле строки с символами
@@ -90,7 +90,7 @@ namespace Units_translate
         /// <param name="start">Начало диапазона поиска</param>
         /// <param name="end">Конец диапазона поиска</param>
         /// <returns></returns>
-        public ICollection<T> ItemsBetween<T>(int start, int end) where T : class, IMapItemRange
+        public ICollection<T> ItemsBetween<T>(int start, int end) where T : class, IMapRangeItem
         {
             var res = new List<T>();
             foreach (var item in _Items)
@@ -156,7 +156,7 @@ namespace Units_translate
                     catch (Exception e)
                     {
                         Helpers.ConsoleWrite($"{path}\r\n{e.ToString()}", ConsoleColor.Red);
-                        _Items = new List<IMapItemRange>();
+                        _Items = new List<IMapRangeItem>();
                         if (ShowMappingErrors)
                             MessageBox.Show(string.Format("Произошла ошибка во время обработки файла:\r\n{0}\r\n\r\n{1}", path, e));
                     }
@@ -191,7 +191,7 @@ namespace Units_translate
         /// </summary>
         /// <param name="index">Смещение в тексте</param>
         /// <returns>Найденные области</returns>
-        public ICollection<T> ItemsAt<T>(int index) where T : class, IMapItemRange
+        public ICollection<T> ItemsAt<T>(int index) where T : class, IMapRangeItem
         {
             var res = new List<T>();
             foreach (var item in _Items)
@@ -209,7 +209,7 @@ namespace Units_translate
         /// </summary>
         /// <param name="obj">Искомый объект</param>
         /// <returns></returns>
-        public ICollection<T> GetItemsWithValue<T>(object obj) where T : class, IMapItemBase
+        public ICollection<T> GetItemsWithValue<T>(object obj) where T : class, IMapBaseItem
         {
             var lst = new List<T>();
             if (obj != null)
@@ -233,7 +233,7 @@ namespace Units_translate
             if (obj != null)
                 foreach (var itm in Items)
                 {
-                    var it = itm as IMapItemBase;
+                    var it = itm as IMapBaseItem;
                     if (it != null && it.IsSameValue(obj))
                         cnt++;
                 }

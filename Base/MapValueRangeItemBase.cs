@@ -1,6 +1,6 @@
 ﻿namespace Core
 {
-    public class MapItemRangedValueBase : MapItemValueBase, IMapItemValueRange
+    public class MapValueRangeItemBase : MapValueItemBase, IMapValueRangeItem
     {
         int _ValueStart;
         int _ValueEnd;
@@ -21,7 +21,7 @@
         /// </summary>
         public override int EditEnd => _ValueEnd;
 
-        public MapItemRangedValueBase(string value, int start, int end, int valueStart, int valueEnd): base (value, start, end)
+        public MapValueRangeItemBase(string value, int start, int end, int valueStart, int valueEnd): base (value, start, end)
         {
             _ValueStart = valueStart;
             _ValueEnd = valueEnd;

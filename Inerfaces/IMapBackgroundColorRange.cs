@@ -2,7 +2,7 @@
 
 namespace Core
 {
-    public interface IMapBackgroundColorRange : IMapItemRange
+    public interface IMapBackgroundColorRange : IMapRangeItem
     {
         /// <summary>
         /// Цвет заливки

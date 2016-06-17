@@ -66,7 +66,7 @@ namespace Units_translate.Views
             ContentTextEdit.Focus();
         }
 
-        private void Instance_ShowValueQuery(IMapItemRange obj)
+        private void Instance_ShowValueQuery(IMapRangeItem obj)
         {
             if (colorizer.Data != null && obj != null)
                 Goto(colorizer.Data.Items.FirstOrDefault(it => it == obj));
@@ -136,7 +136,7 @@ namespace Units_translate.Views
             }
         }
 
-        void Goto(IMapItemRange item)
+        void Goto(IMapRangeItem item)
         {
             if (item == null)
                 return;
@@ -151,7 +151,7 @@ namespace Units_translate.Views
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Goto(((ComboBox)sender).SelectedItem as IMapItemRange);
+            Goto(((ComboBox)sender).SelectedItem as IMapRangeItem);
         }
 
         private void btnUpdateFile_Click(object sender, RoutedEventArgs e)
