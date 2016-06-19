@@ -2,7 +2,7 @@
 
 namespace Core
 {
-    public interface IMapRecord : IComparable
+    public interface IMapRecord : IComparable, IEquatable<string>, IEquatable<IMapRecord>
     {
         string Value
         {

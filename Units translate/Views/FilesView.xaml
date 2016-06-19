@@ -32,13 +32,13 @@
             <UI:CheckBox Grid.Column="2" ToolTip="Только содержащие символы" Background="LightGray" IsChecked="{Binding LetterOnly}" Width="20" Height="20" Padding="6" GlyphData="{StaticResource Icons.Data.LettersFilter}"/>
             <TextBox  Grid.Column="3" Name="edFileSearch" Text="{Binding FileFilter, Mode=OneWayToSource, Delay=500, UpdateSourceTrigger=PropertyChanged}"/>
         </Grid>
-        <UI:TreeListView Name="tvFiles" Grid.Row="1" ItemsSource="{Binding Files}" SelectedItemChanged="SelectedItemChanged" MouseDoubleClick="TreeListView_MouseDoubleClick">
+        <UI:TreeListView Name="tvFiles" Grid.Row="1" ItemsSource="{Binding FilesTree}" SelectedItemChanged="SelectedItemChanged" MouseDoubleClick="TreeListView_MouseDoubleClick">
             <UI:TreeListView.Columns>
                 <GridViewColumn Header="Name" CellTemplate="{StaticResource TreeMainColumnTemplate}" Width="150"/>
                 <GridViewColumn Header="Ext" DisplayMemberBinding="{Binding Ext}" Width="35"/>
                 <GridViewColumn Header="Строк" DisplayMemberBinding="{Binding StringsCount}" Width="35"/>
                 <GridViewColumn Header="Строк с кирилицей" DisplayMemberBinding="{Binding CyrilicCount}" Width="35"/>
-                <GridViewColumn Header="Path" DisplayMemberBinding="{Binding FullPath}" Width="200"/>
+                <GridViewColumn Header="Path" DisplayMemberBinding="{Binding Path}" Width="200"/>
             </UI:TreeListView.Columns>
         </UI:TreeListView>
     </Grid>

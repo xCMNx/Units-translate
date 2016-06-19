@@ -78,11 +78,7 @@ namespace Units_translate
                         pb.Value = c;
                 }, null)
             );
-            bw.RunWorkerCompleted += (sndr, ev) =>
-            {
-                pbGrp.Visibility = Visibility.Hidden;
-                mainVm.ShowTree();
-            };
+            bw.RunWorkerCompleted += (sndr, ev) => pbGrp.Visibility = Visibility.Hidden;
             bw.RunWorkerAsync(lastPath.Text);
         }
 

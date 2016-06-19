@@ -71,24 +71,26 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\EntryColorConverter.cs" />
+    <Compile Include="Model\IPathBase.cs" />
+    <Compile Include="Model\IUpdatLockable.cs" />
     <Compile Include="Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\IPathNode.cs" />
-    <Compile Include="ViewModels\DriveContainer.cs" />
-    <Compile Include="ViewModels\FilesList.cs" />
+    <Compile Include="Model\IPathNode.cs" />
+    <Compile Include="Model\DriveContainer.cs" />
+    <Compile Include="Model\FilesList.cs" />
     <Compile Include="ViewModels\MainVM\Files.cs" />
     <Compile Include="ViewModels\MainVM\Monitoring.cs" />
     <Compile Include="ViewModels\MainVM\Search.cs" />
     <Compile Include="ViewModels\MainVM\Translates.cs" />
-    <Compile Include="ViewModels\PathBase.cs" />
-    <Compile Include="ViewModels\PathPart.cs" />
+    <Compile Include="Model\PathBase.cs" />
+    <Compile Include="Model\PathPart.cs" />
     <Compile Include="Views\TranslatesView.xaml.cs">
       <DependentUpon>TranslatesView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\FileContainer.cs" />
+    <Compile Include="Model\FileContainer.cs" />
     <Compile Include="ViewModels\MainVM\MainVM.cs" />
-    <Compile Include="ViewModels\DirectoryContainer.cs" />
+    <Compile Include="Model\DirectoryContainer.cs" />
     <Compile Include="Views\CodePreviewBuilder.cs" />
     <Compile Include="Views\CodeView.xaml.cs">
       <DependentUpon>CodeView.xaml</DependentUpon>

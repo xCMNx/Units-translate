@@ -14,13 +14,13 @@
             <Expander VerticalContentAlignment="Bottom" IsExpanded="True">
                 <Expander.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding FileName}" ToolTip="{Binding FullPath}"/>
+                        <TextBlock Text="{Binding Name}" ToolTip="{Binding FullPath}"/>
                         <TextBlock Text="{Binding Ext}" Foreground="LightGray" ToolTip="{Binding FullPath}"/>
                         <TextBlock Text="{Binding Count, ElementName=view}" Foreground="Green" Margin="5,0,0,0"/>
-                        <Button ToolTip="Показать в проводнике" Background="Transparent" BorderBrush="{x:Null}" Name="btnShowInExplorer" Width="16" Height="16" Margin="2" Command="{Binding ShowInExplorer}" CommandParameter="{Binding FullPath}">
+                        <Button ToolTip="Показать в проводнике" Background="Transparent" BorderBrush="{x:Null}" Name="btnShowInExplorer" Width="16" Height="16" Margin="2" Command="{Binding ShowInExplorer}" CommandParameter="{Binding}">
                             <Path Stretch="Uniform" Fill="Black" Data="{StaticResource Icons.Data.ShowInExplorer}"/>
                         </Button>
-                        <Button ToolTip="Открыть" Background="Transparent" BorderBrush="{x:Null}" Name="btnOpenFile" Width="16" Height="16" Command="{Binding OpenFile}" CommandParameter="{Binding FullPath}">
+                        <Button ToolTip="Открыть" Background="Transparent" BorderBrush="{x:Null}" Name="btnOpenFile" Width="16" Height="16" Command="{Binding OpenFile}" CommandParameter="{Binding}">
                             <Path Stretch="Uniform" Fill="Black" Data="{StaticResource Icons.Data.OpenFile}"/>
                         </Button>
                     </StackPanel>

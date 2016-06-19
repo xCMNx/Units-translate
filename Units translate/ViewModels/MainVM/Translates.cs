@@ -115,7 +115,7 @@ namespace Units_translate
         ICommand _TranslatesSortCommand;
         public ICommand TranslatesSortCommand => _TranslatesSortCommand;
 
-        SortedList<IMapRecordFull, SortedItems<string>> _TranslationConflicts = new SortedList<IMapRecordFull, SortedItems<string>>(MapRecordComparer<IMapRecordFull>.Comparer);
+        SortedList<IMapRecordFull, SortedItems<string>> _TranslationConflicts = new SortedList<IMapRecordFull, SortedItems<string>>();
         public SortedList<IMapRecordFull, SortedItems<string>> TranslationConflicts => _TranslationConflicts;
 
         KeyValuePair<IMapRecordFull, SortedItems<string>> _SelectedConflict;

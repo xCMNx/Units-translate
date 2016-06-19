@@ -23,14 +23,13 @@ namespace Core
         /// <param name="param">Параметры поиска</param>
         /// <param name="linkedOnly">Только связанные с разметкой</param>
         /// <returns>Список совпадающих записей словаря</returns>
-        public static ICollection<IMapRecord> Exec(string expr, SearchParams param, bool linkedOnly, CancellationToken ct)
+        public static ICollection<T> Exec<T>(string expr, SearchParams param, bool linkedOnly) where T : IMapRecord
         {
             if (string.IsNullOrWhiteSpace(expr))
                 return null;
-            var res = new List<IMapRecord>();
             try
             {
-                var rgxp = new Regex(expr, CaseInsensitiveSearch ? RegexOptions.IgnoreCase : RegexOptions.None);
+                var rgxp = new Regex(expr, CaseInsensitiveSearch ? RegexOptions.IgnoreCase : RegexOptions.None, new TimeSpan(0,0,1));
                 Func<IMapValueRecord, bool> cmpr = null;
                 if (param.HasFlag(SearchParams.Eng))
                     if (param.HasFlag(SearchParams.Trans))
@@ -41,17 +40,16 @@ namespace Core
                     cmpr = it => rgxp.IsMatch(it.Translation);
                 else
                     cmpr = it => rgxp.IsMatch(it.Value) || rgxp.IsMatch(it.Translation);
-                foreach (IMapValueRecord it in MappedData._ValuesDictionary)
-                    if (ct.IsCancellationRequested)
-                        return res;
-                    else if ((!linkedOnly || it.Data.Count > 0) && cmpr(it))
-                        res.Add(it);
+                var lst = MappedData._ValuesDictionary.OfType<IMapValueRecord>();
+                if (linkedOnly)
+                    lst = lst.Where(it => it.Data.Count > 0);
+                return lst.Where(cmpr).OfType<T>().ToArray();
             }
             catch (Exception e)
             {
                 Helpers.ConsoleWrite(e.ToString(), ConsoleColor.Green);
             }
-            return res;
+            return null;
         }
 
         /// <summary>
@@ -60,7 +58,7 @@ namespace Core
         /// <param name="methodsFilter">Словарь методов где значение метода указывает, строка должна попадать или не попадать в область метода.</param>
         /// <param name="lst">Фильтруемый список значений.</param>
         /// <returns>Список значений прошедших фильтрацию.</returns>
-        public static ICollection<IMapRecord> MethodsFilter(IDictionary<IMapRecord, bool> methodsFilter, ICollection<IMapRecord> lst, CancellationToken ct)
+        public static ICollection<IMapRecordFull> MethodsFilter(IDictionary<IMapRecordFull, bool> methodsFilter, ICollection<IMapRecordFull> lst, CancellationToken ct)
         {
             if (methodsFilter == null || methodsFilter.Count() == 0 || lst == null)
                 return lst;
@@ -74,7 +72,7 @@ namespace Core
                     mData = mData == null ? tmp : mData.Intersect(tmp).ToArray();
                 }
 
-            var res = new List<IMapRecord>();
+            var res = new List<IMapRecordFull>();
             //осуществляем перебор всех значений
             foreach (IMapRecordFull r in lst)
             {
@@ -130,11 +128,11 @@ namespace Core
         /// <para>?:[expr]    - вырожению должны соответствовать или строка или перевод</para>
         /// </param>
         /// <returns>Список совпадающих записей словаря</returns>
-        public static ICollection<IMapRecord> Exec(string expr, CancellationToken ct)
+        public static ICollection<IMapRecordFull> Exec(string expr, CancellationToken ct)
         {
             var lexpr = expr;
 
-            var methodsFilter = new Dictionary<IMapRecord, bool>();
+            var methodsFilter = new Dictionary<IMapRecordFull, bool>();
             if (lexpr.StartsWith("#"))
             {
                 var i = lexpr.IndexOf(':');
@@ -171,10 +169,10 @@ namespace Core
                 if (prm.Contains('t'))
                     param |= SearchParams.Trans;
 
-                return MethodsFilter(methodsFilter, Exec(lexpr.Substring(i + 1), param, !prm.Contains('a'), ct), ct);
+                return MethodsFilter(methodsFilter, Exec<IMapRecordFull>(lexpr.Substring(i + 1), param, !prm.Contains('a')), ct);
             }
 
-            return MethodsFilter(methodsFilter, Exec(lexpr, SearchParams.EngOrTrans, true, ct), ct);
+            return MethodsFilter(methodsFilter, Exec<IMapRecordFull>(lexpr, SearchParams.EngOrTrans, true), ct);
         }
     }
 }

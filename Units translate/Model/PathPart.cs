@@ -9,9 +9,11 @@ namespace Units_translate
 {
     public class PathPart : PathBase, ICollection<PathBase>, IList<PathBase>, IReadOnlyList<PathBase>, IReadOnlyCollection<PathBase>, INotifyCollectionChanged
     {
-        public override int StringsCount => Childs.Sum(c => c.StringsCount);
-        public override int CyrilicCount => Childs.Sum(c => c.CyrilicCount);
+        public override int StringsCount => Childs.Sum(c => c.IsVisible ? c.StringsCount : 0);
+        public override int CyrilicCount => Childs.Sum(c => c.IsVisible ? c.CyrilicCount : 0);
         protected SortedObservableCollection<PathBase> Childs = new SortedObservableCollection<PathBase>() { Comparer = PathNameComparer.Comparer };
+        public override bool IsVisible => Childs.Any(c => c.IsVisible);
+
 
         public PathBase this[int index] => Childs[index];
 
@@ -28,13 +30,91 @@ namespace Units_translate
 
         public IEnumerable<FileContainer> Files => Childs.SelectMany(p => p is FileContainer ? new IPathBase[] { p } : (p as PathPart).Files.OfType<IPathBase>()).OfType<FileContainer>();
 
-        private void Child_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e) => NotifyPropertyChanged(e.PropertyName);
+        private void Child_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (!IsUpdating)
+            {
+                NotifyPropertyChanged(e.PropertyName);
+                if (e.PropertyName == nameof(IsVisible))
+                    NotifyPropertiesChanged(nameof(StringsCount), nameof(CyrilicCount));
+            }
+        }
 
         public bool Remove(PathBase child)
         {
             Childs.Remove(child);
             child.PropertyChanged -= Child_PropertyChanged;
             return true;
+        }
+
+        HashSet<PathBase> AddBuff;
+        HashSet<PathBase> DelBuff;
+
+        private void Childs_CollectionChangingBuff(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    AddBuff.UnionWith(e.NewItems.OfType<PathBase>());
+                    DelBuff.ExceptWith(e.NewItems.OfType<PathBase>());
+                    return;
+                case NotifyCollectionChangedAction.Remove:
+                    DelBuff.UnionWith(e.NewItems.OfType<PathBase>());
+                    AddBuff.ExceptWith(e.NewItems.OfType<PathBase>());
+                    return;
+                case NotifyCollectionChangedAction.Reset:
+                    DelBuff = null;
+                    AddBuff = null;
+                    Childs.CollectionChanged -= Childs_CollectionChangingBuff;
+                    return;
+            }
+        }
+
+        protected override void UpdateStarted()
+        {
+            Childs.CollectionChanged -= Childs_CollectionChanged;
+            if (CollectionChanged != null)
+            {
+                AddBuff = new HashSet<PathBase>();
+                DelBuff = new HashSet<PathBase>();
+                Childs.CollectionChanged += Childs_CollectionChangingBuff;
+            }
+            foreach (var c in Childs)
+            {
+                c.PropertyChanged -= Child_PropertyChanged;
+                c.BeginUpdate();
+            }
+            base.UpdateStarted();
+        }
+
+        protected override void UpdateEnded()
+        {
+            Childs.CollectionChanged += Childs_CollectionChanged;
+            Childs.CollectionChanged -= Childs_CollectionChangingBuff;
+
+            if (CollectionChanged != null)
+                Helpers.mainCTX.Send(_ =>
+                {
+                    if (AddBuff == null)
+                        CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+                    else
+                    {
+                        if (AddBuff.Count > 0)
+                            CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, AddBuff.ToList() as IList));
+                        if (DelBuff.Count > 0)
+                            CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, DelBuff.ToList() as IList));
+                    }
+                    AddBuff = null;
+                    DelBuff = null;
+                }, null);
+
+            foreach (var c in Childs)
+            {
+                c.EndUpdate();
+                c.PropertyChanged += Child_PropertyChanged;
+            }
+
+            Helpers.mainCTX.Post(_ => NotifyPropertyChanged(), null);
         }
 
         public bool Find(string path, ref PathBase last) => Find(path.PathParts(), ref last);
@@ -49,8 +129,6 @@ namespace Units_translate
         }
 
         public FileContainer GetFile(string name) => Childs.GetSorted(p => string.Compare(name, p.Name, StringComparison.OrdinalIgnoreCase)) as FileContainer;
-
-        //public FileContainer AddFile(string filename) => GetFile(filename) ?? new FileContainer(this, filename);
 
         public override void Dispose()
         {
@@ -121,7 +199,6 @@ namespace Units_translate
         public PathPart(string name) : base(name)
         {
             Childs.CollectionChanged += Childs_CollectionChanged;
-            //Representer.ItemsSource = this;
         }
     }
 }

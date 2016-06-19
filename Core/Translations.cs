@@ -9,7 +9,7 @@ namespace Core
 {
     public static class Translations
     {
-        internal static SortedObservableCollection<IMapRecord> _TranslatesDictionary = new SortedObservableCollection<IMapRecord>() { Comparer = MapRecordComparer<IMapRecord>.Comparer };
+        internal static SortedObservableCollection<IMapRecord> _TranslatesDictionary = new SortedObservableCollection<IMapRecord>();
         /// <summary>
         /// Словарь переводов
         /// </summary>
@@ -66,7 +66,7 @@ namespace Core
             var container = Activator.CreateInstance(containerType) as ITranslationContainer;
             var data = container.Load(path, encoding).OrderBy(itm => itm.Value).ToArray();
 
-            var lst = new SortedItems<IMapRecordFull>() { Comparer = MapRecordComparer<IMapRecordFull>.Comparer };
+            var lst = new SortedItems<IMapRecordFull>();
 
             int repeatCnt = 0;
             int conflictsCnt = 0;

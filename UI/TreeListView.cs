@@ -54,7 +54,6 @@ namespace Ui
             }
         }
 
-
         protected override DependencyObject GetContainerForItemOverride()
         {
             return new TreeListViewItem();

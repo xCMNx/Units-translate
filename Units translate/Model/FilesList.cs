@@ -7,7 +7,7 @@ using Core;
 
 namespace Units_translate
 {
-    public class FilesList : BindableBase, ICollection<DriveContainer>, IList<DriveContainer>, IReadOnlyList<DriveContainer>, IReadOnlyCollection<DriveContainer>, INotifyCollectionChanged
+    public class FilesList : BindableBase, IUpdateLockable, IReadOnlyList<DriveContainer>, IReadOnlyCollection<DriveContainer>, INotifyCollectionChanged
     {
         SortedObservableCollection<DriveContainer> Drives = new SortedObservableCollection<DriveContainer>() { Comparer = PathNameComparer.Comparer };
 
@@ -67,11 +67,11 @@ namespace Units_translate
                 p.Dispose();
         }
 
-        public void UpdateData(string path, bool safe, bool ifChanged)
+        public void UpdateData(string path, bool ifChanged)
         {
             PathBase p;
             if (Find(path, out p))
-                MappedData.UpdateData(p as FileContainer, safe, ifChanged);
+                MappedData.UpdateData(p as FileContainer, ifChanged);
         }
 
         public void Clear()
@@ -85,22 +85,11 @@ namespace Units_translate
         public int Count => Drives.Count;
         public bool IsReadOnly => true;
 
-        public void Add(DriveContainer item)
-        {
-            throw new NotImplementedException();
-        }
-
         public bool Contains(DriveContainer item) => Drives.Contains(item);
 
         public void CopyTo(DriveContainer[] array, int arrayIndex)
         {
             throw new NotImplementedException();
-        }
-
-        public bool Remove(DriveContainer item)
-        {
-            item.Dispose();
-            return true;
         }
 
         public IEnumerator<DriveContainer> GetEnumerator() => Drives.GetEnumerator();
@@ -115,31 +104,80 @@ namespace Units_translate
         private void Drives_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) => OnCollectionChanged(e);
         #endregion
 
-        #region IList
-        public int IndexOf(DriveContainer item) => Drives.IndexOf(item);
-        public void Insert(int index, DriveContainer item)
+        protected int UpdatesCounter = 0;
+        public bool IsUpdating => UpdatesCounter > 0;
+        public virtual void BeginUpdate()
         {
-            throw new NotImplementedException();
+            if (++UpdatesCounter == 1)
+                UpdateStarted();
         }
 
-        public void RemoveAt(int index)
+        public virtual void EndUpdate()
         {
-            throw new NotImplementedException();
+            if (UpdatesCounter > 0 && --UpdatesCounter == 0)
+                UpdateEnded();
         }
 
-        DriveContainer IList<DriveContainer>.this[int index]
+        HashSet<DriveContainer> AddBuff;
+        HashSet<DriveContainer> DelBuff;
+
+        private void Drives_CollectionChangingBuff(object sender, NotifyCollectionChangedEventArgs e)
         {
-            get
+            switch (e.Action)
             {
-                return Drives[index];
-            }
-
-            set
-            {
-                throw new NotImplementedException();
+                case NotifyCollectionChangedAction.Add:
+                    AddBuff.UnionWith(e.NewItems.OfType<DriveContainer>());
+                    DelBuff.ExceptWith(e.NewItems.OfType<DriveContainer>());
+                    return;
+                case NotifyCollectionChangedAction.Remove:
+                    DelBuff.UnionWith(e.NewItems.OfType<DriveContainer>());
+                    AddBuff.ExceptWith(e.NewItems.OfType<DriveContainer>());
+                    return;
+                case NotifyCollectionChangedAction.Reset:
+                    DelBuff = null;
+                    AddBuff = null;
+                    Drives.CollectionChanged -= Drives_CollectionChangingBuff;
+                    return;
             }
         }
-        #endregion
+
+        protected virtual void UpdateStarted()
+        {
+            Drives.CollectionChanged -= Drives_CollectionChanged;
+            foreach (var d in Drives)
+                d.BeginUpdate();
+            if (CollectionChanged != null)
+            {
+                AddBuff = new HashSet<DriveContainer>();
+                DelBuff = new HashSet<DriveContainer>();
+                Drives.CollectionChanged += Drives_CollectionChangingBuff;
+            }
+        }
+
+        protected virtual void UpdateEnded()
+        {
+            Drives.CollectionChanged += Drives_CollectionChanged;
+            Helpers.mainCTX.Send(_ =>
+            {
+                NotifyPropertyChanged();
+                if (CollectionChanged != null)
+                {
+                    if (AddBuff == null)
+                        CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+                    else
+                    {
+                        if (AddBuff.Count > 0)
+                            CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, AddBuff.ToList() as IList));
+                        if (DelBuff.Count > 0)
+                            CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, DelBuff.ToList() as IList));
+                    }
+                    AddBuff = null;
+                    DelBuff = null;
+                }
+            }, null);
+            foreach (var d in Drives)
+                d.EndUpdate();
+        }
 
         public FilesList()
         {

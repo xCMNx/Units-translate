@@ -33,8 +33,7 @@ namespace Core
         {
             value = val;
             translation = trans;
-            data = new SortedObservableCollection<IMapData>()
-            {Comparer = MapDataComparer<IMapData>.Comparer};
+            data = new SortedObservableCollection<IMapData>();
             data.CollectionChanged += Data_CollectionChanged;
         }
 
@@ -56,15 +55,12 @@ namespace Core
         {
         }
 
-        public int CompareTo(object obj)
-        {
-            var rec = obj as IMapRecord;
-            return rec == null ? -1 : string.Compare(Value, rec.Value, StringComparison.Ordinal);
-        }
+        public override string ToString() => Value;
 
-        public override string ToString()
-        {
-            return Value;
-        }
+        public int CompareTo(string obj) => string.Compare(Value, obj, StringComparison.Ordinal);
+        public int CompareTo(IMapValueRecord obj) => CompareTo(obj.Value);
+        public int CompareTo(object obj) => obj is string ? CompareTo((string)obj) : CompareTo((obj as IMapValueRecord)?.Value);
+        public bool Equals(string other) => CompareTo(other) == 0;
+        public bool Equals(IMapRecord other) => CompareTo(other.Value) == 0;
     }
 }

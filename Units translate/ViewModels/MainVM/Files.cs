@@ -13,174 +13,45 @@ namespace Units_translate
     {
         public FilesList FilesTree { get; } = new FilesList();
         ObservableCollectionEx<TreeListViewItem> _Files = new ObservableCollectionEx<TreeListViewItem>();
-        /// <summary>
-        /// массив с корнями узлов списка файлов
-        /// </summary>
-        public ObservableCollectionEx<TreeListViewItem> Files => _Files;
-
-        /// <summary>
-        /// Строит дерево файлов на основе переданного списка размеченых данных
-        /// </summary>
-        /// <param name="data">Массив размеченых данных</param>
-        void BuildTree(IEnumerable<IMapData> data)
-        {
-            _Files.Clear();
-            if (data.Count() == 0)
-                return;
-            var lst = data.OrderBy(it => it.Path).ToArray();
-
-            List<TreeListViewItem> res = new List<TreeListViewItem>();
-            try
-            {
-                //текущий узел в дереве
-                PathBase currentNode = (lst.First() as FileContainer).Parent;
-                res.Add(new TreeListViewItem() { Header = currentNode });
-                //стэк узлов до корня дерева
-                Stack<TreeListViewItem> st = new Stack<TreeListViewItem>();
-                st.Push(res[0]);
-
-                //лямбда для формирования нового узла
-                //дополняет недостающие узлы пути
-                Action<IMapData> add = (md) =>
-                {
-                    var p = md.Path.Split(pathDelimiter, StringSplitOptions.RemoveEmptyEntries);
-                    var fp = currentNode.FullPath;
-                    for (int i = fp.Split(pathDelimiter, StringSplitOptions.RemoveEmptyEntries).Length; i < p.Length; i++)
-                    {
-                        fp = Path.Combine(fp, p[i]);
-                        FilesTree.Find(fp, out currentNode);
-                        var tmp = new TreeListViewItem() { Header = currentNode };
-                        st.Peek().Items.Add(tmp);
-                        st.Push(tmp);
-                    }
-                };
-
-                foreach (var it in lst)
-                {
-                    var path = it.Path.ToUpper();
-                    if (!currentNode.Path.Equals(path, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        if (path.Contains(currentNode.Path.ToUpper()))
-                            //путь совпадает с текущим, но нужно добавить узлы
-                            add(it);
-                        else
-                        {
-                            //путь либо короче, либо нужен новый рут
-                            TreeListViewItem tmp = null;
-                            //пройдемся по стеку, в поисках совпадающего пути
-                            while (st.Count > 0)
-                            {
-                                currentNode = (PathBase)st.Peek().Header;
-                                if (path.Equals(currentNode.Path, StringComparison.InvariantCultureIgnoreCase))
-                                {
-                                    //найден подходящий узел
-                                    tmp = st.Pop();
-                                    break;
-                                }
-                                else if (path.StartsWith(currentNode.Path.ToUpper()))
-                                {
-                                    //часть пути совпала, но нужно добавить узлы в путь
-                                    add(it);
-                                    tmp = st.Pop();
-                                    break;
-                                }
-                                st.Pop();
-                            }
-                            if (tmp == null)
-                            {
-                                //стэк пуст, значит нужен новый рут
-                                FilesTree.Find(it.Path, out currentNode);
-                                tmp = new TreeListViewItem() { Header = currentNode };
-                                res.Add(tmp);
-                            }
-                            st.Push(tmp);
-                        }
-                    }
-                    st.Peek().Items.Add(new TreeListViewItem() { Header = it });
-                }
-            }
-            finally
-            {
-                _Files.Reset(res);
-            }
-        }
 
         #region FilesFilter
 
+        string ActiveFilter = null;
         public string FileFilter
         {
             set
             {
-                FilterFiles(value);
+                ActiveFilter = value;
+                FilterFiles();
             }
         }
 
-        public void FilterFiles(string filter)
+        public void FilterFiles()
         {
-            BuildTree(ExecFilterFiles(filter));
-        }
-
-        ICollection<IMapData> ExecFilterFiles(string filter = null)
-        {
-            ICollection<IMapData> data = MappedData.Data.Cast<IMapData>().ToArray();
-            if (_MappedOnly)
-                data = data.Where(it => it.IsMapped).ToArray();
-            if (_CyrilicOnly)
-                data = data.Where(it => (it as FileContainer).CyrilicCount > 0).ToArray();
-            if (LetterOnly)
-                data = data.Where(it => (it as FileContainer).ContainsLiteral()).ToArray();
-            if (!string.IsNullOrWhiteSpace(filter))
+            FilesTree.BeginUpdate();
+            try
             {
+                ICollection<FileContainer> data = MappedData.Data.OfType<FileContainer>().ToArray();
                 try
                 {
-                    var expr = new Regex(filter);
-                    data = data.Where(it => expr.IsMatch(it.FullPath)).ToArray();
+                    var expr = string.IsNullOrWhiteSpace(ActiveFilter) ? null : new Regex(ActiveFilter, RegexOptions.None, new TimeSpan(0, 0, 1));
+                    foreach (var f in data)
+                        f.Visible = (!_MappedOnly || f.IsMapped)
+                            && (!_CyrilicOnly || f.CyrilicCount > 0)
+                            && (!LetterOnly || f.ContainsLiteral())
+                            && (expr == null || expr.IsMatch(f.Name));
                 }
                 catch (Exception e)
                 {
                     Helpers.ConsoleWrite(e.ToString(), ConsoleColor.Blue);
                 }
             }
-            return data;
+            finally
+            {
+                FilesTree.EndUpdate();
+            }
         }
         #endregion
-
-        /// <summary>
-        /// Формирует новое дерево в зависимости от расставленых флагов отображения
-        /// </summary>
-        public void ShowTree()
-        {
-            BuildTree(ExecFilterFiles());
-        }
-
-        /// <summary>
-        /// Проходит по узлу и ищет совпадение пути в подузлах
-        /// </summary>
-        /// <param name="node">Узел в котором происходит поиск</param>
-        /// <param name="name">Путь</param>
-        /// <returns>Eсли путь совпал выпилит подузел и вернет true</returns>
-        bool RemoveFromNode(TreeListViewItem node, string name)
-        {
-            foreach (TreeListViewItem item in node.Items)
-                if (((PathBase)item.Header).FullPath.Equals(name, StringComparison.OrdinalIgnoreCase))
-                {
-                    node.Items.Remove(item);
-                    return true;
-                }
-            return false;
-        }
-
-        /// <summary>
-        /// Проходит по дереву и удаляет узел с указанным путем
-        /// </summary>
-        /// <param name="name">Путь который надо выпилить</param>
-        void RemoveFromFiles(string name)
-        {
-            FilesTree.Remove(name);
-            foreach (var n in _Files)
-                if (RemoveFromNode(n, name))
-                    break;
-        }
 
         /// <summary>
         /// Добавляем файлы в каталоге и его подкаталогах
@@ -196,9 +67,10 @@ namespace Units_translate
         void AddFiles(ICollection<string> files, Action<string, int> callback = null)
         {
             EditingEnabled = false;
+            FilesTree.BeginUpdate();
             try
             {
-                callback?.Invoke(null, files.Count());
+                callback?.Invoke(null, files.Count);
                 int cnt = 0;
                 //System.Diagnostics.Stopwatch w = new System.Diagnostics.Stopwatch();
                 //w.Start();
@@ -211,7 +83,9 @@ namespace Units_translate
             }
             finally
             {
+                FilesTree.EndUpdate();
                 EditingEnabled = true;
+                FilterFiles();
                 GC.Collect();
             }
         }
@@ -221,9 +95,9 @@ namespace Units_translate
             var files = reader.GetFiles(file);
             if (files != null)
             {
-                if (MappedData.Data.Count > 0 && MessageBox.Show("Удалить уже добавленные файлы?", "Добавлеие решения", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                if (MappedData.Data.Count() > 0 && MessageBox.Show("Удалить уже добавленные файлы?", "Добавлеие решения", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
-                    Helpers.mainCTX.Send(_ => MappedData.Data.Clear(), null);
+                    Helpers.mainCTX.Send(_ => MappedData.Clear(), null);
                     foreach (var w in watchers)
                         w.Value.EnableRaisingEvents = false;
                     watchers.Clear();
@@ -261,17 +135,18 @@ namespace Units_translate
             EditingEnabled = false;
             try
             {
-                if (callback != null) callback(null, MappedData.Data.Count);
+                if (callback != null) callback(null, MappedData.Data.Count());
                 int cnt = 0;
                 foreach (var data in MappedData.Data)
                 {
-                    MappedData.UpdateData((IMapData)data, false, true);
-                    if (callback != null) callback(data.FullPath, ++cnt);
+                    MappedData.UpdateData(data, true);
+                    if (callback != null) callback((data as FileContainer)?.FullPath, ++cnt);
                 }
             }
             finally
             {
                 EditingEnabled = true;
+                FilterFiles();
                 GC.Collect();
             }
         }

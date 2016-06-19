@@ -6,8 +6,7 @@ namespace Units_translate
     {
         public PathPart Parent { get; protected set; }
 
-        public override string Path => System.IO.Path.Combine(Parent.Path, Name);
-        public override string FullPath => Path;
+        public override string Path => Parent.FullPath;
         public override string[] FullPathParts => Parent.FullPathParts.Concat(new string[] { Name }).ToArray();
 
         public override void Dispose()

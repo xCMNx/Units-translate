@@ -59,7 +59,7 @@ namespace Units_translate
             {
                 _MappedOnly = value;
                 Helpers.ConfigWrite(ONLY_MAPPED, _MappedOnly);
-                ShowTree();
+                FilterFiles();
                 NotifyPropertyChanged(nameof(MappedOnly));
             }
         }
@@ -76,7 +76,7 @@ namespace Units_translate
             {
                 _CyrilicOnly = value;
                 Helpers.ConfigWrite(ONLY_CYRILIC, _CyrilicOnly);
-                ShowTree();
+                FilterFiles();
                 NotifyPropertyChanged(nameof(CyrilicOnly));
             }
         }
@@ -93,7 +93,7 @@ namespace Units_translate
             set
             {
                 FileContainer.LetterOnly = value;
-                ShowTree();
+                FilterFiles();
                 Helpers.ConfigWrite(ONLY_LETTERS, FileContainer.LetterOnly);
                 NotifyPropertyChanged(nameof(LetterOnly));
             }

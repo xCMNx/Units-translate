@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using Core;
+using Ui;
 
 namespace Units_translate
 {
@@ -14,11 +15,30 @@ namespace Units_translate
     {
         public PathPart Parent { get; protected set; }
 
-        public override string Path => Parent.Path;
-        public override string FullPath => System.IO.Path.Combine(Path, Name);
-        public override int StringsCount => Items == null ? 0 : Items.Where(it => it is IMapValueItem).Count();
-        public override int CyrilicCount => Items == null ? 0 : Items.Where(it => it is IMapValueItem && cyrRegex.IsMatch((it as IMapValueItem).Value)).Count();
+        public override string Path => Parent.FullPath;
+        int _StringsCount = 0;
+        int _CyrilicCount = 0;
+        bool _ContainsLiteral = false;
+        public override int StringsCount => _StringsCount;
+        public override int CyrilicCount => _CyrilicCount;
         public override string[] FullPathParts => Parent.FullPathParts.Concat(new string[] { Name }).ToArray();
+        public bool _Visible = true;
+        public bool Visible
+        {
+            get { return _Visible; }
+            set
+            {
+                if (_Visible != value)
+                {
+                    _Visible = value;
+                    if (!IsUpdating)
+                        NotifyPropertiesChanged(nameof(IsVisible), nameof(Visible));
+                }
+            }
+        }
+        public override bool IsVisible => _Visible;
+
+        public string Ext => System.IO.Path.GetExtension(Name);
 
         //регулярка для проверки наличия кирилицы в строке
         static Regex cyrRegex = new Regex(@"\p{IsCyrillic}|\p{IsCyrillicSupplement}");
@@ -32,8 +52,6 @@ namespace Units_translate
         #region IMapData
         List<IMapRangeItem> _Items;
         public ICollection<IMapRangeItem> Items => _Items;
-        public string FileName => System.IO.Path.GetFileNameWithoutExtension(Name);
-        public string Ext => System.IO.Path.GetExtension(Name);
         public bool IsMapped  => _Items != null;
         #endregion
 
@@ -47,7 +65,7 @@ namespace Units_translate
         /// <summary>
         /// Есть ли в файле строки с символами
         /// </summary>
-        public bool ContainsLiteral() => _Items != null && _Items.Any(it => it is IMapValueItem && (it as IMapValueItem).Value.Any(c => char.IsLetter(c)));
+        public bool ContainsLiteral() => _ContainsLiteral;
 
         public string Text
         {
@@ -81,7 +99,7 @@ namespace Units_translate
             var path = FullPath;
             var encoding = UseWriteEncoding ? WriteEncoding : Helpers.GetEncoding(path, Helpers.Encoding);
             System.IO.File.WriteAllText(path, text, encoding);
-            MappedData.UpdateData(this, true, false);
+            MappedData.UpdateData(this, true);
         }
 
         /// <summary>
@@ -117,7 +135,7 @@ namespace Units_translate
         /// </summary>
         /// <param name="ifChanged">Только изменившийся</param>
         /// <param name="safe">Нужна ли синхронизация</param>
-        public void Remap(bool ifChanged, bool safe)
+        public void Remap(bool ifChanged)
         {
             var path = FullPath;
             var lastwrite = File.GetLastWriteTime(path);
@@ -163,25 +181,34 @@ namespace Units_translate
             }
             finally
             {
-                SendOrPostCallback notify = _ => NotifyPropertiesChanged(nameof(CyrilicCount), nameof(StringsCount));
-                if (safe)
-                    notify(null);
+                if (Items == null)
+                {
+                    _StringsCount = _CyrilicCount = 0;
+                    _ContainsLiteral = false;
+                }
                 else
-                    Helpers.mainCTX.Send(notify, null);
+                {
+                    var mapValItems = Items.OfType<IMapValueItem>();
+                    _StringsCount = mapValItems.Count();
+                    _CyrilicCount = mapValItems.Where(it => cyrRegex.IsMatch(it.Value)).Count();
+                    _ContainsLiteral = mapValItems.Any(it => it.Value.Any(c => char.IsLetter(c)));
+                }
+                if (!IsUpdating)
+                    NotifyPropertiesChanged(nameof(CyrilicCount), nameof(StringsCount), nameof(Items));
             }
         }
 
         /// <summary>
         /// Возвращает область разметки являющуюся значением по указанному смещению
         /// </summary>
-        /// <param name="index">Смещение в тексте</param>
+        /// <param name="offset">Смещение в тексте</param>
         /// <returns>Найденная область или null</returns>
-        public IMapValueItem ValueItemAt(int index)
+        public IMapValueItem ValueItemAt(int offset)
         {
             foreach (var item in _Items)
-                if (item.Start > index)
+                if (item.Start > offset)
                     break;
-                else if (item is IMapValueItem && item.Start <= index && item.End >= index)
+                else if (item is IMapValueItem && item.Start <= offset && item.End >= offset)
                     return item as IMapValueItem;
             return null;
         }
@@ -189,17 +216,17 @@ namespace Units_translate
         /// <summary>
         /// Возвращает области разметки по указанному смещению
         /// </summary>
-        /// <param name="index">Смещение в тексте</param>
+        /// <param name="offset">Смещение в тексте</param>
         /// <returns>Найденные области</returns>
-        public ICollection<T> ItemsAt<T>(int index) where T : class, IMapRangeItem
+        public ICollection<T> ItemsAt<T>(int offset) where T : IMapRangeItem
         {
             var res = new List<T>();
             foreach (var item in _Items)
             {
-                if (item.Start > index)
+                if (item.Start > offset)
                     break;
-                else if (item.Start <= index && item.End >= index && item as T != null)
-                    res.Add(item as T);
+                else if (item.Start <= offset && item.End >= offset && item is T)
+                    res.Add((T)item);
             }
             return res;
         }
@@ -209,15 +236,14 @@ namespace Units_translate
         /// </summary>
         /// <param name="obj">Искомый объект</param>
         /// <returns></returns>
-        public ICollection<T> GetItemsWithValue<T>(object obj) where T : class, IMapBaseItem
+        public ICollection<T> GetItemsWithValue<T>(object obj) where T : IMapBaseItem
         {
             var lst = new List<T>();
             if (obj != null)
                 foreach (var itm in Items)
                 {
-                    var it = itm as T;
-                    if (it != null && it.IsSameValue(obj))
-                        lst.Add(it);
+                    if (itm is T && ((T)itm).IsSameValue(obj))
+                        lst.Add((T)itm);
                 }
             return lst;
         }
@@ -252,11 +278,19 @@ namespace Units_translate
             base.Dispose();
         }
 
+        public bool Equals(IMapData other) => CompareTo(other as IPathBase) == 0;
+
+        public void DoShowInExplorer() => System.Diagnostics.Process.Start("explorer.exe", @"/select, " + FullPath);
+        public void DoOpenFile() => System.Diagnostics.Process.Start(FullPath);
+
+        public static Command ShowInExplorer { get; } = new Command(f => (f as FileContainer).DoShowInExplorer());
+        public static Command OpenFile { get; } = new Command(f => (f as FileContainer).DoOpenFile());
+
         public FileContainer(PathPart parent, string name) : base(name)
         {
             Parent = parent;
             Parent.Add(this);
-            if (this != MappedData.AddData(this, false))
+            if (this != MappedData.AddData(this))
                 throw new Exception("Duplicated.");
         }
     }

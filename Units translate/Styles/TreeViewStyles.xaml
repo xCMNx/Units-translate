@@ -52,6 +52,8 @@
     </DataTemplate>
 
     <Style TargetType="{x:Type UI:TreeListViewItem}">
+        <Setter Property="ItemsSource" Value="{Binding}"/>
+        <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BoolTovis}, ConverterParameter=C}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type UI:TreeListViewItem}">

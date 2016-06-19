@@ -4,37 +4,17 @@ using System.ComponentModel;
 
 namespace Core
 {
-    public interface IMapDataBase
-    {
-        /// <summary>
-        /// Полный путь к размеченному файлу
-        /// </summary>
-        string FullPath { get; }
-    }
-
     /// <summary>
     /// Интерфейс данных разметки
     /// </summary>
-    public interface IMapData : IMapDataBase, INotifyPropertyChanged
+    public interface IMapData : IComparable, IEquatable<IMapData>, IDisposable, INotifyPropertyChanged
     {
         /// <summary>
         /// Размеченные области
         /// </summary>
         ICollection<IMapRangeItem> Items { get; }
         /// <summary>
-        /// Путь к папке файла
-        /// </summary>
-        string Path { get; }
-        /// <summary>
-        /// Название файла без расширения
-        /// </summary>
-        string FileName { get; }
-        /// <summary>
-        /// расширение файла
-        /// </summary>
-        string Ext { get; }
-        /// <summary>
-        /// содержимое файла
+        /// Cодержимое
         /// </summary>
         string Text { get; }
         /// <summary>
@@ -49,31 +29,31 @@ namespace Core
         /// <summary>
         /// Возвращает области разметки попадающие в диапазон
         /// </summary>
-        /// <param name="start">Начало диапазона поиска</param>
-        /// <param name="end">Конец диапазона поиска</param>
+        /// <param name="offsetStart">Начало диапазона поиска</param>
+        /// <param name="offsetEnd">Конец диапазона поиска</param>
         /// <returns></returns>
-        ICollection<T> ItemsBetween<T>(int start, int end) where T : class, IMapRangeItem;
+        ICollection<T> ItemsBetween<T>(int offsetStart, int offsetEnd) where T : class, IMapRangeItem;
 
         /// <summary>
         /// Возвращает области разметки по указанному смещению
         /// </summary>
-        /// <param name="index">Смещение в тексте</param>
+        /// <param name="offset">Смещение в тексте</param>
         /// <returns>Найденные области</returns>
-        ICollection<T> ItemsAt<T>(int index) where T : class, IMapRangeItem;
+        ICollection<T> ItemsAt<T>(int offset) where T : IMapRangeItem;
 
         /// <summary>
         /// Возвращает область разметки являющуюся значением по указанному смещению
         /// </summary>
-        /// <param name="index">Смещение в тексте</param>
+        /// <param name="offset">Смещение в тексте</param>
         /// <returns>Найденная область или null</returns>
-        IMapValueItem ValueItemAt(int index);
+        IMapValueItem ValueItemAt(int offset);
 
         /// <summary>
         /// Вернет список разметок значения которых является переданный объект. Разметки сами должны сверять себя с объектами.
         /// </summary>
         /// <param name="obj">Искомый объект</param>
         /// <returns></returns>
-        ICollection<T> GetItemsWithValue<T>(object obj) where T : class, IMapBaseItem;
+        ICollection<T> GetItemsWithValue<T>(object obj) where T : IMapBaseItem;
 
         /// <summary>
         /// Вернет количество разметок значения которых является переданный объект. Разметки сами должны сверять себя с объектами.
@@ -86,8 +66,7 @@ namespace Core
         /// Просит переразметить файл
         /// </summary>
         /// <param name="ifChanged">Только изменившийся</param>
-        /// <param name="safe">Нужна ли синхронизация</param>
-        void Remap(bool ifChanged, bool safe);
+        void Remap(bool ifChanged);
 
         /// <summary>
         /// Сохраняем новый текст файла

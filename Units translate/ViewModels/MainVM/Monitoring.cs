@@ -96,7 +96,7 @@ namespace Units_translate
             {
                 //попросим обновить файл, и т.к. событие может произойти несколько раз, установим флаг проверки даты изменения
                 Helpers.ConsoleWrite(string.Format("[{0}]{1} : {2}", DateTime.Now.ToString(), e.FullPath, e.ChangeType));
-                FilesTree.UpdateData(e.FullPath, true, true);
+                FilesTree.UpdateData(e.FullPath, true);
             }, null);
         }
 
@@ -113,7 +113,7 @@ namespace Units_translate
                         _SolutionsFiles.Remove(e.OldFullPath);
                         _SolutionsFiles.Add(e.FullPath);
                     }
-                    RemoveFromFiles(e.OldFullPath);
+                    FilesTree.Remove(e.OldFullPath);
                     FilesTree.AddFile(e.FullPath);
                 }
             }, null);
@@ -128,7 +128,7 @@ namespace Units_translate
             {
                 //выпилим файл из разметки
                 Helpers.ConsoleWrite(string.Format("[{0}]{1} : {2}", DateTime.Now.ToString(), e.FullPath, e.ChangeType));
-                RemoveFromFiles(e.FullPath);
+                FilesTree.Remove(e.FullPath);
             }, null);
         }
     }

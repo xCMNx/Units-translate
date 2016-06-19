@@ -6,7 +6,7 @@ namespace Core
     /// <summary>
     /// Структура для словаря размеченных методов, содержит название метода и связанные с ним размеченные данные
     /// </summary>
-    public struct MapMethodRecord : INotifyPropertyChanged, IMapRecordFull
+    public struct MapMethodRecord : INotifyPropertyChanged, IMapMethodRecord
     {
         string value;
         public string Value => value;
@@ -18,8 +18,7 @@ namespace Core
         public MapMethodRecord(string val)
         {
             value = val;
-            data = new SortedObservableCollection<IMapData>()
-            {Comparer = MapDataComparer<IMapData>.Comparer};
+            data = new SortedObservableCollection<IMapData>();
             _Count = 0;
             needCalc = false;
             PropertyChanged = null;
@@ -40,11 +39,11 @@ namespace Core
             NotifyPropertyChanged(nameof(Count));
         }
 
-        public int CompareTo(object obj)
-        {
-            var rec = obj as IMapRecord;
-            return rec == null ? -1 : Value.CompareTo(rec.Value);
-        }
+        public int CompareTo(string obj) => string.Compare(Value, obj, StringComparison.Ordinal);
+        public int CompareTo(IMapMethodRecord obj) => CompareTo(obj.Value);
+        public int CompareTo(object obj) => obj is string ? CompareTo((string)obj) : CompareTo((obj as IMapMethodRecord)?.Value);
+        public bool Equals(string other) => CompareTo(other) == 0;
+        public bool Equals(IMapRecord other) => CompareTo(other) == 0;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public void NotifyPropertyChanged(String propertyName = "")

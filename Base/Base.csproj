@@ -42,7 +42,6 @@
     <Compile Include="Helpers.cs" />
     <Compile Include="HelpersLocal.cs" />
     <Compile Include="MapBaseItemComparer.cs" />
-    <Compile Include="MapDataComparer.cs" />
     <Compile Include="MapBackgroundColorRangeItemBase.cs" />
     <Compile Include="MapForeColorRangeItemBase.cs" />
     <Compile Include="MapValuedItemBase.cs" />

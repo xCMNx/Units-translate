@@ -309,7 +309,7 @@ namespace Units_translate.Views
             if (Data.IsChanged)
             {
                 MessageBox.Show("Не возможно произвести замену, т.к. данные были изменены.");
-                Data.Remap(false, false);
+                Data.Remap(false);
                 return;
             }
 

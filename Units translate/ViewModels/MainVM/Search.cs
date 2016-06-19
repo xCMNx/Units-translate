@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Core;
@@ -55,7 +56,7 @@ namespace Units_translate
                 var res = Core.Search.Exec(Expr, localToken.Token);
                 Helpers.mainCTX.Send(_ =>
                 {
-                    SearchResults = res;
+                    SearchResults = res?.OfType<IMapRecord>().ToArray();
                     NotifyPropertyChanged(nameof(SearchResults));
                     if (_SearchCToken == localToken)
                         Searching = false;
