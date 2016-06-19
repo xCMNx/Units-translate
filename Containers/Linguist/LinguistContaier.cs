@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#define OLD_STYLE
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -34,7 +35,7 @@ namespace Linguist
 
         public bool Save(string filePath, Encoding encoding, ICollection<ITranslationItem> items)
         {
-            using (StreamWriter sw = new StreamWriter(filePath, false, encoding))
+            using (var sw = new StreamWriter(filePath, false, encoding))
             using (var xw = XmlWriter.Create(sw, WriterSettings))
             {
                 xw.WriteStartDocument(true);
@@ -42,6 +43,34 @@ namespace Linguist
                 xw.WriteRaw("\r\n<?xml-stylesheet type=\"text/xsl\" href=\"eng_rus.xsl\"?>\r\n");
                 serializer.Serialize(xw, new Linguist(items), namespaces);
             }
+
+#if OLD_STYLE
+            var lines = File.ReadAllText(filePath, encoding).ToString().Replace(" />", "/>").Split(new string[] { "\r\n" }, System.StringSplitOptions.None);
+            var strings = new StringBuilder();
+            var i = 0;
+            for (; i < lines.Length; i++)
+            {
+                var newLine = lines[i].Trim();
+                strings.AppendLine(newLine);
+                if (newLine.StartsWith("<data>"))
+                    break;
+            }
+
+            var e = lines.Length - 2;
+            for (i++; i < e; i++)
+            {
+                var newLine = lines[i].Trim();
+                if(newLine.FirstOrDefault() == '<')
+                    strings.AppendLine($"\t{newLine}");
+                else
+                    strings.AppendLine(lines[i]);
+            }
+
+            for (; i < lines.Length; i++)
+                strings.AppendLine(lines[i].Trim());
+
+            File.WriteAllText(filePath, strings.ToString().TrimEnd(), encoding);
+#endif
             return true;
         }
 
