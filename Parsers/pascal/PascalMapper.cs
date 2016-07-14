@@ -198,6 +198,8 @@ namespace pascal
                                         newWordStart = -1;
                                         continue;
                                     case '(':
+                                        //после метода никаких объединений строк быть не может
+                                        comb = 2;
                                         if (mapMethods && pType != PascalFileType.dfm)
                                         {
                                             uses = false;
@@ -207,6 +209,8 @@ namespace pascal
                                         }
                                         continue;
                                     case ')':
+                                        //после метода никаких объединений строк быть не может
+                                        comb = 2;
                                         newWordStart = -1;
                                         if (mapMethods && pType != PascalFileType.dfm && methods.Count > 0)
                                         {
@@ -228,6 +232,7 @@ namespace pascal
                                         setWord(idx);
                                         continue;
                                     default:
+                                        //любой отличный от вайтспэйса символ отменяет объединение строк
                                         comb = 2;
                                         if (char.IsLetterOrDigit(Text[idx]) || Text[idx] == '_')
                                         {
