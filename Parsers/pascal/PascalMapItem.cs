@@ -68,10 +68,11 @@ namespace pascal
                 pair = pairs[idx];
                 if (maxLength != 0 && maxLength < lineLength && idx != pairs.Count - 1)
                 {
-                    if(isCode)
-                        str.Append(" +\r\n");
-                    else
-                        str.Append("' +\r\n'");
+                    if(!isCode)
+                        str.Append("'");
+                    str.Append(" +\r\n");
+                    if (!pair.Value)
+                        str.Append("'");
                     lineLength = 0;
                 }
                 else if (pair.Value != isCode)
