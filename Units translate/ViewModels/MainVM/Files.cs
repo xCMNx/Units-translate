@@ -135,9 +135,10 @@ namespace Units_translate
             EditingEnabled = false;
             try
             {
-                if (callback != null) callback(null, MappedData.Data.Count());
+                var lst = FilesTree.Files.ToArray();
+                if (callback != null) callback(null, lst.Count());
                 int cnt = 0;
-                foreach (var data in MappedData.Data)
+                foreach (var data in lst)
                 {
                     MappedData.UpdateData(data, true);
                     if (callback != null) callback((data as FileContainer)?.FullPath, ++cnt);
