@@ -194,7 +194,7 @@ namespace Units_translate
                     _ContainsLiteral = mapValItems.Any(it => it.Value.Any(c => char.IsLetter(c)));
                 }
                 if (!IsUpdating)
-                    NotifyPropertiesChanged(nameof(CyrilicCount), nameof(StringsCount), nameof(Items));
+                    NotifyPropertiesChanged(nameof(CyrilicCount), nameof(StringsCount), nameof(Items), nameof(ShowingItems));
             }
         }
 
