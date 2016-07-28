@@ -24,6 +24,8 @@ namespace Core
             }
         }
 
+        public bool WasLinked { get; set; } = false;
+
         bool needCalc = false;
         int _Count = 0;
         public int Count => needCalc ? _Count = GetCount() : _Count;

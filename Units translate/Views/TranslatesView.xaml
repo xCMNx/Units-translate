@@ -52,6 +52,9 @@
             <Button ToolTip="Удалить новые не используемые" x:Name="btnDelUnusedNew" Padding="3,1,3,0" Width="30" Height="30" Command="{Binding RemoveUnused}" >
                 <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.RemoveUnused}"/>
             </Button>
+            <Button ToolTip="Удалить переводы потерявшие связи с файлами" x:Name="btnDelUnlinked" Padding="3,1,3,0" Width="30" Height="30" Command="{Binding RemoveUnlinked}" >
+                <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.BrokenLink}"/>
+            </Button>
         </StackPanel>
         <ListView Grid.Row="1" Name="translatesList" ItemsSource="{Binding Translations}" SelectedValue="{Binding SelectedValue, Delay=200}" MouseDoubleClick="ListView_MouseDoubleClick" util:GridViewSort.Command="{Binding TranslatesSortCommand}" KeyUp="ListView_KeyUp">
             <ListView.View>

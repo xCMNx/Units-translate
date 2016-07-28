@@ -9,5 +9,11 @@ namespace Core
             get;
             set;
         }
+
+        bool WasLinked
+        {
+            get;
+            set;
+        }
     }
 }

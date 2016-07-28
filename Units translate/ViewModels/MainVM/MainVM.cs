@@ -402,6 +402,8 @@ namespace Units_translate
 
         public Command RemoveUnused { get; } = new Command(param => Instance.CleanTranslations(itm => itm.Data.Count == 0 && !Core.Translations.IsValueOriginal(itm.Value)));
 
+        public Command RemoveUnlinked { get; } = new Command(param => Instance.CleanTranslations(itm => itm.Data.Count == 0 && itm.WasLinked));
+
         //public Command OpenFile { get; } = new Command(param => );
         //public Command OpenFile { get; } = new Command(param => );
         //public Command OpenFile { get; } = new Command(param => );
