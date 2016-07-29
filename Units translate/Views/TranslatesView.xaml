@@ -34,6 +34,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal" Grid.Row="0">
@@ -56,7 +57,17 @@
                 <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.BrokenLink}"/>
             </Button>
         </StackPanel>
-        <ListView Grid.Row="1" Name="translatesList" ItemsSource="{Binding Translations}" SelectedValue="{Binding SelectedValue, Delay=200}" MouseDoubleClick="ListView_MouseDoubleClick" util:GridViewSort.Command="{Binding TranslatesSortCommand}" KeyUp="ListView_KeyUp">
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Name="searchText" Grid.Column="0" TextChanged="searchText_TextChanged"/>
+            <Button Name="btnFindNext" Grid.Column="1" ToolTip="Найти следующий" Padding="3,1,3,0" Width="20" Height="20" Click="btnFindNext_Click">
+                <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.FindNext}"/>
+            </Button>
+        </Grid>
+        <ListView Grid.Row="2" Name="translatesList" ItemsSource="{Binding Translations}" SelectedValue="{Binding SelectedValue, Delay=200}" MouseDoubleClick="ListView_MouseDoubleClick" util:GridViewSort.Command="{Binding TranslatesSortCommand}" KeyUp="ListView_KeyUp">
             <ListView.View>
                 <GridView >
                     <GridViewColumn Width="Auto" DisplayMemberBinding="{Binding Data.Count}" util:GridViewSort.PropertyName="Count"/>

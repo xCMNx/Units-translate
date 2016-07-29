@@ -1,4 +1,7 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Core;
 
@@ -42,6 +45,62 @@ namespace Units_translate.Views
             ListViewItem item = (ListViewItem)sender;
             translatesList.SelectedItem = item.DataContext;
             //item.IsSelected = true;
+        }
+
+        public int FindNext(IMapValueRecord[] lst, Regex rgxp, int firstIdx = 0)
+        {
+            try
+            {
+                for (var i = firstIdx; i < lst.Length; i++)
+                    if (rgxp.IsMatch(lst[i].Value) || rgxp.IsMatch(lst[i].Translation))
+                        return i;
+            }
+            catch
+            {
+            }
+            return -1;
+        }
+
+        public int FindNext(IMapValueRecord[] lst, string pattern, int firstIdx = 0)
+        {
+            try
+            {
+                var rgxp = new Regex(pattern, RegexOptions.IgnoreCase, new System.TimeSpan(0, 0, 1));
+                return FindNext(lst, rgxp, firstIdx);
+            }
+            catch
+            {
+            }
+            return -1;
+        }
+
+        public IMapValueRecord FindNext(IMapValueRecord[] lst, string pattern, IMapValueRecord curr = null)
+        {
+            try
+            {
+                var rgxp = new Regex(pattern, RegexOptions.IgnoreCase, new System.TimeSpan(0, 0, 1));
+                var idx = FindNext(lst, rgxp, curr != null && (rgxp.IsMatch(curr.Value) || !rgxp.IsMatch(curr.Translation)) ? Array.IndexOf(lst, curr) + 1 : 0);
+                if (idx > -1)
+                    return lst[idx];
+            }
+            catch
+            {
+            }
+            return curr;
+        }
+
+        private void searchText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var vals = MainVM.Instance.Translates.OfType<IMapValueRecord>().ToArray();
+            translatesList.SelectedItem = FindNext(vals, searchText.Text, null);
+            translatesList.ScrollIntoView(translatesList.SelectedItem);
+        }
+
+        private void btnFindNext_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var vals = MainVM.Instance.Translates.OfType<IMapValueRecord>().ToArray();
+            translatesList.SelectedItem = FindNext(vals, searchText.Text, translatesList.SelectedItem as IMapValueRecord);
+            translatesList.ScrollIntoView(translatesList.SelectedItem);
         }
     }
 }
