@@ -58,7 +58,7 @@
                                     <ContextMenu ItemsSource="{Binding SelectedValueAnalogs}">
                                         <ContextMenu.Resources>
                                             <DataTemplate DataType="{x:Type core:MapValueRecord}">
-                                                <TextBlock Text="{Binding Value}" ToolTip="{Binding Value}" MaxWidth="200"/>
+                                                <TextBlock Text="{Binding Value}" ToolTip="{Binding ToStringFull}" MaxWidth="200"/>
                                             </DataTemplate>
                                         </ContextMenu.Resources>
                                     </ContextMenu>

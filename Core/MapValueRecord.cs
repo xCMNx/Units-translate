@@ -58,6 +58,7 @@ namespace Core
         }
 
         public override string ToString() => Value;
+        public string ToStringFull => $"{Value}\r\n\r\n{Translation}";
 
         public int CompareTo(string obj) => string.Compare(Value, obj, StringComparison.Ordinal);
         public int CompareTo(IMapValueRecord obj) => CompareTo(obj.Value);
