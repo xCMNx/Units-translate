@@ -106,7 +106,7 @@ namespace Units_translate
             {
                 //попросим обновить файл, и т.к. событие может произойти несколько раз, установим флаг проверки даты изменения
                 Helpers.ConsoleWrite(string.Format("[{0}]{1} => {2} : {3}", DateTime.Now.ToString(), e.OldFullPath, e.FullPath, e.ChangeType));
-                if (!IsIgnored(e.OldFullPath))
+                if (!IsIgnored(e.OldFullPath) || !IsIgnored(e.FullPath))
                 {
                     if (_SolutionsFiles.Contains(e.OldFullPath))
                     {
