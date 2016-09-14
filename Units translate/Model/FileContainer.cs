@@ -39,6 +39,7 @@ namespace Units_translate
         public override bool IsVisible => _Visible;
 
         public string Ext => System.IO.Path.GetExtension(Name);
+        public string NameOnly => System.IO.Path.GetFileNameWithoutExtension(Name);
 
         //регулярка для проверки наличия кирилицы в строке
         static Regex cyrRegex = new Regex(@"\p{IsCyrillic}|\p{IsCyrillicSupplement}");

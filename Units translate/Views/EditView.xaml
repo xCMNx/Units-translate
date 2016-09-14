@@ -14,7 +14,7 @@
             <Expander VerticalContentAlignment="Bottom" IsExpanded="True">
                 <Expander.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Name}" ToolTip="{Binding FullPath}"/>
+                        <TextBlock Text="{Binding NameOnly}" ToolTip="{Binding FullPath}"/>
                         <TextBlock Text="{Binding Ext}" Foreground="LightGray" ToolTip="{Binding FullPath}"/>
                         <TextBlock Text="{Binding Count, ElementName=view}" Foreground="Green" Margin="5,0,0,0"/>
                         <Button ToolTip="Показать в проводнике" Background="Transparent" BorderBrush="{x:Null}" Name="btnShowInExplorer" Width="16" Height="16" Margin="2" Command="{Binding ShowInExplorer}" CommandParameter="{Binding}">
