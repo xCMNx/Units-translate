@@ -114,7 +114,9 @@ namespace Units_translate
                         _SolutionsFiles.Add(e.FullPath);
                     }
                     FilesTree.Remove(e.OldFullPath);
-                    FilesTree.AddFile(e.FullPath);
+                    var f = FilesTree.AddFile(e.FullPath);
+                    if (string.Equals(Selected?.FullPath, e.FullPath, StringComparison.InvariantCultureIgnoreCase))
+                        Selected = f;
                 }
             }, null);
         }

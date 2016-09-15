@@ -163,7 +163,7 @@ namespace Core
         /// <param name="ifChanged">Только если файл изменен</param>
         public static void UpdateData(IMapData data, bool ifChanged)
         {
-            if (data != null && (!ifChanged || data.IsChanged))
+            if (data != null && (!ifChanged || data.IsChanged) && _Data.Contains(data))
             {
                 RemoveMapInfo(data);
                 data.Remap(ifChanged);
