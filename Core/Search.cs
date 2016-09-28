@@ -23,9 +23,9 @@ namespace Core
         /// <param name="param">Параметры поиска</param>
         /// <param name="linkedOnly">Только связанные с разметкой</param>
         /// <returns>Список совпадающих записей словаря</returns>
-        public static ICollection<T> Exec<T>(string expr, SearchParams param, bool linkedOnly) where T : IMapRecord
+        public static ICollection<T> Exec<T>(string expr, SearchParams param, bool linkedOnly, bool acceptEmpty) where T : IMapRecord
         {
-            if (string.IsNullOrWhiteSpace(expr))
+            if (!acceptEmpty && string.IsNullOrWhiteSpace(expr))
                 return null;
             try
             {
@@ -122,10 +122,9 @@ namespace Core
         /// </summary>
         /// <param name="expr">
         /// Искомое выражение, в начале можно указать параметры поиска в фармате и фильтры по методам #[filter]:?[params]:[expr]
-        /// <para>?e:[expr]   - вырожению должна соответствовать строка</para>
-        /// <para>?t:[expr]   - вырожению должен соответствовать перевод</para>
-        /// <para>?et:[expr]  - вырожению должны соответствовать и строка и её перевод</para>
-        /// <para>?:[expr]    - вырожению должны соответствовать или строка или перевод</para>
+        /// <para>?e:[expr]   - выражению должна соответствовать строка</para>
+        /// <para>?t:[expr]   - выражению должен соответствовать перевод</para>
+        /// <para>?et:[expr]  - выражению должны соответствовать и строка и её перевод</para>
         /// </param>
         /// <returns>Список совпадающих записей словаря</returns>
         public static ICollection<IMapRecordFull> Exec(string expr, CancellationToken ct)
@@ -169,10 +168,10 @@ namespace Core
                 if (prm.Contains('t'))
                     param |= SearchParams.Trans;
 
-                return MethodsFilter(methodsFilter, Exec<IMapRecordFull>(lexpr.Substring(i + 1), param, !prm.Contains('a')), ct);
+                return MethodsFilter(methodsFilter, Exec<IMapRecordFull>(lexpr.Substring(i + 1), param, !prm.Contains('a'), prm.Contains('n')), ct);
             }
 
-            return MethodsFilter(methodsFilter, Exec<IMapRecordFull>(lexpr, SearchParams.EngOrTrans, true), ct);
+            return MethodsFilter(methodsFilter, Exec<IMapRecordFull>(lexpr, SearchParams.EngOrTrans, true, false), ct);
         }
     }
 }
