@@ -15,6 +15,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <GroupBox Header="Игнор" ToolTip="Используются регулярки, можно одну на всё, можно несколько, разделяются новой строкой">
@@ -57,7 +58,8 @@
             </Grid>-->
         </GroupBox>
         <CheckBox Grid.Row="5" Content="Поиск не чуствителен к регистру" IsChecked="{Binding CaseInsensitiveSearch}"/>
-        <GroupBox Grid.Row="6" Header="Мапперы">
+        <CheckBox Grid.Row="6" Content="Поиск файлов не чуствителен к регистру" IsChecked="{Binding CaseInsensitiveFileSearch}"/>
+        <GroupBox Grid.Row="7" Header="Мапперы">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

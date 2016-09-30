@@ -73,5 +73,12 @@ namespace Core
         /// </summary>
         /// <param name="text">Новый текст</param>
         void SaveText(string text);
+
+        /// <summary>
+        /// Фильтр источника, каждый источник сам обрабатывает фильтр и решает прошел он его или нет
+        /// </summary>
+        /// <param name="filter">Текстовое значение фильтра</param>
+        /// <returns>True если прошел</returns>
+        bool Filter(string filter);
     }
 }

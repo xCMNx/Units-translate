@@ -30,7 +30,8 @@
         ?:[expr]        - выражению должны соответствовать или строка или перевод&#x0a;
         ?a:[expr]       - учитывать строки словаря не связанные с разметкой&#x0a;
         ?n:[expr]       - разрешает поиску выполнить пустое выражение&#x0a;
-        #method:[expr]  - поиск выражения которое находится внутри метода, или не внутри если указано имя с !method
+        #method:[expr]  - поиск выражения которое находится внутри метода, или не внутри если указано имя с !method&#x0a;
+        &lt;extra:>[expr]  - тайна за 7ю печатями
 " AcceptsReturn="True" Text="{Binding SearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged, Delay=1000}" TextWrapping="Wrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" KeyUp="tbSearch_KeyUp"/>
     <GridSplitter Grid.Row="2" Height="3" HorizontalAlignment="Stretch"/>
     <Grid Grid.Row="3">

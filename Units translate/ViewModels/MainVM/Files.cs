@@ -15,6 +15,24 @@ namespace Units_translate
         ObservableCollectionEx<TreeListViewItem> _Files = new ObservableCollectionEx<TreeListViewItem>();
 
         #region FilesFilter
+        const string CASE_INSANSITIVE_FILE_SEARCH = "CASE_INSANSITIVE_FILE_SEARCH";
+        public bool _CaseInsensitiveFileSearch = true;
+        /// <summary>
+        /// Делает поиск не чуствительным к регистру символов
+        /// </summary>
+        public bool CaseInsensitiveFileSearch
+        {
+            get { return _CaseInsensitiveFileSearch; }
+            set
+            {
+                if (_CaseInsensitiveFileSearch != value)
+                {
+                    _CaseInsensitiveFileSearch = value;
+                    Helpers.ConfigWrite(CASE_INSANSITIVE_FILE_SEARCH, _CaseInsensitiveFileSearch);
+                    NotifyPropertyChanged(nameof(CaseInsensitiveFileSearch));
+                }
+            }
+        }
 
         string ActiveFilter = null;
         public string FileFilter
@@ -34,7 +52,7 @@ namespace Units_translate
                 ICollection<FileContainer> data = MappedData.Data.OfType<FileContainer>().ToArray();
                 try
                 {
-                    var expr = string.IsNullOrWhiteSpace(ActiveFilter) ? null : new Regex(ActiveFilter, RegexOptions.None, new TimeSpan(0, 0, 1));
+                    var expr = string.IsNullOrWhiteSpace(ActiveFilter) ? null : new Regex(ActiveFilter, _CaseInsensitiveFileSearch ? RegexOptions.IgnoreCase : RegexOptions.None, new TimeSpan(0, 0, 1));
                     foreach (var f in data)
                         f.Visible = (!_MappedOnly || f.IsMapped)
                             && (!_CyrilicOnly || f.CyrilicCount > 0)

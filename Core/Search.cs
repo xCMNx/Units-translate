@@ -78,12 +78,10 @@ namespace Core
             {
                 if (ct.IsCancellationRequested)
                     return res;
-                //зразу откинем файлы в которых нет методов которые должны быть по фильтру
+                //сразу откинем файлы в которых нет методов которые должны быть по фильтру
                 var fData = mData == null ? r.Data as IList<IMapData> : r.Data.Intersect(mData).ToArray();
                 foreach (var d in fData)
                 {
-                    //флаг обозначающий, что значение прошло все фильтры
-                    var found = false;
                     //получим все разметки нашего значения в файле
                     var rItems = d.GetItemsWithValue<IMapValueItem>(r);
                     //пройдемся по каждой
@@ -93,28 +91,41 @@ namespace Core
                         var mts = d.ItemsAt<IMapMethodItem>(itm.Start);
                         //выберем из них те, что есть в фильтре
                         var mtsF = mts.Select(m => methodsFilter.FirstOrDefault(mf => m.IsSameValue(mf.Key))).Where(k => k.Key != null).ToArray();
-                        found = true;
                         //посмотрим должны ли быть вхождения в методы не охватывающие значение
-                        foreach (var mf in methodsFilter.Except(mtsF))
-                            found &= !mf.Value;
                         //и тоже самое в те, что охватывали
-                        if (found)
+                        if(methodsFilter.Except(mtsF).All(mf => !mf.Value) && mtsF.All(mf => mf.Value))
                         {
-                            foreach (var mf in mtsF)
-                                found &= mf.Value;
-                            if (found)
-                                break;
+                            //значение прошло фильтры
+                            res.Add(r);
+                            break;
                         }
-                    }
-                    //значение прошло фильтры
-                    if (found)
-                    {
-                        res.Add(r);
-                        break;
                     }
                 }
             }
             return res;
+        }
+
+        /// <summary>
+        /// Выполняет выборку по кастомному фильтру
+        /// </summary>
+        /// <param name="expr">Фильтр</param>
+        /// <param name="list">фильтруемый список записей</param>
+        /// <param name="ct">токен отмены</param>
+        /// <returns>отфильтрованый список</returns>
+        public static ICollection<IMapRecordFull> ExtraFilter(string expr, ICollection<IMapRecordFull> list, CancellationToken ct)
+        {
+            try
+            {
+                //выберем все источники участвующие в с результатах и прогоним их через фильтр
+                var data = new HashSet<IMapData>(new HashSet<IMapData>(list.SelectMany(i => i.Data)).Where(d => d.Filter(expr)));
+                //вернем те результаты у которых хотябы один источник прош фильтр
+                return list.Where(l => l.Data.Any(d => data.Contains(d))).ToArray();
+            }
+            catch (Exception e)
+            {
+                Helpers.ConsoleWrite(e.ToString(), ConsoleColor.Green);
+            }
+            return null;
         }
 
         /// <summary>
@@ -130,6 +141,17 @@ namespace Core
         public static ICollection<IMapRecordFull> Exec(string expr, CancellationToken ct)
         {
             var lexpr = expr;
+            string fExpr = null;
+
+            if (lexpr.StartsWith("<"))
+            {
+                var i = lexpr.IndexOf(":>");
+                if (i < 0)
+                    return null;
+
+                fExpr = lexpr.Substring(1, i - 1);
+                lexpr = lexpr.Substring(i + 2);
+            }
 
             var methodsFilter = new Dictionary<IMapRecordFull, bool>();
             if (lexpr.StartsWith("#"))
@@ -155,6 +177,8 @@ namespace Core
                 lexpr = lexpr.Substring(i + 1);
             }
 
+            ICollection<IMapRecordFull> filterResult = null;
+
             if (lexpr.StartsWith("?"))
             {
                 var i = lexpr.IndexOf(':');
@@ -168,10 +192,15 @@ namespace Core
                 if (prm.Contains('t'))
                     param |= SearchParams.Trans;
 
-                return MethodsFilter(methodsFilter, Exec<IMapRecordFull>(lexpr.Substring(i + 1), param, !prm.Contains('a'), prm.Contains('n')), ct);
+                filterResult = Exec<IMapRecordFull>(lexpr.Substring(i + 1), param, !prm.Contains('a'), prm.Contains('n'));
             }
+            else
+                filterResult = Exec<IMapRecordFull>(lexpr, SearchParams.EngOrTrans, true, false);
 
-            return MethodsFilter(methodsFilter, Exec<IMapRecordFull>(lexpr, SearchParams.EngOrTrans, true, false), ct);
+            if (fExpr != null)
+                filterResult = ExtraFilter(fExpr, filterResult, ct);
+
+            return MethodsFilter(methodsFilter, filterResult, ct);
         }
     }
 }

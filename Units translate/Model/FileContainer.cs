@@ -127,6 +127,8 @@ namespace Units_translate
         /// </summary>
         public DateTime LastUpdate { get; private set; } = DateTime.MinValue;
 
+        public Int64 LastSize { get; private set; } = Int64.MinValue;
+
         public bool IsChanged => File.GetLastWriteTime(FullPath) != LastUpdate;
 
         public static bool ShowMappingErrors = true;
@@ -139,10 +141,11 @@ namespace Units_translate
         public void Remap(bool ifChanged)
         {
             var path = FullPath;
-            var lastwrite = File.GetLastWriteTime(path);
-            if (ifChanged && LastUpdate == lastwrite)
+            var fi = new FileInfo(path);
+            if (ifChanged && LastUpdate == fi.LastWriteTime && LastSize == fi.Length)
                 return;
-            LastUpdate = lastwrite;
+            LastUpdate = fi.LastWriteTime;
+            LastSize = fi.Length;
             try
             {
                 _Items = null;
@@ -283,6 +286,8 @@ namespace Units_translate
 
         public void DoShowInExplorer() => System.Diagnostics.Process.Start("explorer.exe", @"/select, " + FullPath);
         public void DoOpenFile() => System.Diagnostics.Process.Start(FullPath);
+
+        public bool Filter(string filter) => new Regex(filter).IsMatch(FullPath);
 
         public static Command ShowInExplorer { get; } = new Command(f => (f as FileContainer).DoShowInExplorer());
         public static Command OpenFile { get; } = new Command(f => (f as FileContainer).DoOpenFile());
