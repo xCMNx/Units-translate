@@ -133,10 +133,15 @@ namespace Core
         /// </summary>
         /// <param name="expr">
         /// Искомое выражение, в начале можно указать параметры поиска в фармате и фильтры по методам #[filter]:?[params]:[expr]
+        /// </param>
+        /// <remarks>
         /// <para>?e:[expr]   - выражению должна соответствовать строка</para>
         /// <para>?t:[expr]   - выражению должен соответствовать перевод</para>
         /// <para>?et:[expr]  - выражению должны соответствовать и строка и её перевод</para>
-        /// </param>
+        /// <para>?n: - разрешает поиск пустого выражения, для использования совместно с другими фильтрами</para>
+        /// <para>&lt;welcome:&gt; - разрешает поиск пустого выражения, для использования совместно с другими фильтрами</para>
+        /// </remarks>
+        /// <example>&lt;welcome:&gt;#tr:error - выполнит поиск в файле welcome текст error в методе tr</example>
         /// <returns>Список совпадающих записей словаря</returns>
         public static ICollection<IMapRecordFull> Exec(string expr, CancellationToken ct)
         {
