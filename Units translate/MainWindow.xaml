@@ -5,9 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Units_translate"
         xmlns:views="clr-namespace:Units_translate.Views"
-        xmlns:UI="clr-namespace:Ui;assembly=Ui"
+        xmlns:UI="clr-namespace:Ui.Controls;assembly=Ui"
         mc:Ignorable="d"
         Title="Units translate" Height="600" Width="1200" WindowStartupLocation="CenterScreen" Closing="Window_Closing">
+    <Window.DataContext>
+        <local:MainVM/>
+    </Window.DataContext>
     <Grid>
         <Grid x:Name="settings" Visibility="Collapsed">
             <Grid.RowDefinitions>
@@ -90,6 +93,9 @@
                     <TabItem Name="tiSearch" Header="Поиск">
                         <views:Search/>
                     </TabItem>
+                    <TabItem Name="tiUnits" Header="Модули">
+                        <views:UnitsView/>
+                    </TabItem>
                     <TabItem Name="tiTransConflicts" Visibility="{Binding HasTranslationConflicts, Converter={StaticResource BoolTovis}, ConverterParameter=C}">
                         <TabItem.Header>
                             <StackPanel Orientation="Horizontal">
@@ -104,7 +110,8 @@
                 </TabControl>
             </Grid>
             <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" Width="3" HorizontalAlignment="Center"/>
-            <Grid Grid.Column="2" IsEnabled="{Binding EditingEnabled}">
+            <views:UnitsDataView Grid.Column="2" Visibility="{Binding IsSelected, ElementName=tiUnits, Converter={StaticResource BoolTovis}, ConverterParameter=C}"/>
+            <Grid Grid.Column="2" IsEnabled="{Binding EditingEnabled}" Visibility="{Binding IsSelected, ElementName=tiUnits, Converter={StaticResource BoolTovisInv}, ConverterParameter=C}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" MinHeight="200"/>
                     <RowDefinition Height="Auto"/>

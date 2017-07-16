@@ -45,6 +45,7 @@
     <Compile Include="DfmMapItem.cs" />
     <Compile Include="PascalMapItem.cs" />
     <Compile Include="PascalMapper.cs" />
+    <Compile Include="PascalUnitEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PascalSolutionReader.cs" />
   </ItemGroup>

@@ -5,6 +5,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using Core;
+using System.Collections.Generic;
 
 namespace Units_translate.Views
 {
@@ -168,7 +169,21 @@ namespace Units_translate.Views
             var pos = code.GetPositionFromPoint(e.GetPosition(code));
             if (!pos.HasValue)
                 return;
-            var item = colorizer.Data.ValueItemAt(code.Document.GetOffset(pos.Value.Location));
+            var offset = code.Document.GetOffset(pos.Value.Location);
+            var units = colorizer.Data.ItemsAt<IMapUnitLink>(offset);
+            if (units.Count > 0)
+            {
+                var files = MappedData.Data.Where(d => d.Items != null && d.Items.OfType<IMapUnitEntry>().Any(el => units.Any(u => u.Value.Equals(el.Value, System.StringComparison.InvariantCultureIgnoreCase)))).ToArray();
+                if (files.Length == 0)
+                    return;
+                var btn = new Button() { Content = files[0] };
+                btn.Click += Btn_Click;
+                toolBrd.Child = btn;
+                toolTip.IsOpen = true;
+                e.Handled = true;
+                return;
+            }
+            var item = colorizer.Data.ValueItemAt(offset);
             if (item == null)
                 return;
             var mapItm = MappedData.GetValueRecord(item.Value) as IMapValueRecord;
@@ -182,6 +197,11 @@ namespace Units_translate.Views
             toolBrd.Child = string.IsNullOrWhiteSpace(str) ? EmptyText : ContentText;
             toolTip.IsOpen = true;
             e.Handled = true;
+        }
+
+        private void Btn_Click(object sender, RoutedEventArgs e)
+        {
+            MainVM.Instance.Selected = (sender as Button).Content as FileContainer;
         }
 
         private void code_MouseHoverStopped(object sender, System.Windows.Input.MouseEventArgs e)

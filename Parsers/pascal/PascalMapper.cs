@@ -62,18 +62,43 @@ namespace pascal
             var res = new List<IMapRangeItem>();
             int Start = -1, End = -1, newWordStart = -1;
             bool uses = false;
+            bool unit = false;
             var value = string.Empty;
             var comb = 0;
             var word = string.Empty;
             var wordStart = -1;
-            Action<int> setWord = pType == PascalFileType.dfm ? (_ => { }) : (Action<int>)((idx) =>
+            var links = new List<IMapUnitLink>();
+            Action<int> setWord2 = (idx) =>
             {
                 if (newWordStart > -1)
                 {
                     wordStart = newWordStart;
                     word = Text.Substring(newWordStart, idx - newWordStart);
-                    uses = uses || word.Equals("uses", StringComparison.InvariantCultureIgnoreCase);
                     newWordStart = -1;
+                    if (word.Equals("uses", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        word = string.Empty;
+                        wordStart = -1;
+                        uses = true;
+                    }
+                }
+            };
+            Action<int> setWord = pType == PascalFileType.dfm ? (_ => { }) : (Action<int>)((idx) =>
+            {
+                if (newWordStart > -1)
+                {
+                    setWord2(idx);
+                    if(uses)
+                        setWord = setWord2;
+                    if (unit)
+                    {
+                        res.Add(new PascalUnitEntry(word, idx - word.Length, idx, links));
+                        setWord = setWord2;
+                        wordStart = -1;
+                        unit = false;
+                    }
+                    else if (word.Equals("unit", StringComparison.InvariantCultureIgnoreCase))
+                        unit = true;
                 }
             });
             Stack<KeyValuePair<string, int>> methods = new Stack<KeyValuePair<string, int>>();
@@ -181,11 +206,7 @@ namespace pascal
                                 comb = 0;
                                 value = string.Empty;
                             }
-
-                            if (uses)
-                                uses = Text[idx] != ';';
-
-                            if (Start == -1)
+                            else
                             {
                                 //лабуда для записей вида s := 'Error raised at :' + date + #13#10 + 'In file:'#13#10 + filepath
                                 //позволяет объединить следующую строку с предыдущей если между ними был только +
@@ -221,6 +242,7 @@ namespace pascal
                                                 && !method.Key.Equals("or", StringComparison.InvariantCultureIgnoreCase)
                                                 && !method.Key.Equals("and", StringComparison.InvariantCultureIgnoreCase)
                                                 && !method.Key.Equals("xor", StringComparison.InvariantCultureIgnoreCase)
+                                                && !method.Key.Equals("not", StringComparison.InvariantCultureIgnoreCase)
                                               )
                                                 res.Add(new MapMethodItemBase(method.Key, method.Value, idx + 1));
                                         }
@@ -229,19 +251,34 @@ namespace pascal
                                     case '\t':
                                     case '\r':
                                     case '\n':
+                                    case ';':
+                                    case ',':
                                         setWord(idx);
+                                        if (uses)
+                                        {
+                                            uses = Text[idx] != ';';
+                                            if (wordStart > -1)
+                                            {
+                                                if (!word.Equals("in", StringComparison.InvariantCultureIgnoreCase))
+                                                {
+                                                    var lnk = new MapUnitLinkBase(word, wordStart, wordStart + word.Length);
+                                                    res.Add(lnk);
+                                                    links.Add(lnk);
+                                                }
+                                                wordStart = -1;
+                                            }
+                                        }
                                         continue;
                                     default:
                                         //любой отличный от вайтспэйса символ отменяет объединение строк
                                         comb = 2;
-                                        if (char.IsLetterOrDigit(Text[idx]) || Text[idx] == '_')
+                                        if (char.IsLetterOrDigit(Text[idx]) || Text[idx] == '_' || ((uses || unit) && Text[idx] == '.'))
                                         {
                                             if (newWordStart == -1)
                                                 newWordStart = idx;
                                         }
                                         else
                                         {
-                                            word = string.Empty;
                                             wordStart = -1;
                                             newWordStart = -1;
                                         }

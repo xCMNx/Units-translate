@@ -21,6 +21,8 @@ namespace Core
 
             foreach (var i in collection) Items.Add(i);
             var newItems = collection.ToArray();
+            if (newItems.Length == 0)
+                return;
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, newItems));
         }
 

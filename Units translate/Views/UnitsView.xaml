@@ -1,0 +1,39 @@
+﻿<UserControl x:Class="Units_translate.Views.UnitsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Units_translate"
+             xmlns:util="clr-namespace:Wpf.Util;assembly=Ui"
+             xmlns:Ui="clr-namespace:Ui;assembly=Ui"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Grid.Row="0">
+            <Button Name="btnUpdateUnitsList" Width="20" Height="20" Command="{Binding UpdateUnitsListCommand}">
+                <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.UpdateUnitsList}"/>
+            </Button>
+            <Button Name="btnUpdateDiagram" Width="20" Height="20" Command="{Binding UpdateDiagramCommand}">
+                <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.Diagram}"/>
+            </Button>
+        </StackPanel>
+        <ListView Grid.Row="1" ItemsSource="{Binding UnitsList}">
+            <ListView.View>
+                <GridView >
+                    <GridViewColumn Header="" Width="Auto">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding Checked}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Значение" Width="Auto" DisplayMemberBinding="{Binding Value}" util:GridViewSort.PropertyName="Value"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </Grid>
+</UserControl>

@@ -12,7 +12,6 @@ namespace Units_translate
     public partial class MainVM
     {
         public FilesList FilesTree { get; } = new FilesList();
-        ObservableCollectionEx<TreeListViewItem> _Files = new ObservableCollectionEx<TreeListViewItem>();
 
         #region FilesFilter
         const string CASE_INSANSITIVE_FILE_SEARCH = "CASE_INSANSITIVE_FILE_SEARCH";

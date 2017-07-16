@@ -7,6 +7,7 @@ namespace Units_translate
         string FullPath { get; }
         string Path { get; }
         string Name { get; }
+        string Ext { get; }
         string[] FullPathParts { get; }
     }
 }

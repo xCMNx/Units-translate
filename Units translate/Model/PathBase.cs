@@ -22,6 +22,7 @@ namespace Units_translate
         public virtual string Path => string.Empty;
         public virtual string FullPath => System.IO.Path.Combine(Path, Name);
         public virtual string Name => _Name;
+        public virtual string Ext => string.Empty;
         public virtual int StringsCount => 0;
         public virtual int CyrilicCount => 0;
         public virtual string[] FullPathParts => new string[]{Name};

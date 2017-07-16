@@ -52,6 +52,7 @@
     <Compile Include="Search.cs" />
     <Compile Include="Translations.cs" />
     <Compile Include="UTTranslationsContainer.cs" />
+    <Compile Include="yUml.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Base\Base.csproj">

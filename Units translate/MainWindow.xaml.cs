@@ -10,13 +10,11 @@ namespace Units_translate
     /// </summary>
     public partial class MainWindow : Window
     {
-        MainVM mainVm = MainVM.Instance;
         static string LAST_PATH = "LastPath";
 
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = mainVm;
             lastPath.Text = Core.Helpers.ReadFromConfig(LAST_PATH, null);
         }
 
@@ -30,15 +28,15 @@ namespace Units_translate
         {
             main.Visibility = Visibility.Visible;
             settings.Visibility = Visibility.Collapsed;
-            mainVm.NotifyPropertiesChanged(nameof(MainVM.IgnoreText), nameof(MainVM.WriteEncoding), nameof(MainVM.ReadEncoding), nameof(MainVM.UseWriteEncoding));
+            MainVM.Instance.NotifyPropertiesChanged(nameof(MainVM.IgnoreText), nameof(MainVM.WriteEncoding), nameof(MainVM.ReadEncoding), nameof(MainVM.UseWriteEncoding));
         }
 
         private void Button_Settings_Ok_Click(object sender, RoutedEventArgs e)
         {
-            mainVm.IgnoreText = settingsView.tbIgnore.Text;
-            mainVm.ReadEncoding = (System.Text.Encoding)settingsView.cbReadEncoding.SelectedItem;
-            mainVm.WriteEncoding = (System.Text.Encoding)settingsView.cbWriteEncoding.SelectedItem;
-            mainVm.UseWriteEncoding = settingsView.chbSaveEncodingChecked.IsChecked == true;
+            MainVM.Instance.IgnoreText = settingsView.tbIgnore.Text;
+            MainVM.Instance.ReadEncoding = (System.Text.Encoding)settingsView.cbReadEncoding.SelectedItem;
+            MainVM.Instance.WriteEncoding = (System.Text.Encoding)settingsView.cbWriteEncoding.SelectedItem;
+            MainVM.Instance.UseWriteEncoding = settingsView.chbSaveEncodingChecked.IsChecked == true;
             SwitchSettings();
         }
 
@@ -86,17 +84,17 @@ namespace Units_translate
         {
             var path = lastPath.Text;
             if (Directory.Exists(path))
-                Work((callback) => mainVm.AddDir(path, callback));
+                Work((callback) => MainVM.Instance.AddDir(path, callback));
         }
 
         private void btnUpdate_Click(object sender, RoutedEventArgs e)
         {
-            Work((callback) => mainVm.Remap(callback));
+            Work((callback) => MainVM.Instance.Remap(callback));
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
-            mainVm.SelectedValue = null;
+            MainVM.Instance.SelectedValue = null;
         }
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
@@ -121,7 +119,7 @@ namespace Units_translate
 
         private void btnIgnorTranslateConflicts_Click(object sender, RoutedEventArgs e)
         {
-            mainVm.ClearTranslationConflicts();
+            MainVM.Instance.ClearTranslationConflicts();
             tabs.SelectedItem = tiFiles;
         }
 
@@ -132,7 +130,7 @@ namespace Units_translate
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Work(mainVm.OpenSolution);
+            Work(MainVM.Instance.OpenSolution);
         }
     }
 }

@@ -20,6 +20,16 @@ namespace Units_translate.Views
                 {
                     element.TextRunProperties.SetForegroundBrush(Brushes.BlueViolet);
                 };
+            if (item is IMapUnitEntry)
+                return (VisualLineElement element) =>
+                {
+                    element.TextRunProperties.SetForegroundBrush(Brushes.OrangeRed);
+                };
+            if (item is IMapUnitLink)
+                return (VisualLineElement element) =>
+                {
+                    element.TextRunProperties.SetForegroundBrush(Brushes.Orange);
+                };
             if (item is IMapValueItem)
                 if (item is IMapBackgroundColorRange)
                     return (VisualLineElement element) =>

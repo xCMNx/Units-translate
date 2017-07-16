@@ -8,11 +8,28 @@ using System.Windows.Input;
 using Core;
 using Microsoft.Win32;
 using Ui;
+using System.ComponentModel;
 
 namespace Units_translate
 {
-    public partial class MainVM : BindableBase
+    public partial class MainVM : CommandSink, INotifyPropertyChanged
     {
+        #region INotifyPropertyChanged
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void NotifyPropertyChanged(string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        public void Route(object sender, PropertyChangedEventArgs e) => PropertyChanged?.Invoke(sender, e);
+
+        public void NotifyPropertiesChanged(params string[] propertyNames)
+        {
+            if (PropertyChanged != null)
+            {
+                foreach (var prop in propertyNames)
+                    PropertyChanged(this, new PropertyChangedEventArgs(prop));
+            }
+        }
+        #endregion
+
         #region UI properties
         #region Settings
         const string PREVIEW_LINSES_CNT = "PREVIEW_LINSES_CNT";
@@ -417,9 +434,13 @@ namespace Units_translate
         #endregion
 
         #region Constructor
-        private MainVM()
+        public MainVM()
         {
+            if (_Instance != null)
+                throw new Exception("MainVM already exists");
+            _Instance = this;
             initTranslation();
+            UnitsCommands();
         }
 
         static MainVM()
@@ -434,7 +455,7 @@ namespace Units_translate
             _InitCommands();
         }
 
-        public static MainVM Instance => _Instance ?? (_Instance = new MainVM());
+        public static MainVM Instance => _Instance;
         static MainVM _Instance = null;
         #endregion
     }

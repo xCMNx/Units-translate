@@ -38,7 +38,7 @@ namespace Units_translate
         }
         public override bool IsVisible => _Visible;
 
-        public string Ext => System.IO.Path.GetExtension(Name);
+        public override string Ext => System.IO.Path.GetExtension(Name);
         public string NameOnly => System.IO.Path.GetFileNameWithoutExtension(Name);
 
         //регулярка для проверки наличия кирилицы в строке
@@ -158,6 +158,11 @@ namespace Units_translate
                         Action tryGet = () =>
                         {
                             _Items = mapper.GetMap(Text, Ext, MapMethods ? MapperOptions.MapMethods : MapperOptions.None).OrderBy(it => it.Start).ToList();
+                            foreach (var item in _Items?.OfType<IMapUnitEntry>())
+                            {
+                                item.Data = this;
+                                item.Path = FullPath;
+                            }
                         };
                         try
                         {

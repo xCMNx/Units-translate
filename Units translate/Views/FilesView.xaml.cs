@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Windows.Input;
-using Ui;
+using Ui.Controls;
 
 namespace Units_translate.Views
 {

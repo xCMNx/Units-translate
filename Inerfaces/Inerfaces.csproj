@@ -49,6 +49,8 @@
     <Compile Include="IMapOptimizableValueItem.cs" />
     <Compile Include="IMapRecord.cs" />
     <Compile Include="IMapRecordFull.cs" />
+    <Compile Include="IMapUnitEntry.cs" />
+    <Compile Include="IMapUnitLink.cs" />
     <Compile Include="IMapValueItem.cs" />
     <Compile Include="IMapValueRangeItem.cs" />
     <Compile Include="IMapper.cs" />
@@ -58,6 +60,7 @@
     <Compile Include="ISortedObservableCollection.cs" />
     <Compile Include="ITranslationContainer.cs" />
     <Compile Include="ITranslationItem.cs" />
+    <Compile Include="IYumlGraphRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
