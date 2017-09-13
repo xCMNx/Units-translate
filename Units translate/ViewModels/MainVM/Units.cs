@@ -4,12 +4,15 @@ using Ui;
 using System;
 using System.Text;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Windows.Input;
 
 namespace Units_translate
 {
     public partial class MainVM
     {
         public ObservableCollectionEx<IMapUnitEntry> UnitsList { get; } = new ObservableCollectionEx<IMapUnitEntry>();
+        public List<IMapUnitEntry> MainUnitsList { get; } = new List<IMapUnitEntry>();
         string _yUml = string.Empty;
         public string yUml
         {
@@ -18,6 +21,19 @@ namespace Units_translate
             {
                 _yUml = value;
                 NotifyPropertyChanged(nameof(yUml));
+            }
+        }
+
+        string _searchText = string.Empty;
+
+        public string UnitSearchText
+        {
+            get => _searchText;
+            set
+            {
+                _searchText = value;
+                updateSearchList();
+                NotifyPropertyChanged(nameof(UnitSearchText));
             }
         }
 
@@ -45,9 +61,31 @@ namespace Units_translate
 
         public Command UpdateUnitsListCommand { get; protected set; }
         public Command UpdateDiagramCommand { get; protected set; }
+        ICommand _UnitsSortCommand;
+        public ICommand UnitsSortCommand => _UnitsSortCommand;
+
+        bool unitsOrder = false; 
 
         protected void UnitsCommands()
         {
+            _UnitsSortCommand = new Command((prp) =>
+            {
+                var lst = UnitsList.OfType<UnitEntryWrapper>().ToArray();
+                switch ((string)prp)
+                {
+                    case "Check":
+                        lst = lst.OrderBy(e => e.Checked).ToArray();
+                        break;
+                    case "Value":
+                        lst = lst.OrderBy(e => e.Value).ToArray();
+                        break;
+                    case "DependsCount":
+                        lst = lst.OrderBy(e => e.DependsCount).ToArray();
+                        break;
+                }
+                UnitsList.Reset(unitsOrder ? lst : lst.Reverse());
+                unitsOrder = !unitsOrder;
+            });
             UpdateUnitsListCommand = new Command(param => UpdateUnitsList());
             UpdateDiagramCommand = new Command(param => UpdateDiagram());
         }
@@ -74,6 +112,8 @@ namespace Units_translate
 
             public int End => Data.End;
 
+            public int DependsCount => Data.Links.Count;
+
             public ICollection<IMapUnitLink> Links => Data.Links;
 
             IMapData IMapUnitEntry.Data { get => Data.Data; set => Data.Data = value; }
@@ -90,13 +130,28 @@ namespace Units_translate
             public string ToUnitString() => Data.ToUnitString();
         }
 
-        void UpdateUnitsList()
+        void updateSearchList()
         {
             UnitsList.Clear();
             try
             {
-                var lst = MappedData.Data.SelectMany(data => data.Items == null ? new IMapUnitEntry[0] : data.Items.OfType<IMapUnitEntry>()).Select(data=> new UnitEntryWrapper(data)).ToArray();
-                UnitsList.AddRange(lst);
+                var rgxp = new Regex(_searchText, RegexOptions.IgnoreCase, new TimeSpan(0, 0, 1));
+                UnitsList.AddRange(MainUnitsList.Where(i => rgxp.IsMatch(i.Value)).ToList());
+            }
+            catch
+            {
+
+            }
+        }
+
+        void UpdateUnitsList()
+        {
+            MainUnitsList.Clear();
+            try
+            {
+                var lst = MappedData.Data.SelectMany(data => data.Items == null ? new IMapUnitEntry[0] : data.Items.OfType<IMapUnitEntry>()).Select(data=> new UnitEntryWrapper(data)).OfType<UnitEntryWrapper>().OrderBy(u => u.Value).ToArray();
+                MainUnitsList.AddRange(lst);
+                updateSearchList();
             }
             catch
             {
@@ -145,6 +200,8 @@ namespace Units_translate
                 };
                 var units = UnitsList.Where(unit => (unit as UnitEntryWrapper).Checked).ToArray();
                 var unitsList = new HashSet<IMapUnitEntry>();
+                foreach (var unit in units)
+                    unitsList.Add(unit);
                 foreach (var unit in units)
                     foreach (var u in getDepends(unit))
                         unitsList.Add(u);

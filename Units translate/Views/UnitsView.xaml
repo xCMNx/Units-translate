@@ -13,25 +13,33 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal" Grid.Row="0">
-            <Button Name="btnUpdateUnitsList" Width="20" Height="20" Command="{Binding UpdateUnitsListCommand}">
-                <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.UpdateUnitsList}"/>
-            </Button>
-            <Button Name="btnUpdateDiagram" Width="20" Height="20" Command="{Binding UpdateDiagramCommand}">
-                <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.Diagram}"/>
-            </Button>
-        </StackPanel>
-        <ListView Grid.Row="1" ItemsSource="{Binding UnitsList}">
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <Button Name="btnUpdateUnitsList" Width="20" Height="20" Command="{Binding UpdateUnitsListCommand}">
+                    <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.UpdateUnitsList}"/>
+                </Button>
+                <Button Name="btnUpdateDiagram" Width="20" Height="20" Command="{Binding UpdateDiagramCommand}">
+                    <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.Diagram}"/>
+                </Button>
+            </StackPanel>
+            <TextBox Grid.Column="1" Name="tbSearch" AcceptsReturn="True" Text="{Binding UnitSearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged, Delay=1000}" TextWrapping="Wrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
+        </Grid>
+        <ListView Grid.Row="1" ItemsSource="{Binding UnitsList}" util:GridViewSort.Command="{Binding UnitsSortCommand}" MouseDoubleClick="ListView_MouseDoubleClick">
             <ListView.View>
                 <GridView >
-                    <GridViewColumn Header="" Width="Auto">
+                    <GridViewColumn Header="" Width="Auto" util:GridViewSort.PropertyName="Check">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <CheckBox IsChecked="{Binding Checked}"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Значение" Width="Auto" DisplayMemberBinding="{Binding Value}" util:GridViewSort.PropertyName="Value"/>
+                    <GridViewColumn Header="Значение" Width="150" DisplayMemberBinding="{Binding Value}" util:GridViewSort.PropertyName="Value"/>
+                    <GridViewColumn Header="Зависимостей" Width="Auto" DisplayMemberBinding="{Binding DependsCount}" util:GridViewSort.PropertyName="DependsCount"/>
                 </GridView>
             </ListView.View>
         </ListView>
