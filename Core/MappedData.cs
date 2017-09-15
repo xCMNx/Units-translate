@@ -108,8 +108,8 @@ namespace Core
             {
                 var rec = Getter(item.Value);
                 (rec as IMapRecordFull).Data.Add(data);
-                if (rec is IMapValueRecord)
-                    (rec as IMapValueRecord).WasLinked = true;
+                if (rec is IMapValueRecord mvr)
+                    mvr.WasLinked = true;
 #if MAPPED_DATA_OPTIMIZE
                 store.Add(rec);
 #endif

@@ -60,6 +60,7 @@
     <Compile Include="ISortedObservableCollection.cs" />
     <Compile Include="ITranslationContainer.cs" />
     <Compile Include="ITranslationItem.cs" />
+    <Compile Include="IValuedItem.cs" />
     <Compile Include="IYumlGraphRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

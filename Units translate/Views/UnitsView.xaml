@@ -26,7 +26,7 @@
                     <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.Diagram}"/>
                 </Button>
             </StackPanel>
-            <TextBox Grid.Column="1" Name="tbSearch" AcceptsReturn="True" Text="{Binding UnitSearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged, Delay=1000}" TextWrapping="Wrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
+            <TextBox ToolTip="{Binding UnitsShowedCount}" Grid.Column="1" Name="tbSearch" AcceptsReturn="True" Text="{Binding UnitSearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged, Delay=1000}" TextWrapping="Wrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
         </Grid>
         <ListView Grid.Row="1" ItemsSource="{Binding UnitsList}" util:GridViewSort.Command="{Binding UnitsSortCommand}" MouseDoubleClick="ListView_MouseDoubleClick">
             <ListView.View>
@@ -38,8 +38,8 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Значение" Width="150" DisplayMemberBinding="{Binding Value}" util:GridViewSort.PropertyName="Value"/>
-                    <GridViewColumn Header="Зависимостей" Width="Auto" DisplayMemberBinding="{Binding DependsCount}" util:GridViewSort.PropertyName="DependsCount"/>
+                    <GridViewColumn Header="Unit" Width="150" DisplayMemberBinding="{Binding Value}" util:GridViewSort.PropertyName="Value"/>
+                    <GridViewColumn Header="Depends" Width="Auto" DisplayMemberBinding="{Binding DependsCount}" util:GridViewSort.PropertyName="DependsCount"/>
                 </GridView>
             </ListView.View>
         </ListView>

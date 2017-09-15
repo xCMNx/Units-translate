@@ -3,13 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Units_translate.Views"
+             xmlns:views="clr-namespace:Units_translate.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="929.577" d:DesignWidth="661.268">
     <TabControl>
         <TabItem Header="Units">
             <Border>
-                <TextBox Text="{Binding CustomValue}" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+                <TextBox Text="{Binding CustomValue}" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" MouseDoubleClick="TextBox_MouseDoubleClick"/>
             </Border>
         </TabItem>
         <TabItem Header="Diagram">
@@ -20,6 +20,9 @@
                     </DataTemplate>
                 </TabControl.ContentTemplate>
             </TabControl>
+        </TabItem>
+        <TabItem Header="Code">
+            <views:CodeView DataContext="{Binding}"/>
         </TabItem>
     </TabControl>
 </UserControl>

@@ -1,7 +1,9 @@
 ﻿#define MAPPED_DATA_OPTIMIZE
+using System;
+
 namespace Core
 {
-    public class MapValuedItemBase : MapRangeItemBase, IMapBaseItem
+    public class MapValuedItemBase : MapRangeItemBase, IMapBaseItem, IValuedItem
 #if MAPPED_DATA_OPTIMIZE
         , IMapOptimizableValueItem
     {
@@ -17,6 +19,9 @@ namespace Core
         /// Значение области
         /// </summary>
         public string Value => _optimized ? (_value as IMapRecord).Value : (string)_value;
+
+        public object InternalValue => _value;
+
         public MapValuedItemBase(string value, int start, int end): base (start, end)
         {
             _value = value;
@@ -41,7 +46,7 @@ namespace Core
 
         public virtual bool IsSameValue(object val)
         {
-            return (val as IMapRecord)?.Value == Value;
+            return (val is IValuedItem mr) && mr.InternalValue == InternalValue;
         }
     }
 }

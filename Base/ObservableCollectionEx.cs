@@ -42,7 +42,7 @@ namespace Core
             foreach (var i in collection)
                 Items.Add(i);
 
-            NotifyProperties();
+            NotifyProperties(startIndex != Items.Count);
             if (notificationMode == NotifyCollectionChangedAction.Reset || startIndex == 0)
                 OnCollectionReset();
             else
@@ -208,11 +208,14 @@ namespace Core
         /// </summary>
         public virtual void Reset(IEnumerable<T> collection)
         {
+            CheckReentrancy();
+            var cnt = Items.Count;
             Items.Clear();
             if (collection != null)
                 foreach (var i in collection) Items.Add(i);
 
             OnCollectionReset();
+            NotifyProperties(cnt != Items.Count);
         }
 
         void OnCollectionReset() => OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));

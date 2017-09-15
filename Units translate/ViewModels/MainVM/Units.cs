@@ -24,6 +24,8 @@ namespace Units_translate
             }
         }
 
+        public int UnitsShowedCount => UnitsList.Count;
+
         string _searchText = string.Empty;
 
         public string UnitSearchText
@@ -84,6 +86,7 @@ namespace Units_translate
                         break;
                 }
                 UnitsList.Reset(unitsOrder ? lst : lst.Reverse());
+                NotifyPropertyChanged(nameof(UnitsShowedCount));
                 unitsOrder = !unitsOrder;
             });
             UpdateUnitsListCommand = new Command(param => UpdateUnitsList());
@@ -92,7 +95,7 @@ namespace Units_translate
 
         class UnitEntryWrapper: Core.BindableBase, IMapUnitEntry
         {
-            public IMapUnitEntry Data { get; protected set; }
+            public IMapUnitEntry Source { get; protected set; }
             bool _Checked = false;
             public bool Checked
             {
@@ -104,30 +107,30 @@ namespace Units_translate
                 }
             }
 
-            public string Path { get => Data.Path; set => Data.Path = value; }
+            public string Path { get => Source.Path; set => Source.Path = value; }
 
-            public string Value => Data.Value;
+            public string Value => Source.Value;
 
-            public int Start => Data.Start;
+            public int Start => Source.Start;
 
-            public int End => Data.End;
+            public int End => Source.End;
 
-            public int DependsCount => Data.Links.Count;
+            public int DependsCount => Source.Links.Count;
 
-            public ICollection<IMapUnitLink> Links => Data.Links;
+            public ICollection<IMapUnitLink> Links => Source.Links;
 
-            IMapData IMapUnitEntry.Data { get => Data.Data; set => Data.Data = value; }
+            IMapData IMapUnitEntry.Data { get => Source.Data; set => Source.Data = value; }
 
-            public bool CaseSensitive => Data.CaseSensitive;
+            public bool CaseSensitive => Source.CaseSensitive;
 
             public UnitEntryWrapper(IMapUnitEntry data)
             {
-                Data = data;
+                Source = data;
             }
 
-            public bool IsSameValue(object val) => Data.IsSameValue(val);
+            public bool IsSameValue(object val) => Source.IsSameValue(val);
 
-            public string ToUnitString() => Data.ToUnitString();
+            public string ToUnitString() => Source.ToUnitString();
         }
 
         void updateSearchList()
@@ -142,6 +145,21 @@ namespace Units_translate
             {
 
             }
+            NotifyPropertyChanged(nameof(UnitsShowedCount));
+        }
+
+        public IEnumerable<IMapUnitEntry> GetUnitsEntries() => MappedData.Data.Where(data => data.Items != null).SelectMany(data => data.Items.OfType<IMapUnitEntry>());
+        IList<IMapUnitEntry> getUnitsEntries() => GetUnitsEntries().ToArray();
+
+        public void ShowDependsFor(IMapUnitEntry unit)
+        {
+            UnitsList.Clear();
+            NotifyPropertyChanged(nameof(UnitsShowedCount));
+            if (unit == null)
+                return;
+            var units = GetUnitsEntries().Where(u => u.Links.Any(l => unit.Value == l.Value)).ToArray();
+            UnitsList.AddRange(units);
+            NotifyPropertyChanged(nameof(UnitsShowedCount));
         }
 
         void UpdateUnitsList()
@@ -149,7 +167,7 @@ namespace Units_translate
             MainUnitsList.Clear();
             try
             {
-                var lst = MappedData.Data.SelectMany(data => data.Items == null ? new IMapUnitEntry[0] : data.Items.OfType<IMapUnitEntry>()).Select(data=> new UnitEntryWrapper(data)).OfType<UnitEntryWrapper>().OrderBy(u => u.Value).ToArray();
+                var lst = getUnitsEntries().Select(data=> new UnitEntryWrapper(data)).OfType<UnitEntryWrapper>().OrderBy(u => u.Value).ToArray();
                 MainUnitsList.AddRange(lst);
                 updateSearchList();
             }
@@ -171,26 +189,27 @@ namespace Units_translate
         {
             try
             {
-                var lst = MappedData.Data.SelectMany(data => data.Items == null ? new IMapUnitEntry[0] : data.Items.OfType<IMapUnitEntry>()).ToArray();
-                var entryes = new HashSet<string>(StringComparer.InvariantCulture);
+                var lst = getUnitsEntries();
+                var unitsList = new HashSet<IMapUnitEntry>();
                 var sb = new StringBuilder();
                 Func<IMapUnitEntry, ICollection<IMapUnitEntry>> getDepends = null;
                 getDepends = (unit) =>
                 {
                     var name = unit.CaseSensitive ? unit.Value : unit.Value.ToLower();
                     sb.AppendLine($"[{name}|{unit.Value}|{unit.Path}]");
+                    unitsList.Add(unit);
                     var res = new HashSet<IMapUnitEntry>();
                     foreach (var lnk in unit.Links)
                     {
-                        var lName = unit.CaseSensitive ? lnk.Value : lnk.Value.ToLower();
-                        sb.AppendLine($"[{name}]->[{lName}]");
+                        var cs = unit.CaseSensitive ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase;
+                        sb.AppendLine($"[{name}]->[{(unit.CaseSensitive ? lnk.Value : lnk.Value.ToLower())}]");
                         foreach (var entry in lst)
-                            if (string.Equals(entry.Value, lName, entry.CaseSensitive ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase))
+                            if (string.Equals(entry.Value, lnk.Value, unit.CaseSensitive == entry.CaseSensitive ? cs : StringComparison.InvariantCulture))
                             {
                                 res.Add(entry);
-                                if (!entryes.Contains(lName))
+                                if (!unitsList.Contains(entry))
                                 {
-                                    entryes.Add(lName);
+                                    unitsList.Add(entry);
                                     foreach (var u in getDepends(entry))
                                         res.Add(u);
                                 }
@@ -198,10 +217,7 @@ namespace Units_translate
                     }
                     return res;
                 };
-                var units = UnitsList.Where(unit => (unit as UnitEntryWrapper).Checked).ToArray();
-                var unitsList = new HashSet<IMapUnitEntry>();
-                foreach (var unit in units)
-                    unitsList.Add(unit);
+                var units = MainUnitsList.OfType<UnitEntryWrapper>().Where(unit => unit.Checked).Select(unit => unit.Source).ToArray();
                 foreach (var unit in units)
                     foreach (var u in getDepends(unit))
                         unitsList.Add(u);
