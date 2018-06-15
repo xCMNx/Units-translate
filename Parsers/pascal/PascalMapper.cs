@@ -206,7 +206,7 @@ namespace pascal
                                 comb = 0;
                                 value = string.Empty;
                             }
-                            else
+                            //else
                             {
                                 //лабуда для записей вида s := 'Error raised at :' + date + #13#10 + 'In file:'#13#10 + filepath
                                 //позволяет объединить следующую строку с предыдущей если между ними был только +

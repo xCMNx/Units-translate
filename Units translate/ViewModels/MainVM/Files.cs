@@ -6,6 +6,8 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using Core;
 using Ui;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Units_translate
 {
@@ -84,22 +86,33 @@ namespace Units_translate
         void AddFiles(ICollection<string> files, Action<string, int> callback = null)
         {
             EditingEnabled = false;
+            var cts = new CancellationTokenSource();
             FilesTree.BeginUpdate();
             try
             {
                 callback?.Invoke(null, files.Count);
                 int cnt = 0;
-                //System.Diagnostics.Stopwatch w = new System.Diagnostics.Stopwatch();
+                string currentFile = string.Empty;
+                Task.Run(() => {
+                    while (!cts.IsCancellationRequested)
+                    {
+                        Task.Delay(1000);
+                        callback?.Invoke(currentFile, cnt);
+                    }
+                });
+               //System.Diagnostics.Stopwatch w = new System.Diagnostics.Stopwatch();
                 //w.Start();
                 foreach (var f in files)
                 {
-                    callback?.Invoke(f, ++cnt);
+                    currentFile = f;
+                    ++cnt;
                     FilesTree.AddFile(f);
                 }
                 //w.Stop();
             }
             finally
             {
+                cts.Cancel();
                 FilesTree.EndUpdate();
                 EditingEnabled = true;
                 FilterFiles();
