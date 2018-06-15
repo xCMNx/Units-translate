@@ -231,9 +231,9 @@
       <Project>{3a07d7f9-9401-4c63-9c02-aceea373b714}</Project>
       <Name>Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Inerfaces\Inerfaces.csproj">
+    <ProjectReference Include="..\Inerfaces\Interfaces.csproj">
       <Project>{efe43656-ced7-496b-87c0-e89ad7cf3dbb}</Project>
-      <Name>Inerfaces</Name>
+      <Name>Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\SpellTextBox\SpellTextBox.csproj">
       <Project>{b68575f2-d6ca-4b41-8710-1fe81310398a}</Project>

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+VisualStudioVersion = 15.0.26403.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Units translate", "Units translate\Units translate.csproj", "{96398108-44CE-4917-B9BC-F8CB2C0A9667}"
 EndProject
@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ui", "UI\Ui.csproj", "{5ED1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "regex", "Parsers\regex\regex.csproj", "{2B692DF7-B0CB-4CD4-9DF8-E5229BF1A2B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inerfaces", "Inerfaces\Inerfaces.csproj", "{EFE43656-CED7-496B-87C0-E89AD7CF3DBB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interfaces", "Inerfaces\Interfaces.csproj", "{EFE43656-CED7-496B-87C0-E89AD7CF3DBB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Parsers", "Parsers", "{A3747637-BACC-4813-B9DC-9F9AA3FC140A}"
 EndProject

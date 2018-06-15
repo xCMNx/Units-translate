@@ -55,9 +55,9 @@
       <Name>Base</Name>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\..\Inerfaces\Inerfaces.csproj">
+    <ProjectReference Include="..\..\Inerfaces\Interfaces.csproj">
       <Project>{efe43656-ced7-496b-87c0-e89ad7cf3dbb}</Project>
-      <Name>Inerfaces</Name>
+      <Name>Interfaces</Name>
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
