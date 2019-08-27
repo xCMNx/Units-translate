@@ -17,7 +17,7 @@ namespace pascal
         static Brush CommentBrush = Brushes.Green;
         static Brush DirectiveBrush = Brushes.LightBlue;
 
-        static Regex regex = new Regex(@"#(\d+)");
+        static Regex regex = new Regex(@"#(\$(?:[\d\w]+)|(?:[\d]+))");
 
         public static Regex regexUses = new Regex(@"(?ixms)
  \{.*?\}#skip comments
@@ -144,12 +144,23 @@ namespace pascal
                             if (Start == -1)
                                 Start = idx;
                             int start = idx;
-                            while (++idx < Text.Length && (char.IsNumber(Text[idx]) || Text[idx] == '#'))
+                            while (++idx < Text.Length && (char.IsNumber(Text[idx]) || char.IsLetter(Text[idx]) || Text[idx] == '#' || Text[idx] == '$'))
                                 ;
                             string str = Text.Substring(start, idx - start);
                             MatchCollection ms = regex.Matches(str);
                             foreach (Match m in ms)
-                                value += Convert.ToChar(Convert.ToInt32(m.Groups[1].Value));
+                            {
+                                var code = m.Groups[1].Value;
+                                int intChar = 0;
+                                if (string.IsNullOrEmpty(code))
+                                    continue;
+                                if (code[0] == '$')
+                                    intChar = int.Parse(code.Substring(1), System.Globalization.NumberStyles.HexNumber);
+                                else
+                                    intChar = Convert.ToInt32(code);
+                                value += Convert.ToChar(intChar);
+
+                            }
                             End = idx--;
                         }
                         break;
