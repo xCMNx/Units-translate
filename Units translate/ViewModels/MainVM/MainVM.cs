@@ -378,7 +378,16 @@ namespace Units_translate
                 System.Diagnostics.Process.Start("explorer.exe", @"/select, " + filePath);
         });
 
-        public Command OpenFile { get; } = new Command(filePath => System.Diagnostics.Process.Start((string)filePath));
+        public Command OpenFile { get; } = new Command(filePath =>
+        {
+            try
+            {
+                System.Diagnostics.Process.Start((string)filePath);
+            } catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
+        });
 
         public Command SaveTranslates { get; } = new Command(param =>
         {

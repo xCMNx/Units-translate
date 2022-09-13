@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26403.3
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Units translate", "Units translate\Units translate.csproj", "{96398108-44CE-4917-B9BC-F8CB2C0A9667}"
 EndProject
@@ -28,6 +28,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "yUml", "yUml", "{655C9D73-9039-43E5-AB2B-8A8AB6B4D8EC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "yuml.me", "yUml\yuml.me\yuml.me.csproj", "{F26CF049-55CD-4516-82D3-26C438BCB151}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "json", "Containers\json\json.csproj", "{79446C11-E265-43AE-8465-7ED79D9278A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +77,10 @@ Global
 		{F26CF049-55CD-4516-82D3-26C438BCB151}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F26CF049-55CD-4516-82D3-26C438BCB151}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F26CF049-55CD-4516-82D3-26C438BCB151}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79446C11-E265-43AE-8465-7ED79D9278A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79446C11-E265-43AE-8465-7ED79D9278A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79446C11-E265-43AE-8465-7ED79D9278A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79446C11-E265-43AE-8465-7ED79D9278A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -84,5 +90,9 @@ Global
 		{7159AAA6-55BE-4E47-BC9D-8570070624EF} = {A3747637-BACC-4813-B9DC-9F9AA3FC140A}
 		{B0676932-B85A-4206-A606-070BD4A9C846} = {3A40A0DC-970C-4412-9D95-3E9E5B77D477}
 		{F26CF049-55CD-4516-82D3-26C438BCB151} = {655C9D73-9039-43E5-AB2B-8A8AB6B4D8EC}
+		{79446C11-E265-43AE-8465-7ED79D9278A4} = {3A40A0DC-970C-4412-9D95-3E9E5B77D477}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8CC94232-8E4D-4A71-B0F5-6D4F00C79A4D}
 	EndGlobalSection
 EndGlobal
