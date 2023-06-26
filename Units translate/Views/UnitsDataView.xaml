@@ -9,7 +9,7 @@
     <TabControl>
         <TabItem Header="Units">
             <Border>
-                <TextBox Text="{Binding CustomValue}" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" MouseDoubleClick="TextBox_MouseDoubleClick"/>
+                <TextBox Text="{Binding CustomValue, Mode=OneWay}" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" MouseDoubleClick="TextBox_MouseDoubleClick"/>
             </Border>
         </TabItem>
         <TabItem Header="Diagram">

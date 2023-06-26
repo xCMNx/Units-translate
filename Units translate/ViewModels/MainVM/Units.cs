@@ -61,6 +61,20 @@ namespace Units_translate
             }
         }
 
+        bool _PinChecked = false;
+        public bool PinChecked
+        {
+            get => _PinChecked;
+            set
+            {
+                if (value == _PinChecked)
+                    return;
+                _PinChecked = value;
+                updateSearchList();
+                NotifyPropertyChanged(nameof(PinChecked));
+            }
+        }
+
         public Command UpdateUnitsListCommand { get; protected set; }
         public Command UpdateDiagramCommand { get; protected set; }
         ICommand _UnitsSortCommand;
@@ -139,7 +153,7 @@ namespace Units_translate
             try
             {
                 var rgxp = new Regex(_searchText, RegexOptions.IgnoreCase, new TimeSpan(0, 0, 1));
-                UnitsList.AddRange(MainUnitsList.Where(i => rgxp.IsMatch(i.Value)).ToList());
+                UnitsList.AddRange(MainUnitsList.Where(i => rgxp.IsMatch(i.Value) || (_PinChecked && (i as UnitEntryWrapper).Checked)).ToList());
             }
             catch
             {
@@ -157,7 +171,7 @@ namespace Units_translate
             NotifyPropertyChanged(nameof(UnitsShowedCount));
             if (unit == null)
                 return;
-            var units = GetUnitsEntries().Where(u => u.Links.Any(l => unit.Value == l.Value)).ToArray();
+            var units = GetUnitsEntries().Where(u => u.Links.Any(l => unit.Value == l.Value) || (_PinChecked && (u as UnitEntryWrapper).Checked)).ToArray();
             UnitsList.AddRange(units);
             NotifyPropertyChanged(nameof(UnitsShowedCount));
         }

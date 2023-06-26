@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Units_translate"
              xmlns:util="clr-namespace:Wpf.Util;assembly=Ui"
-             xmlns:Ui="clr-namespace:Ui;assembly=Ui"
+             xmlns:UI="clr-namespace:Ui.Controls;assembly=Ui"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
@@ -25,6 +25,7 @@
                 <Button Name="btnUpdateDiagram" Width="20" Height="20" Command="{Binding UpdateDiagramCommand}">
                     <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.Diagram}"/>
                 </Button>
+                <UI:CheckBox ToolTip="Не фильтровать отмеченные" Background="LightGray" IsChecked="{Binding PinChecked}" Width="20" Height="20" Padding="5,5" GlyphData="{StaticResource Icons.Data.Pin}"/>
             </StackPanel>
             <TextBox ToolTip="{Binding UnitsShowedCount}" Grid.Column="1" Name="tbSearch" AcceptsReturn="True" Text="{Binding UnitSearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged, Delay=1000}" TextWrapping="Wrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
         </Grid>
