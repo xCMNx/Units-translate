@@ -1,8 +1,10 @@
 ﻿#define MAPPED_DATA_OPTIMIZE
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace Core
 {
@@ -77,7 +79,10 @@ namespace Core
         /// </summary>
         static void RemoveRecordInfo<T>(IEnumerable<IMapRecordFull> lst, IMapData data, Func<string, IMapRecordFull> Getter) where T : IMapBaseItem
         {
-            foreach (var item in new SortedSet<T>(data.Items.OfType<T>().ToArray(), MapBaseItemComparer<T>.Comparer))
+            if (data.Items == null) return;
+            var items = data.Items.OfType<T>().ToArray();
+            var set = new SortedSet<T>(items, MapBaseItemComparer<T>.Comparer);
+            foreach (var item in set)
                 Getter(item.Value).Data.Remove(data);
         }
 
@@ -147,12 +152,8 @@ namespace Core
             if (idx < 0)
                 _Data.Add(data);
             else
-            {
                 data = _Data[idx] as IMapData;
-                RemoveMapInfo(data);
-            }
-            data.Remap(false);
-            AddMapInfo(data);
+            UpdateData(data, false);
             return data;
         }
 
@@ -165,9 +166,14 @@ namespace Core
         {
             if (data != null && (!ifChanged || data.IsChanged) && _Data.Contains(data))
             {
-                RemoveMapInfo(data);
-                data.Remap(ifChanged);
-                AddMapInfo(data);
+                if (!Monitor.TryEnter(data)) return;
+                try
+                {
+                    RemoveMapInfo(data);
+                    data.Remap(ifChanged);
+                    AddMapInfo(data);
+                }
+                finally { Monitor.Exit(data); }
             }
         }
 

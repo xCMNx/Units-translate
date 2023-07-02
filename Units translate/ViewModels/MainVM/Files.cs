@@ -8,6 +8,8 @@ using Core;
 using Ui;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Windows.Markup;
+using System.Text;
 
 namespace Units_translate
 {
@@ -125,7 +127,7 @@ namespace Units_translate
             var files = reader.GetFiles(file);
             if (files != null)
             {
-                if (MappedData.Data.Count() > 0 && MessageBox.Show("Удалить уже добавленные файлы?", "Добавлеие решения", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                if (MappedData.Data.Count() > 0 && MessageBox.Show("Удалить уже добавленные файлы?", "Добавление решения", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
                     Helpers.mainCTX.Send(_ => MappedData.Clear(), null);
                     foreach (var w in watchers)
@@ -153,6 +155,83 @@ namespace Units_translate
             ));
             if (pair.HasValue)
                 OpenSolution(pair.Value.Value, pair.Value.Key, callback);
+        }
+
+        static char[] _checks = new char[] { '.', '/', '\\' };
+
+        public string RelativePath(string absPath, string relTo, bool caseSensitive = false)
+        {
+            string[] absDirs = absPath.Split('\\');
+            string[] relDirs = relTo.Split('\\');
+            // Get the shortest of the two paths 
+            int len = absDirs.Length < relDirs.Length ? absDirs.Length : relDirs.Length;
+            // Use to determine where in the loop we exited 
+            int lastCommonRoot = -1; int index;
+            // Find common root 
+            for (index = 0; index < len; index++)
+            {
+                if (caseSensitive ? absDirs[index] == relDirs[index] : absDirs[index].Equals(relDirs[index], StringComparison.InvariantCultureIgnoreCase))
+                    lastCommonRoot = index;
+                else break;
+            }
+            // If we didn't find a common prefix then throw 
+            if (lastCommonRoot == -1)
+            {
+                return relTo;
+            }
+            // Build up the relative path 
+            StringBuilder relativePath = new StringBuilder();
+            // Add on the .. 
+            for (index = lastCommonRoot + 1; index < absDirs.Length; index++)
+            {
+                if (absDirs[index].Length > 0) relativePath.Append("..\\");
+            }
+            // Add on the folders 
+            for (index = lastCommonRoot + 1; index < relDirs.Length - 1; index++)
+            {
+                relativePath.Append(relDirs[index] + "\\");
+            }
+            relativePath.Append(relDirs[relDirs.Length - 1]);
+            if(relativePath.Length > 1 && relativePath[1] != ':' && !_checks.Contains(relativePath[0]))
+                return ".\\" + relativePath.ToString();
+            return relativePath.ToString();
+        }
+
+        public void FixUnitPaths(Action<string, int> callback = null)
+        {
+            EditingEnabled = false;
+            try
+            {
+                var lst = FilesTree.Files.ToArray();
+                if (callback != null) callback(null, lst.Count());
+                int cnt = 0;
+                foreach (var data in lst)
+                {
+                    if (callback != null) callback((data as FileContainer)?.FullPath, ++cnt);
+                    if (data.Items == null) continue;
+                    var units = data.Items.OfType<IMapUnitPath>().OrderBy(i => i.Start).Reverse();
+                    if (units.Count() < 1) continue;
+                    var codeDir = data.Parent.FullPath;
+                    var code = data.Text;
+                    var chngs = 0;
+                    foreach (var unit in units)
+                    {
+                        var path = unit.getValueFromCode(code);
+                        var newPath = RelativePath(codeDir, path);
+                        if (path.Equals(newPath, StringComparison.InvariantCultureIgnoreCase)) continue;
+                        chngs++;
+                        Helpers.ConsoleWrite($"{path} => {newPath}", ConsoleColor.Blue);
+                        code = unit.replaceValueInCode(code, newPath);
+                    }
+                    if(chngs > 0)
+                        data.SaveText(code);
+                }
+            }
+            finally
+            {
+                EditingEnabled = true;
+                GC.Collect();
+            }
         }
 
         /// <summary>

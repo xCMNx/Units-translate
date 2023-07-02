@@ -157,7 +157,7 @@ namespace Units_translate
                     {
                         Action tryGet = () =>
                         {
-                            _Items = mapper.GetMap(Text, Ext, MapMethods ? MapperOptions.MapMethods : MapperOptions.None).OrderBy(it => it.Start).ToList();
+                            _Items = mapper.GetMap(Text, Ext, (MapMethods ? MapperOptions.MapMethods : MapperOptions.None)).OrderBy(it => it.Start).ToList();
                             foreach (var item in _Items?.OfType<IMapUnitEntry>())
                             {
                                 item.Data = this;

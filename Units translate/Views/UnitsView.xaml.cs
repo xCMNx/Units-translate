@@ -14,10 +14,21 @@ namespace Units_translate.Views
             InitializeComponent();
         }
 
+        private void doSelect(IMapUnitEntry item)
+        {
+            MainVM.Instance.Selected = item == null ? null : MainVM.Instance.FilesTree.Files.FirstOrDefault(f => f.FullPath.Equals(item.Path, System.StringComparison.InvariantCultureIgnoreCase));
+        }
+
         private void ListView_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if ((sender as ListView).SelectedItem is IMapUnitEntry item)
-                MainVM.Instance.Selected = MainVM.Instance.FilesTree.Files.FirstOrDefault(f => f.FullPath.Equals(item.Path, System.StringComparison.InvariantCultureIgnoreCase));
+                doSelect(item);
+        }
+
+        private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if ((sender as ListView).SelectedItem is IMapUnitEntry item)
+                MainVM.Instance.FocusedUnit = item;
         }
     }
 }

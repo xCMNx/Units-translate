@@ -6,9 +6,9 @@ namespace pascal
 {
     public class PascalMapItem : MapValueRangeItemBase
     {
-        bool isCodeChar(char chr, bool controlOnly) => !controlOnly && ((int)chr > 255) || char.IsControl(chr);
+        public static bool isCodeChar(char chr, bool controlOnly) => !controlOnly && ((int)chr > 255) || char.IsControl(chr);
 
-        string StringToCodes(string str)
+        public static string StringToCodes(string str)
         {
             var strb = new StringBuilder();
             foreach (var chr in str)
@@ -16,9 +16,9 @@ namespace pascal
             return strb.ToString();
         }
 
-        KeyValuePair<string, bool> GetPair(string str, bool isCode) => new KeyValuePair<string, bool>(isCode ? StringToCodes(str) : str, isCode);
+        public static KeyValuePair<string, bool> GetPair(string str, bool isCode) => new KeyValuePair<string, bool>(isCode ? StringToCodes(str) : str, isCode);
 
-        List<KeyValuePair<string, bool>> StringToParts(string str, bool controlOnly)
+        public static List<KeyValuePair<string, bool>> StringToParts(string str, bool controlOnly)
         {
             var res = new List<KeyValuePair<string, bool>>();
             if (str.Length > 0)
@@ -51,7 +51,7 @@ namespace pascal
         /// <param name = "value">Исправляемое значение</param>
         /// <param name = "controlOnly">Заменять на хэши только контрольные символы. Если true, то кирилица будет записана, как есть</param>
         /// <returns></returns>
-        protected string GenNewValue(string value, bool controlOnly, byte maxLength = 0)
+        public static string GenNewValue(string value, bool controlOnly, byte maxLength = 0)
         {
             var pairs = StringToParts(value.Replace("'", "''"), controlOnly);
             if (pairs.Count == 0)

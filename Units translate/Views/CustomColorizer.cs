@@ -30,6 +30,11 @@ namespace Units_translate.Views
                 {
                     element.TextRunProperties.SetForegroundBrush(Brushes.Orange);
                 };
+            if (item is IMapUnitPath)
+                return (VisualLineElement element) =>
+                {
+                    element.TextRunProperties.SetForegroundBrush(Brushes.Red);
+                };
             if (item is IMapValueItem)
                 if (item is IMapBackgroundColorRange)
                     return (VisualLineElement element) =>
@@ -71,7 +76,14 @@ namespace Units_translate.Views
             int end = line.EndOffset;
             var items = Data.ItemsBetween<IMapRangeItem>(start, end);
             foreach (var item in items)
-                ChangeLinePart(Math.Max(start, item.Start), Math.Min(item.End, end), ValueTypeToAction(item));
+            {
+                var cur = item;
+                while(cur != null)
+                {
+                    ChangeLinePart(Math.Max(start, cur.Start), Math.Min(cur.End, end), ValueTypeToAction(cur));
+                    cur = (cur as IMapSubrange)?.Subrange;
+                }
+            }
         }
     }
 }

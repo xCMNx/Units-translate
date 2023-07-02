@@ -75,6 +75,21 @@ namespace Units_translate
             }
         }
 
+        IMapUnitEntry _FocusedUnit = null;
+        public IMapUnitEntry FocusedUnit
+        {
+            get { return _FocusedUnit; }
+            set
+            {
+                if (_FocusedUnit != value)
+                {
+                    _FocusedUnit = value;
+                    NotifyPropertiesChanged(nameof(FocusedUnit), nameof(FocusedUnitLinks));
+                }
+            }
+        }
+        public IEnumerable<IMapUnitEntry> FocusedUnitLinks => (FocusedUnit as UnitEntryWrapper)?.ReferList;
+
         public Command UpdateUnitsListCommand { get; protected set; }
         public Command UpdateDiagramCommand { get; protected set; }
         ICommand _UnitsSortCommand;
@@ -95,8 +110,11 @@ namespace Units_translate
                     case "Value":
                         lst = lst.OrderBy(e => e.Value).ToArray();
                         break;
-                    case "DependsCount":
-                        lst = lst.OrderBy(e => e.DependsCount).ToArray();
+                    case "RefersCount":
+                        lst = lst.OrderBy(e => e.RefersCount).ToArray();
+                        break;
+                    case "ReferCount":
+                        lst = lst.OrderBy(e => e.ReferCount).ToArray();
                         break;
                 }
                 UnitsList.Reset(unitsOrder ? lst : lst.Reverse());
@@ -129,7 +147,19 @@ namespace Units_translate
 
             public int End => Source.End;
 
-            public int DependsCount => Source.Links.Count;
+            public int RefersCount => Source.Links.Count;
+
+            public ICollection<IMapUnitEntry> referList = null;
+            public ICollection<IMapUnitEntry> ReferList
+            {
+                get
+                {
+                    if (referList == null)
+                        referList = MainVM.Instance.MainUnitsList.Where(u => u.Links.FirstOrDefault(l => l.Value.Equals(this.Source.Value, StringComparison.InvariantCultureIgnoreCase)) != null).ToArray();
+                    return referList;
+                }
+            }
+            public int ReferCount => ReferList.Count();
 
             public ICollection<IMapUnitLink> Links => Source.Links;
 

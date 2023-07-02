@@ -132,5 +132,10 @@ namespace Units_translate
         {
             Work(MainVM.Instance.OpenSolution);
         }
+
+        private void btnFix_Click(object sender, RoutedEventArgs e)
+        {
+            Work((callback) => MainVM.Instance.FixUnitPaths(callback));
+        }
     }
 }

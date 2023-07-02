@@ -19,7 +19,7 @@ namespace pascal
                 path = Path.Combine(rootDir, path.Substring(3));
                 if (!File.Exists(path))
                 {
-                    Helpers.ConsoleWrite($"File is not exists: {path}");
+                    Helpers.ConsoleWrite($"File is not exists: {file}");
                     return string.Empty;
                 }
                 //Helpers.ConsoleWrite($"File \"{oldpath}\" restored to \"{path}\"");
@@ -43,6 +43,7 @@ namespace pascal
             var files = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
             if (File.Exists(path))
             {
+                files.Add(path);
                 try
                 {
                     var rootDir = Path.GetDirectoryName(path);
@@ -78,13 +79,14 @@ namespace pascal
             return files;
         }
 
-        ICollection<string> GetDprojFiles(string dprojFileName)
+        ICollection<string> GetProjectFiles(string dprojFileName)
         {
             var dir = Directory.GetCurrentDirectory();
             var path = GetFilePath(dprojFileName, dir);
             var files = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
             if (File.Exists(path))
             {
+                files.Add(path);
                 try
                 {
                     var rootDir = Path.GetDirectoryName(path);
@@ -134,8 +136,9 @@ namespace pascal
             {
                 var projects = x.ItemGroup.Projects;
                 foreach (var proj in projects)
-                    foreach (var f in GetDprojFiles(Path.GetFullPath(proj.Include)))
+                    foreach (var f in GetProjectFiles(Path.GetFullPath(proj.Include)))
                         files.Add(f);
+                files.Add(groupProjFileName);
             }
             catch { }
             return files;

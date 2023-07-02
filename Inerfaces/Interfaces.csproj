@@ -50,8 +50,10 @@
     <Compile Include="IMapOptimizableValueItem.cs" />
     <Compile Include="IMapRecord.cs" />
     <Compile Include="IMapRecordFull.cs" />
+    <Compile Include="IMapSubrange.cs" />
     <Compile Include="IMapUnitEntry.cs" />
     <Compile Include="IMapUnitLink.cs" />
+    <Compile Include="IMapUnitPath.cs" />
     <Compile Include="IMapValueItem.cs" />
     <Compile Include="IMapValueRangeItem.cs" />
     <Compile Include="IMapper.cs" />

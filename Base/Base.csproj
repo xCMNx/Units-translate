@@ -51,6 +51,7 @@
     <Compile Include="MapForeColorRangeItemBase.cs" />
     <Compile Include="MapUnitEntryBase.cs" />
     <Compile Include="MapUnitLinkBase.cs" />
+    <Compile Include="MapUnitPathBase.cs" />
     <Compile Include="MapValuedItemBase.cs" />
     <Compile Include="MapMethodItemBase.cs" />
     <Compile Include="MapRangeItemBase.cs" />

@@ -5,11 +5,12 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using Core;
 
 namespace pascal
 {
-    [MapperFilter(new[] { ".dfm", ".pas", ".dpr" })]
+    [MapperFilter(new[] { ".dfm", ".pas", ".dpr", ".dproj", ".groupproj", ".inc" })]
     public class PascalMapper : IMapper
     {
         public string Name => "pascal";
@@ -48,6 +49,7 @@ namespace pascal
         ");
 
         static Regex regexGUID = new Regex(@"\{[a-fA-F\d]{8}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{12}\}");
+        static Regex regexRes = new Regex(@"(?ixm)\{\$r(?:\s+(?:(?<c>'[^']*')|(?<c>[^\s}]*)))*}");
 
         public enum PascalFileType
         {
@@ -125,7 +127,19 @@ namespace pascal
                         {
                             var start = idx;
                             while (++idx < Text.Length && Text[idx] != '}') ;
-                            res.Add(new MapForeColorRangeItemBase(start, idx + 1, (idx > start && Text[start + 1] == '$') ? DirectiveBrush : CommentBrush));
+                            if((idx > start && idx < Text.Length - 1 && Text[start + 1] == '$'))
+                            {
+                                res.Add(new MapForeColorRangeItemBase(start, idx + 1, DirectiveBrush));
+                                var directive = Text.Substring(start, idx - start + 1);
+                                var m = regexRes.Match(directive);
+                                if(m.Groups.Count < 2)
+                                    continue;
+                                var grp = m.Groups[1];
+                                foreach (Capture cap in grp.Captures)
+                                    res.Add(new PascalMapUnitPath(start + cap.Index, start + cap.Index + cap.Length));
+                            }
+                            else
+                                res.Add(new MapForeColorRangeItemBase(start, idx, CommentBrush));
                         }
                         break;
 
@@ -208,7 +222,7 @@ namespace pascal
                                     res.Add(new DfmMapItem(value, Start, End));
                                 else if (uses)
                                     //если строка попала в область Uses то запишем её как пустой тип значения, тогда разметка в файле будет но не строковая
-                                    res.Add(new MapForeColorRangeItemBase(Start, End, Brushes.Red));
+                                    res.Add(new PascalMapUnitPath(Start, End));
                                 else if (regexGUID.IsMatch(value))
                                     res.Add(new MapForeColorRangeItemBase(Start, End, InterfaceBrush));
                                 else
@@ -303,6 +317,34 @@ namespace pascal
             return res;
         }
 
+        static Regex regSub = new Regex(@"(?ixm)(.*?)(?:;|$)");
+        static Regex regDproj = new Regex(@"(?ixm)
+            (?:<(?:(?:(?:\bProjects\b|\bDCCReference\b|\bRcCompile\b)\s*\bInclude\b)|(?:\bMSBuild\b\s*\bProjects\b))\s*=\s*""(?<c>.+?)"")
+            |(?:<\b(?<t>Form|DCC_DependencyCheckOutputName|DCC_ExeOutput|DCC_BplOutput|DCC_ObjOutput|DCC_HppOutput|DCC_DcuOutput|DCC_DcpOutput|DCC_ResourcePath|DCC_ObjPath|DCC_IncludePath|DCC_UnitSearchPath)\b>(?<c>.*)</\b\k<t>\b>)
+            |(?:<\b(?<t>Parameters)\b\s*\bName\b\s*=\s*""\b(?:HostApplication|DebugCWD|DebugSourceDirs)\b"">(?<c>.*)</\b\k<t>\b>)");
+
+        public ICollection<IMapRangeItem> ParseProjFiles(string Text)
+        {
+            var res = new List<IMapRangeItem>();
+            var ms = regDproj.Matches(Text);
+            foreach (Match m in ms)
+            {
+                var c = m.Groups[1];
+                var ms2 = regSub.Matches(c.Value);
+                foreach (Match m2 in ms2)
+                {
+                    var m3 = m2.Groups[1];
+                    if (m3.Length > 0)
+                        res.Add(new MapUnitPathBase(c.Index + m3.Index, c.Index + m3.Index + m3.Length));
+                }
+            }
+            return res;
+        }
+        public ICollection<IMapRangeItem> ParseGroupProjFiles(string Text)
+        {
+            return ParseProjFiles(Text);
+        }
+
         public ICollection<IMapRangeItem> GetMap(string Text, string Ext, MapperOptions Options)
         {
             PascalFileType pType = PascalFileType.pas;
@@ -310,6 +352,10 @@ namespace pascal
                 pType = PascalFileType.dpr;
             else if (".dfm".Equals(Ext, StringComparison.InvariantCultureIgnoreCase))
                 pType = PascalFileType.dfm;
+            else if (".dproj".Equals(Ext, StringComparison.InvariantCultureIgnoreCase))
+                return ParseProjFiles(Text);
+            else if (".groupproj".Equals(Ext, StringComparison.InvariantCultureIgnoreCase))
+                return ParseGroupProjFiles(Text);
             return Parse(Text, pType, Options);
         }
 

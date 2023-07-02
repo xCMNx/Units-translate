@@ -11,7 +11,9 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="*" MinHeight="100"/>
+            <RowDefinition Height="3"/>
+            <RowDefinition Height="100" MinHeight="50"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
@@ -29,7 +31,7 @@
             </StackPanel>
             <TextBox ToolTip="{Binding UnitsShowedCount}" Grid.Column="1" Name="tbSearch" AcceptsReturn="True" Text="{Binding UnitSearchText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged, Delay=1000}" TextWrapping="Wrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
         </Grid>
-        <ListView Grid.Row="1" ItemsSource="{Binding UnitsList}" util:GridViewSort.Command="{Binding UnitsSortCommand}" MouseDoubleClick="ListView_MouseDoubleClick">
+        <ListView Grid.Row="1" ItemsSource="{Binding UnitsList}" util:GridViewSort.Command="{Binding UnitsSortCommand}" SelectionChanged="ListView_SelectionChanged" MouseDoubleClick="ListView_MouseDoubleClick">
             <ListView.View>
                 <GridView >
                     <GridViewColumn Header="" Width="Auto" util:GridViewSort.PropertyName="Check">
@@ -39,8 +41,17 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Unit" Width="150" DisplayMemberBinding="{Binding Value}" util:GridViewSort.PropertyName="Value"/>
-                    <GridViewColumn Header="Depends" Width="Auto" DisplayMemberBinding="{Binding DependsCount}" util:GridViewSort.PropertyName="DependsCount"/>
+                    <GridViewColumn Header="Модуль" Width="150" DisplayMemberBinding="{Binding Value}" util:GridViewSort.PropertyName="Value"/>
+                    <GridViewColumn Header="Ссылаeтся" Width="Auto" DisplayMemberBinding="{Binding RefersCount}" util:GridViewSort.PropertyName="RefersCount"/>
+                    <GridViewColumn Header="Ссылаются" Width="Auto" DisplayMemberBinding="{Binding ReferCount}" util:GridViewSort.PropertyName="ReferCount"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <GridSplitter Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+        <ListView Grid.Row="3" ItemsSource="{Binding FocusedUnitLinks}" MouseDoubleClick="ListView_MouseDoubleClick">
+            <ListView.View>
+                <GridView >
+                    <GridViewColumn Header="Модуль" Width="150" DisplayMemberBinding="{Binding Value}" util:GridViewSort.PropertyName="Value"/>
                 </GridView>
             </ListView.View>
         </ListView>
