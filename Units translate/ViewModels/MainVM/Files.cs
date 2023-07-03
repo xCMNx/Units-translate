@@ -157,8 +157,6 @@ namespace Units_translate
                 OpenSolution(pair.Value.Value, pair.Value.Key, callback);
         }
 
-        static char[] _checks = new char[] { '.', '/', '\\' };
-
         public string RelativePath(string absPath, string relTo, bool caseSensitive = false)
         {
             string[] absDirs = absPath.Split('\\');
@@ -192,8 +190,6 @@ namespace Units_translate
                 relativePath.Append(relDirs[index] + "\\");
             }
             relativePath.Append(relDirs[relDirs.Length - 1]);
-            if(relativePath.Length > 1 && relativePath[1] != ':' && !_checks.Contains(relativePath[0]))
-                return ".\\" + relativePath.ToString();
             return relativePath.ToString();
         }
 
