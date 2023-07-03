@@ -58,25 +58,25 @@
                         <UI:CheckBox ToolTip="Разрешить парсерам исправлять файлы в случае ошибок разметки" Background="LightGray" IsChecked="{Binding FixingEnabled}" Width="30" Height="30" Padding="5" GlyphData="{StaticResource Icons.Data.Bugs}"/>
                         <UI:CheckBox ToolTip="Развёрнутый предпросмотр" Background="LightGray" IsChecked="{Binding ExpandedPreviews}" Width="30" Height="30" Padding="4,7" GlyphData="{StaticResource Icons.Data.ExpandPreview}"/>
                         <UI:CheckBox ToolTip="Размечать методы" Background="LightGray" IsChecked="{Binding MapMethods}" Width="30" Height="30" Padding="7,7" GlyphData="{StaticResource Icons.Data.Function}"/>
-                        <Button ToolTip="Исправbть пути модулей на относительные" Width="30" Name="btnFix" Height="30" Padding="4" Click="btnFix_Click" >
+                        <Button ToolTip="Исправить пути модулей на относительные" Width="30" Name="btnFix" Height="30" Padding="3,3,2,2" Click="btnFix_Click" >
                             <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.FixLink}"/>
                         </Button>
-                        <Button ToolTip="Обновить разметку файлов" Width="30" Name="btnUpdate" Height="30" Padding="2" Click="btnUpdate_Click" >
+                        <Button ToolTip="Обновить разметку файлов" Width="30" Name="btnUpdate" Height="30" Padding="3" Click="btnUpdate_Click" >
                             <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.UdateMap}"/>
                         </Button>
-                        <Button ToolTip="Настройки" Width="30" Height="30" Padding="2" Click="MenuItem_Click">
+                        <Button ToolTip="Настройки" Width="30" Height="30" Padding="3" Click="MenuItem_Click">
                             <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.Settings}"/>
                         </Button>
                         <Button ToolTip="Добавить папку" Padding="2" Width="30" Height="30" Click="Button_Click_1" >
                             <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.AddFolder}"/>
                         </Button>
-                        <Button ToolTip="Открыть решение" Padding="2" Width="30" Height="30" Click="Button_Click">
+                        <Button ToolTip="Открыть решение" Padding="3,3,2,2" Width="30" Height="30" Click="Button_Click">
                             <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.AddSolution}"/>
                         </Button>
-                        <Button ToolTip="Загрузить переводы" Padding="2,2,2,1" Width="30" Height="30" Command="{Binding OpenTranslates}" >
+                        <Button ToolTip="Загрузить переводы" Padding="3" Width="30" Height="30" Command="{Binding OpenTranslates}" >
                             <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.AddTranslates}"/>
                         </Button>
-                        <Button ToolTip="Сохранить переводы" Padding="3,2,1,0" Width="30" Height="30" Command="{Binding SaveTranslates}" >
+                        <Button ToolTip="Сохранить переводы" Padding="4" Width="30" Height="30" Command="{Binding SaveTranslates}" >
                             <Path Stretch="Uniform" Fill="#FF000000" Data="{StaticResource Icons.Data.SaveTranslates}"/>
                         </Button>
                     </StackPanel>
