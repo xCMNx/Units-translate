@@ -5,6 +5,8 @@ using System.Text;
 using System.Linq;
 using Core;
 using Newtonsoft.Json;
+using System;
+using System.Windows;
 
 namespace Json
 {
@@ -32,9 +34,17 @@ namespace Json
 
         public ICollection<ITranslationItem> Load(string filePath, Encoding encoding)
         {
-            var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(filePath, Encoding.UTF8));
-            var data2 = data.Select(p => new Entry(p.Key, p.Value));
-            return data2.ToArray();
+            try
+            {
+                var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(filePath, Encoding.UTF8));
+                var data2 = data.Select(p => new Entry(p.Key, p.Value));
+                return data2.ToArray();
+            }
+            catch(Exception e)
+            {
+                MessageBox.Show(e.Message, "Ошибка загрузки файла переводов", MessageBoxButton.OK, MessageBoxImage.Error);
+                return new List<ITranslationItem>();
+            }
         }
 
         public bool Save(string filePath, Encoding encoding, ICollection<ITranslationItem> items)
